@@ -1,0 +1,194 @@
+---
+import { renderMermaid } from 'beautiful-mermaid';
+
+interface Props {
+  code: string;
+  title?: string;
+  heightClass?: string;
+}
+
+const { code, title, heightClass = "h-[480px] sm:h-[540px]" } = Astro.props;
+const uniqueId = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
+
+// Render the diagram directly at build time using beautiful-mermaid (Zero DOM dependencies!)
+let svgHtml = '';
+try {
+  svgHtml = await renderMermaid(code, {
+    transparent: true,
+    font: 'Plus Jakarta Sans',
+    bg: 'var(--bm-bg)',
+    fg: 'var(--bm-fg)',
+    line: 'var(--bm-line)',
+    accent: 'var(--bm-accent)',
+  });
+} catch (err) {
+  console.error('Error rendering diagram with beautiful-mermaid:', err);
+  svgHtml = `<div class="p-4 text-red-500 font-mono text-xs">Error al renderizar diagrama: ${err}</div>`;
+}
+---
+
+<div class="my-8 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden transition-colors w-full max-w-full" id={`${uniqueId}-wrapper`}>
+  <!-- Diagram Header & Controls Bar -->
+  <div class="bg-slate-50/90 dark:bg-slate-950/80 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs transition-colors">
+    <div class="flex items-center gap-2">
+      <span class="font-mono text-emerald-600 dark:text-emerald-400 text-xs">📐</span>
+      <span class="font-semibold text-slate-800 dark:text-slate-200 tracking-tight">{title || "Diagrama de Arquitectura"}</span>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-1.5 font-mono text-[11px]">
+      <span class="hidden sm:inline text-slate-500 dark:text-slate-400 mr-1 text-[10px]">
+        Arrastrá para mover · Zoom con botones + / -
+      </span>
+      <button 
+        type="button" 
+        data-action="zoom-in" 
+        data-target={uniqueId}
+        class="w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white flex items-center justify-center font-bold transition-all shadow-2xs cursor-pointer text-sm"
+        title="Acercar (Zoom In)"
+      >
+        +
+      </button>
+      <button 
+        type="button" 
+        data-action="zoom-out" 
+        data-target={uniqueId}
+        class="w-7 h-7 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white flex items-center justify-center font-bold transition-all shadow-2xs cursor-pointer text-sm"
+        title="Alejar (Zoom Out)"
+      >
+        -
+      </button>
+      <button 
+        type="button" 
+        data-action="reset" 
+        data-target={uniqueId}
+        class="px-2.5 h-7 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white flex items-center justify-center font-medium transition-all shadow-2xs cursor-pointer text-xs"
+        title="Restablecer vista inicial"
+      >
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Pan/Zoom Viewport -->
+  <div 
+    class={`panzoom-viewport relative w-full ${heightClass} bg-slate-50/40 dark:bg-slate-950/50 overflow-hidden cursor-grab active:cursor-grabbing select-none flex items-center justify-center p-4 transition-colors`}
+    id={`${uniqueId}-viewport`}
+  >
+    <div class="panzoom-content transition-transform duration-75 origin-center w-full h-full flex items-center justify-center" id={uniqueId} set:html={svgHtml} />
+  </div>
+</div>
+
+<style is:global>
+  /* Beautiful Mermaid Dynamic Theme CSS Variables */
+  .panzoom-viewport {
+    --bm-bg: #ffffff;
+    --bm-fg: #0f172a;
+    --bm-line: #64748b;
+    --bm-accent: #059669;
+  }
+  .dark .panzoom-viewport {
+    --bm-bg: #212634;
+    --bm-fg: #f1f5f9;
+    --bm-line: #718096;
+    --bm-accent: #34d399;
+  }
+
+  .panzoom-content svg {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 98% !important;
+    max-height: 96% !important;
+    display: block;
+    margin: auto;
+  }
+</style>
+
+<script>
+  function setupPanZoom() {
+    const viewports = document.querySelectorAll('.panzoom-viewport');
+
+    viewports.forEach((viewport) => {
+      const targetId = viewport.id.replace('-viewport', '');
+      const content = document.getElementById(targetId);
+      if (!content) return;
+
+      let scale = 1;
+      let pointX = 0;
+      let pointY = 0;
+      let startX = 0;
+      let startY = 0;
+      let isPanning = false;
+
+      function updateTransform() {
+        if (content) {
+          content.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+        }
+      }
+
+      // Mouse drag / pan
+      viewport.addEventListener('mousedown', (e) => {
+        const mouseEvent = e as MouseEvent;
+        if (mouseEvent.button !== 0) return;
+        isPanning = true;
+        startX = mouseEvent.clientX - pointX;
+        startY = mouseEvent.clientY - pointY;
+        (viewport as HTMLElement).style.cursor = 'grabbing';
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isPanning) return;
+        pointX = e.clientX - startX;
+        pointY = e.clientY - startY;
+        updateTransform();
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (isPanning) {
+          isPanning = false;
+          (viewport as HTMLElement).style.cursor = 'grab';
+        }
+      });
+
+      // Double click to reset
+      viewport.addEventListener('dblclick', () => {
+        scale = 1;
+        pointX = 0;
+        pointY = 0;
+        updateTransform();
+      });
+
+      // Buttons (Zoom In, Zoom Out, Reset)
+      const wrapper = viewport.closest('div[id$="-wrapper"]');
+      if (wrapper) {
+        const zoomInBtn = wrapper.querySelector('[data-action="zoom-in"]');
+        const zoomOutBtn = wrapper.querySelector('[data-action="zoom-out"]');
+        const resetBtn = wrapper.querySelector('[data-action="reset"]');
+
+        zoomInBtn?.addEventListener('click', () => {
+          scale = Math.min(scale + 0.25, 4.0);
+          updateTransform();
+        });
+
+        zoomOutBtn?.addEventListener('click', () => {
+          scale = Math.max(scale - 0.25, 0.4);
+          updateTransform();
+        });
+
+        resetBtn?.addEventListener('click', () => {
+          scale = 1;
+          pointX = 0;
+          pointY = 0;
+          updateTransform();
+        });
+      }
+    });
+  }
+
+  // Setup pan/zoom immediately since SVG is already rendered in the DOM!
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupPanZoom);
+  } else {
+    setupPanZoom();
+  }
+</script>

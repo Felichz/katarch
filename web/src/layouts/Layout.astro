@@ -1,0 +1,208 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  lang?: 'es' | 'en';
+}
+
+const { title, description, lang = 'es' } = Astro.props;
+const isEnglish = lang === 'en';
+---
+
+<!doctype html>
+<html lang={lang} class="dark scroll-smooth overflow-x-clip">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Theme Script: Defaults to Dark unless explicitly set to Light -->
+    <script is:inline>
+      const storedTheme = localStorage.getItem('theme');
+      if (storedTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+  </head>
+  <body class="bg-dimmed-bg text-dimmed-body dark:bg-slate-950 dark:text-slate-300 font-sans antialiased selection:bg-emerald-100 dark:selection:bg-emerald-900 selection:text-emerald-900 dark:selection:text-emerald-100 min-h-screen flex flex-col transition-colors duration-200 w-full max-w-full overflow-x-clip">
+    <!-- Reading Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 z-[100] transition-all duration-75 w-0"></div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md transition-colors">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse"></span>
+          <a href={isEnglish ? "/en" : "/"} class="font-bold text-slate-900 dark:text-slate-100 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-2">
+            <span class="font-mono text-emerald-700 dark:text-emerald-400 text-sm tracking-tight font-extrabold">TheKataLog</span>
+            <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-mono">
+              Fall 2020
+            </span>
+          </a>
+        </div>
+        
+        <div class="flex items-center gap-2.5 font-mono">
+          <a href="https://github.com/TheKataLog" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors font-medium">
+            <span>{isEnglish ? "GitHub Repos" : "Repositorios GitHub"}</span>
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+            </svg>
+          </a>
+
+          <!-- Language Switcher Button -->
+          <a 
+            href={isEnglish ? "/" : "/en"} 
+            class="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-2xs flex items-center gap-1.5 text-xs font-mono font-medium"
+            title={isEnglish ? "Cambiar a Español" : "Switch to English"}
+            aria-label={isEnglish ? "Cambiar a Español" : "Switch to English"}
+          >
+            <span class="text-xs">🌐</span>
+            <span class={!isEnglish ? "font-bold text-emerald-600 dark:text-emerald-400" : "opacity-60"}>ES</span>
+            <span class="text-slate-400 opacity-60">/</span>
+            <span class={isEnglish ? "font-bold text-emerald-600 dark:text-emerald-400" : "opacity-60"}>EN</span>
+          </a>
+
+          <!-- Elegant Theme Toggle Button -->
+          <button 
+            id="theme-toggle" 
+            type="button" 
+            class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            aria-label={isEnglish ? "Toggle between light and dark mode" : "Cambiar entre tema claro y oscuro"}
+            title={isEnglish ? "Toggle theme (Light / Dark)" : "Cambiar tema (Claro / Oscuro)"}
+          >
+            <!-- Sun Icon (shown in dark mode) -->
+            <svg id="theme-icon-sun" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <!-- Moon Icon (shown in light mode) -->
+            <svg id="theme-icon-moon" class="w-4 h-4 hidden text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+            <span id="theme-label" class="text-xs font-mono hidden md:inline" data-lang={lang}>{isEnglish ? "Dark" : "Oscuro"}</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-10 flex-1 w-full min-w-0">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-12 text-center text-xs text-slate-500 font-mono mt-20 transition-colors">
+      <div class="max-w-6xl mx-auto px-4 space-y-2">
+        <p class="font-medium text-slate-700 dark:text-slate-400">
+          {isEnglish 
+            ? "Comparative pedagogical analysis of real-world production architectures from the first O'Reilly Software Architecture Kata."
+            : "Análisis pedagógico comparado de soluciones reales del primer O'Reilly Software Architecture Kata."
+          }
+        </p>
+        <p>
+          {isEnglish ? "Theoretical framework: " : "Marco teórico: "}
+          <span class="text-emerald-700 dark:text-emerald-400 font-semibold">Fundamentals of Software Architecture</span> (Mark Richards & Neal Ford).
+        </p>
+      </div>
+    </footer>
+
+    <!-- Scripts: Reading Progress + Theme Toggle -->
+    <script>
+      // Reading progress bar
+      window.addEventListener('scroll', () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        const bar = document.getElementById('progress-bar');
+        if (bar) bar.style.width = scrolled + '%';
+      });
+
+      // Theme toggle functionality
+      const toggleBtn = document.getElementById('theme-toggle');
+      const sunIcon = document.getElementById('theme-icon-sun');
+      const moonIcon = document.getElementById('theme-icon-moon');
+      const themeLabel = document.getElementById('theme-label');
+      const isEn = themeLabel?.getAttribute('data-lang') === 'en';
+
+      function syncThemeUI() {
+        const isDark = document.documentElement.classList.contains('dark');
+        if (isDark) {
+          sunIcon?.classList.remove('hidden');
+          moonIcon?.classList.add('hidden');
+          if (themeLabel) themeLabel.textContent = isEn ? 'Dark' : 'Oscuro';
+        } else {
+          sunIcon?.classList.add('hidden');
+          moonIcon?.classList.remove('hidden');
+          if (themeLabel) themeLabel.textContent = isEn ? 'Light' : 'Claro';
+        }
+      }
+
+      // Initialize UI state
+      syncThemeUI();
+
+      toggleBtn?.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        syncThemeUI();
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --color-slate-950: 2 6 23;        /* #020617 default light mode fallback */
+    --color-slate-900: 15 23 42;      /* #0f172a */
+    --color-slate-850: 23 32 51;      /* #172033 */
+    --color-slate-800: 30 41 59;      /* #1e293b */
+    --color-slate-750: 41 53 72;      /* #293548 */
+    --color-slate-700: 51 65 85;      /* #334155 */
+    --color-emerald-950: 2 44 34;     /* #022c22 */
+    --color-amber-950: 69 26 3;       /* #451a03 */
+    --color-rose-950: 76 5 25;        /* #4c0519 */
+    --color-sky-950: 8 47 73;         /* #082f49 */
+  }
+
+  .dark {
+    /* Dimmed Pro Palette: calm, fatigue-reducing graphite slate (GitHub Dimmed / Linear style) */
+    --color-slate-950: 22 27 34;      /* #161b22 - Dimmed canvas background (no pure-black OLED glare) */
+    --color-slate-900: 33 38 52;      /* #212634 - Elevated card and panel surface */
+    --color-slate-850: 39 46 62;      /* #272e3e - Intermediate surface */
+    --color-slate-800: 48 56 73;      /* #303849 - Delicate, cohesive borders */
+    --color-slate-750: 57 67 86;      /* #394356 - Subtle interactive borders */
+    --color-slate-700: 68 79 100;     /* #444f64 - Active pill borders & outlines */
+    --color-emerald-950: 16 46 36;    /* #102e24 - Subtle luminous emerald */
+    --color-amber-950: 54 35 14;      /* #36230e - Warm bronze */
+    --color-rose-950: 60 20 30;       /* #3c141e - Dimmed rose */
+    --color-sky-950: 16 42 62;        /* #102a3e - Dimmed sky */
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Pro subtle dark mode scrollbars */
+  .dark ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .dark ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: #303849;
+    border-radius: 9999px;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #444f64;
+  }
+</style>

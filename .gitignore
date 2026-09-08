@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+web/node_modules/
+
+# Local Kata sources (cloned repos with binary assets)
+fall-2020-farmacy-food/
+
+# Production build outputs
+dist/
+web/dist/
+
+# Astro temporary cache
+.astro/
+web/.astro/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel/
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

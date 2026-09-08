@@ -1,0 +1,2113 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PodiumCounterpoint from '../components/PodiumCounterpoint.astro';
+import RunnerUpInsight from '../components/RunnerUpInsight.astro';
+import TheoryBox from '../components/TheoryBox.astro';
+import Mermaid from '../components/Mermaid.astro';
+import ArchColiderAdrs from '../components/ArchColiderAdrs.astro';
+import { matrixDeepDivesEn } from '../data/matrix-deep-dives';
+
+const contextDiagram = `flowchart TD
+    subgraph Channels["ENTRY CHANNELS (Physical & Digital)"]
+        direction LR
+        Fridge["Smart Fridge<br/>(Byte Tech / RFID)"]
+        Kiosk["Assisted Kiosk<br/>(Toast POS)"]
+        WebMobile["Web & Mobile App<br/>(Orders & Subscriptions)"]
+    end
+
+    subgraph Core["FARMACY FOOD PLATFORM"]
+        direction LR
+        Inventory["Live Inventory"]
+        Orders["Order Manager"]
+        Catalog["Catalog & Menu"]
+    end
+
+    subgraph External["EXTERNAL & THIRD-PARTY SYSTEMS"]
+        direction LR
+        Kitchen["Ghost Kitchen<br/>(ChefTec)"]
+        PaymentGW["Payment Gateway<br/>(Stripe)"]
+        Accounting["Accounting<br/>(QuickBooks)"]
+    end
+
+    Fridge -->|RFID Stock Events| Inventory
+    Kiosk -->|Counter Purchases| Orders
+    WebMobile -->|Online Orders| Orders
+
+    Orders -->|Kitchen Orders| Kitchen
+    Orders -->|Payment Settlement| PaymentGW
+    Orders -->|Journal Entries| Accounting`;
+
+const styleDecisionTree = `flowchart TD
+    Start["Which foundational style fits Farmacy Food?"] --> Q1(["Operate distributed systems from Day 1?"])
+    
+    Q1 -->|NO: Prioritize low operational cost and simplicity| SimpleRoot["UNIFIED & SERVERLESS APPROACHES"]
+    Q1 -->|YES: Prioritize autonomous service lifecycles| DistRoot["DISTRIBUTED & EVOLUTIONARY APPROACHES"]
+    
+    subgraph Simple["Unified Scale"]
+        direction TB
+        ArchColider["🥇 ArchColider (1st Place)<br/>Modular Monolith on AWS EC2<br/>• Single deployable unit<br/>• Bounded contexts via internal facades<br/>• Actor model for fridge concurrency"]
+        Pacman["⚡ Team-Pacman (Runner-Up)<br/>100% Serverless on AWS Lambda<br/>• Scale to zero during idle periods<br/>• Lambda cold starts and cloud lock-in"]
+    end
+
+    subgraph Dist["Distributed Scale"]
+        direction TB
+        MyagisForest["🥈 Myagis-Forest (2nd Place)<br/>Microservices + Hexagonal on K8s<br/>• Autonomous releases from Day 1<br/>• High Kubernetes operational overhead"]
+        HeyDragon["⚡ Hey-Dragon (Runner-Up)<br/>3-Stage Evolutionary Architecture<br/>• Stage 1: Fast layered monolith<br/>• Stage 2: Services sharing database<br/>• Stage 3: Event-driven microservices"]
+    end
+
+    SimpleRoot --> ArchColider
+    SimpleRoot -.->|Serverless Alternative| Pacman
+    DistRoot --> MyagisForest
+    DistRoot -.->|Progressive Alternative| HeyDragon`;
+
+const posSequence = `sequenceDiagram
+    autonumber
+    participant Customer as Customer (Kiosk)
+    participant POS as Toast POS
+    participant Order as Order Svc (ArchColider)
+    participant Inv as Inventory Subsystem
+    participant Bus as RabbitMQ (EventBus)
+    participant Survey as Feedback / Loyalty
+
+    Customer->>POS: Purchases meal at retail counter
+    POS->>Order: POST /orders/transactions
+    activate Order
+    Order->>Inv: Decrement Location Stock
+    alt Stock Available
+        Inv-->>Order: Reservation Confirmed
+        Order->>Order: EventStore: OrderCreated
+        Order->>Bus: Publish: OrderCompletedEvent
+        Order-->>POS: Approved Sales Receipt
+    else Out of Stock
+        Inv-->>Order: Inventory Error
+        Order-->>POS: Transaction Declined
+    end
+    deactivate Order
+
+    Bus->>Survey: Consume OrderCompletedEvent
+    activate Survey
+    Note over Survey: Decoupled asynchronous worker
+    Survey->>Customer: Deferred SMS Survey Dispatch
+    deactivate Survey`;
+
+const fridgeParadox = `sequenceDiagram
+    autonumber
+    participant Patron as Customer (Patron)
+    participant Sensor as Card Reader / RFID
+    participant ByteNet as Byte Technology Network
+    participant Farmacy as Farmacy Food API
+
+    Patron->>Sensor: Swipes payment card to unlock door
+    Sensor->>ByteNet: Bank pre-authorization + physical unlock
+    Note over Patron,Sensor: Single physical action: free removal of RFID trays
+    Patron->>Sensor: Closes the smart fridge door
+    Sensor->>ByteNet: Final scan of remaining inventory
+    ByteNet->>ByteNet: Automatic settlement and card charge
+    ByteNet-->>Farmacy: Webhook: Confirmed sale + items taken
+    Note over Farmacy: Hananoyama Paradox: Blind automatic charge without prior subsidy window`;
+
+const styleDescriptions: Record<string, { name: string; icon: string; desc: string }> = {
+  traditional: {
+    name: "Traditional Monolith",
+    icon: "🏛️",
+    desc: "All application code packages and runs as a single process on a single runtime, sharing a relational database without strict domain isolation.",
+  },
+  microservices: {
+    name: "Microservices",
+    icon: "🌐",
+    desc: "Distributed system where each business domain is an autonomous service with its own database, communicating over the network (REST, gRPC, or messaging).",
+  },
+  microkernel: {
+    name: "Microkernel (Plugins)",
+    icon: "🧩",
+    desc: "Architecture built around a minimal core engine containing core workflows, dynamically extended through independent plugins to add custom behaviors.",
+  },
+  modular: {
+    name: "Modular Monolith (Winner)",
+    icon: "🥇",
+    desc: "A single deployable artifact executing in one process, but with strict domain boundaries (Bounded Contexts) and internal module communication strictly via public facades.",
+  },
+};
+
+const featureDescriptions: Record<string, { icon: string; desc: string }> = {
+  "Deployment Simplicity": {
+    icon: "🚀",
+    desc: "Measures operational overhead and risk to release updates to production (single artifact pipeline vs. dozens of coordinated service deployments).",
+  },
+  "High Availability & Fault Isolation": {
+    icon: "🛡️",
+    desc: "Ability of the system to maintain uptime during unexpected failures. If a module crashes, does the whole application go down or is the fault isolated?",
+  },
+  "Team Autonomy & Velocity": {
+    icon: "👥",
+    desc: "Capacity of multiple engineering teams to develop, test, and release features in parallel without stepping on code or blocking releases.",
+  },
+  "Debugging & Traceability": {
+    icon: "🔍",
+    desc: "Ease of diagnosing production incidents using logs and stack traces (single local call stack vs. distributed traces across network hops).",
+  },
+  "Performance & Latency": {
+    icon: "⚡",
+    desc: "End-to-end response times. In-memory method calls execute in sub-microseconds; remote network calls add milliseconds, serialization, and connection overhead.",
+  },
+  "Maintainability & Modifiability": {
+    icon: "🛠️",
+    desc: "Ease of refactoring business logic without triggering unintended regressions in unrelated system components.",
+  },
+  "Transactional Integrity & ACID": {
+    icon: "🔒",
+    desc: "Guarantees of ACID consistency across multi-step operations. Native in a single relational DB; requires Sagas and eventual consistency across services.",
+  },
+  "Scalability & Resource Utilization": {
+    icon: "📈",
+    desc: "Ability to handle traffic spikes. Can individual bottlenecks scale surgically, or must the entire application be duplicated?",
+  },
+};
+
+const styleMatrix = [
+  {
+    id: "despliegue",
+    feature: "Deployment Simplicity",
+    traditional: {
+      rating: "++",
+      reason: "Compiles into a single binary or container (.jar, Go binary, Docker image) and deploys in a single pipeline step without external runtime dependencies.",
+    },
+    microservices: {
+      rating: "-",
+      reason: "Demands coordinating dozens of CI/CD pipelines, versioning API contracts, orchestrating container clusters (Kubernetes), and managing cross-dependencies per release.",
+    },
+    microkernel: {
+      rating: "-",
+      reason: "Each plugin may introduce differing library versions and lifecycles; validating runtime compatibility against the core adds continuous operational friction.",
+    },
+    modular: {
+      rating: "++",
+      reason: "Retains the core operational simplicity of the monolith: modularized code packages and deploys as a single atomic artifact.",
+    },
+  },
+  {
+    id: "disponibilidad",
+    feature: "High Availability & Fault Isolation",
+    traditional: {
+      rating: "-",
+      reason: "Single point of failure: an unhandled exception, memory leak (OOM), or blocking thread in any module crashes the entire process.",
+    },
+    microservices: {
+      rating: "++",
+      reason: "Fault isolation (bulkheading): if a non-critical service like feedback surveys collapses, core checkout and fridge unlock workflows remain fully operational.",
+    },
+    microkernel: {
+      rating: "+",
+      reason: "The core engine remains lean and stable. When a secondary plugin fails, the host can catch the error without crashing core processing.",
+    },
+    modular: {
+      rating: "-",
+      reason: "Shared process runtime: while domains are logically decoupled, they share CPU and memory. An unconstrained memory spike can crash the instance.",
+    },
+  },
+  {
+    id: "autonomia",
+    feature: "Team Autonomy & Velocity",
+    traditional: {
+      rating: "--",
+      reason: "High organizational coupling: multiple teams share the same codebase and database tables, leading to merge conflicts and synchronized release trains.",
+    },
+    microservices: {
+      rating: "++",
+      reason: "Maximum team independence: each team owns its repository, datastore, and release pipeline, deploying to production completely independently.",
+    },
+    microkernel: {
+      rating: "++",
+      reason: "Separate squads or third-party teams develop plugins in total isolation adhering strictly to public contracts exposed by the core platform.",
+    },
+    modular: {
+      rating: "+",
+      reason: "Clear module boundaries enable domain ownership within a monorepo, though the final production release remains unified.",
+    },
+  },
+  {
+    id: "trazabilidad",
+    feature: "Debugging & Traceability",
+    traditional: {
+      rating: "++",
+      reason: "Direct local debugging: a single debugger attached to the process, chronological logs in one place, and unbroken call stacks from controller to database.",
+    },
+    microservices: {
+      rating: "-",
+      reason: "Complex distributed debugging: reconstructing a transaction requires OpenTelemetry/Jaeger, correlation IDs, and querying across multiple log engines.",
+    },
+    microkernel: {
+      rating: "+",
+      reason: "The core intercepts plugin invocations through centralized lifecycle hooks, making it clear which plugin triggered an error.",
+    },
+    modular: {
+      rating: "O",
+      reason: "Executes inside one process, but extensive domain events and internal facades introduce indirection compared to a simple flat monolith.",
+    },
+  },
+  {
+    id: "rendimiento",
+    feature: "Performance & Latency",
+    traditional: {
+      rating: "++",
+      reason: "Direct in-memory method invocations (microseconds) and local database transactions without cross-service network roundtrips.",
+    },
+    microservices: {
+      rating: "+",
+      reason: "Inter-service communication crosses the network (HTTP/gRPC), accumulating latency (milliseconds), payload serialization overhead, and retries.",
+    },
+    microkernel: {
+      rating: "+",
+      reason: "Core-to-plugin calls occur in memory, with only negligible reflection or dynamic interface dispatch penalties.",
+    },
+    modular: {
+      rating: "++",
+      reason: "All inter-module communication is direct in-memory method execution within the host process, eliminating network serialization overhead.",
+    },
+  },
+  {
+    id: "modificabilidad",
+    feature: "Maintainability & Modifiability",
+    traditional: {
+      rating: "O",
+      reason: "Gradual architectural decay: without enforced boundaries, developers bypass layers and query foreign tables directly, creating hidden coupling.",
+    },
+    microservices: {
+      rating: "++",
+      reason: "Maximum technology flexibility: individual services can be rewritten in different languages, migrate datastores, or upgrade libraries independently.",
+    },
+    microkernel: {
+      rating: "+",
+      reason: "High extensibility: introducing new business rules or adapters is done by creating a new plugin without modifying core engine source code.",
+    },
+    modular: {
+      rating: "+",
+      reason: "Bounded contexts and public facade interfaces ensure internal module refactoring does not break other modules as long as contracts hold.",
+    },
+  },
+  {
+    id: "integridad",
+    feature: "Transactional Integrity & ACID",
+    traditional: {
+      rating: "++",
+      reason: "Native ACID transactions: multi-table operations (e.g., payment approval and inventory reservation) commit within a single database transaction.",
+    },
+    microservices: {
+      rating: "--",
+      reason: "Isolated databases eliminate global ACID transactions without 2PC. Requires orchestrating Sagas with eventual consistency and compensation logic.",
+    },
+    microkernel: {
+      rating: "O",
+      reason: "Depends on storage design: if plugins share the core database, ACID is preserved; if plugins manage separate stores, transactions become distributed.",
+    },
+    modular: {
+      rating: "+",
+      reason: "Sharing a relational database instance with logical table/schema partitioning allows coordinating reliable ACID transactions when strictly necessary.",
+    },
+  },
+  {
+    id: "escalabilidad",
+    feature: "Scalability & Resource Utilization",
+    traditional: {
+      rating: "--",
+      reason: "Coarse scaling: scaling an intensive subcomponent requires replicating the entire application footprint, memory, and database connection pools.",
+    },
+    microservices: {
+      rating: "++",
+      reason: "Granular elasticity: if the meal catalog experiences 50x peak traffic at noon, only catalog service instances scale while billing remains minimal.",
+    },
+    microkernel: {
+      rating: "-",
+      reason: "The core and loaded plugins scale as an indivisible unit; a single resource-heavy plugin strains the entire runtime.",
+    },
+    modular: {
+      rating: "+",
+      reason: "Scales horizontally by replicating the modular application behind a load balancer. Highly economical and simple for initial startup volumes.",
+    },
+  },
+];
+
+const ratingBadges: Record<string, { label: string; symbol: string; classes: string }> = {
+  "++": {
+    symbol: "++",
+    label: "Excellent",
+    classes: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border-emerald-300/60 dark:border-emerald-700",
+  },
+  "+": {
+    symbol: "+",
+    label: "Favorable",
+    classes: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border-emerald-200/50 dark:border-emerald-800/50",
+  },
+  "O": {
+    symbol: "O",
+    label: "Neutral",
+    classes: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700",
+  },
+  "-": {
+    symbol: "-",
+    label: "Challenging",
+    classes: "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200/60 dark:border-amber-800/60",
+  },
+  "--": {
+    symbol: "--",
+    label: "Critical",
+    classes: "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300 border-red-200 dark:border-red-800",
+  },
+};
+---
+
+<Layout 
+  title="The Farmacy Food Kata: How Real Architectural Decisions Are Made"
+  description="A comparative architectural analysis of the inaugural O'Reilly Architecture Kata solutions connected to Fundamentals of Software Architecture."
+  lang="en"
+>
+  <!-- Hero Section -->
+  <div class="mb-12 border-b border-slate-200 dark:border-slate-800 pb-10 pl-2 sm:pl-6 lg:pl-10 pr-2 sm:pr-6 lg:pr-8 transition-colors">
+    <div class="flex flex-wrap items-center gap-2 mb-4">
+      <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono">
+        O'Reilly Architecture Kata · Fall 2020
+      </span>
+      <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-mono">
+        10 Evaluated Teams
+      </span>
+      <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">
+        Reading Time: ~20 minutes
+      </span>
+    </div>
+
+    <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-tight mb-5 max-w-5xl xl:max-w-6xl">
+      The Farmacy Food Kata:
+      <span class="block mt-1 sm:mt-2 pb-1 text-transparent bg-clip-text bg-gradient-to-b from-emerald-600 to-teal-800 dark:from-emerald-200 dark:to-emerald-400">
+        How Real Architectural Decisions Are Made
+      </span>
+    </h1>
+
+    <div class="space-y-4 max-w-5xl xl:max-w-6xl text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed">
+      <p>
+        The Software Architecture Katas are premier system design competitions organized by <a href="http://oreilly.com/" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-semibold underline underline-offset-2 hover:text-emerald-800 dark:hover:text-emerald-300">O'Reilly</a>, where engineering teams receive the real-world problem statement and constraints of an actual business to project its end-to-end architecture from scratch. All system diagrams, technical trade-offs, and Architectural Decision Records (ADRs) submitted by participants are preserved in public open-source repositories within <a href="https://github.com/TheKataLog" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-semibold underline underline-offset-2 hover:text-emerald-800 dark:hover:text-emerald-300">TheKataLog</a>, forming a valuable reference for the global technical community.
+      </p>
+      <p>
+        This analysis breaks down the inaugural edition of the tournament (<em>Fall 2020: Farmacy Food</em>), judged by a panel comprising Mark Richards and Neal Ford (co-authors of <a href="https://a.co/d/0fYSx8YG" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-semibold underline underline-offset-2 hover:text-emerald-800 dark:hover:text-emerald-300">Fundamentals of Software Architecture</a>) alongside software consultant Jacqui Read.
+      </p>
+      <p>
+        To examine how real-world architectural dilemmas are resolved in practice, we take as our primary guide the winning submission by <a href="https://github.com/TheKataLog/ArchColider/tree/master" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-semibold underline underline-offset-2 hover:text-emerald-800 dark:hover:text-emerald-300">ArchColider</a> (1st Place) and the reasoning behind its 16 ADRs. In parallel, we contrast their choices against the runners-up <a href="https://github.com/TheKataLog/Myagis-Forest/tree/main" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-semibold underline underline-offset-2 hover:text-emerald-800 dark:hover:text-emerald-300">Myagis-Forest</a> (2nd Place) and <a href="https://github.com/TheKataLog/Jedis/tree/main" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 font-semibold underline underline-offset-2 hover:text-emerald-800 dark:hover:text-emerald-300">Jedis</a> (3rd Place), alongside notable contributions from other competitors (such as the hardware audit by Hananoyama, the serverless cost modeling by Team-Pacman, and the evolutionary migration roadmap by Hey-Dragon).
+      </p>
+      <p class="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/60 text-slate-800 dark:text-emerald-200 text-sm sm:text-base">
+        <strong>Goal of this guide:</strong> Designed specifically for senior engineers transitioning into software architecture. Rather than reciting abstract theory or buzzwords, we unpack the reasons behind each technical choice using concrete figures, trade-off analyses, and production operational considerations explained step by step.
+      </p>
+    </div>
+  </div>
+
+  <!-- Main Article Layout with Collapsible Rail Sidebar -->
+  <div class="relative flex flex-col lg:flex-row gap-8 items-start w-full min-w-0">
+    
+    <!-- Mobile TOC Trigger Button -->
+    <div class="w-full flex items-center justify-between lg:hidden border-b border-slate-200 dark:border-slate-800 pb-3 mb-4">
+      <button 
+        id="toggle-toc-mobile" 
+        type="button" 
+        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs font-mono font-medium text-slate-700 dark:text-slate-300 shadow-2xs hover:bg-slate-50 dark:hover:bg-slate-800"
+      >
+        <span>📑 Table of Contents</span>
+        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <span class="text-xs font-mono text-slate-500">11 Sections</span>
+    </div>
+
+    <!-- Sticky Desktop TOC (Expanded or Collapsed Rail) -->
+    <aside 
+      id="toc-sidebar" 
+      class="hidden lg:block w-72 shrink-0 sticky top-24 transition-all duration-300 z-30"
+    >
+      <div id="toc-card" class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-xs transition-all duration-300 overflow-x-hidden">
+        
+        <!-- Expanded View -->
+        <div id="toc-expanded-view" class="transition-opacity duration-200">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5 mb-3">
+            <span class="text-xs font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <span>📑 Table of Contents</span>
+            </span>
+            <button 
+              id="collapse-toc-desktop" 
+              type="button" 
+              class="inline-flex items-center gap-1 text-[11px] font-mono text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+              title="Collapse table of contents into compact dot rail"
+            >
+              <span>Collapse</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
+          </div>
+
+          <nav class="space-y-1 text-xs font-mono" id="toc-nav">
+            <a href="#problema" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">1. The Problem: Farmacy Food</a>
+            <a href="#tablero" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">2. The Global Podium</a>
+            <a href="#dilema-1" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">3. Starting Principles</a>
+            <a href="#dilema-2" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">4. The Style Decision</a>
+            <a href="#dilema-3" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">5. Domain Modeling & DDD</a>
+            <a href="#dilema-4" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">6. Data & Consistency</a>
+            <a href="#dilema-5" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">7. Physical Hardware Reality</a>
+            <a href="#dilema-6" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">8. Risk Management & ADRs</a>
+            <a href="#archcolider-blueprint" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">9. Blueprint & 16 ADRs (Top 1)</a>
+            <a href="#guia-campo" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">10. Field Guide (Best Practices)</a>
+            <a href="#sintesis" class="toc-link block px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">11. Synthesis & Repositories</a>
+          </nav>
+        </div>
+
+        <!-- Collapsed Rail View (Compact Dots) -->
+        <div id="toc-collapsed-view" class="hidden flex-col items-center py-1">
+          <button 
+            id="expand-toc-desktop" 
+            type="button" 
+            class="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer mb-3"
+            title="Expand full table of contents"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <!-- Vertical Dot Track -->
+          <nav class="flex flex-col items-center gap-2.5 w-full">
+            <a href="#problema" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="problema" data-tooltip="1. The Problem: Farmacy Food" aria-label="1. The Problem: Farmacy Food">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+            <a href="#tablero" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="tablero" data-tooltip="2. The Global Podium" aria-label="2. The Global Podium">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+            <a href="#dilema-1" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="dilema-1" data-tooltip="3. Starting Principles" aria-label="3. Starting Principles">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+            <a href="#dilema-2" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="dilema-2" data-tooltip="4. The Style Decision" aria-label="4. The Style Decision">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+            <a href="#dilema-3" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="dilema-3" data-tooltip="5. Domain Modeling & DDD" aria-label="5. Domain Modeling & DDD">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+            <a href="#dilema-4" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="dilema-4" data-tooltip="6. Data & Consistency" aria-label="6. Data & Consistency">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+            <a href="#dilema-5" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="dilema-5" data-tooltip="7. Physical Hardware Reality" aria-label="7. Physical Hardware Reality">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+            <a href="#dilema-6" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="dilema-6" data-tooltip="8. Risk Management & ADRs" aria-label="8. Risk Management & ADRs">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+            <a href="#archcolider-blueprint" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="archcolider-blueprint" data-tooltip="9. Blueprint & 16 ADRs (Top 1)" aria-label="9. Blueprint & 16 ADRs (Top 1)">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+            <a href="#guia-campo" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="guia-campo" data-tooltip="10. Field Guide (Best Practices)" aria-label="10. Field Guide (Best Practices)">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+            <a href="#sintesis" class="toc-dot group relative flex items-center justify-center w-7 h-7 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" data-target="sintesis" data-tooltip="11. Synthesis & Repositories" aria-label="11. Synthesis & Repositories">
+              <span class="dot-indicator w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-emerald-500 transition-all duration-200"></span>
+            </a>
+          </nav>
+        </div>
+
+      </div>
+
+      <!-- Single Floating Tooltip for Collapsed Rail -->
+      <div id="toc-floating-tooltip" class="fixed hidden pointer-events-none z-50 px-2.5 py-1 text-[11px] font-mono font-medium rounded-md bg-slate-900 text-slate-100 dark:bg-slate-100 dark:text-slate-900 whitespace-nowrap shadow-xl border border-slate-700 dark:border-slate-300 -translate-y-1/2 transition-opacity duration-100"></div>
+
+      <!-- Floating Tooltip for Architectural Style Matrix -->
+      <div 
+        id="matrix-tooltip" 
+        class="fixed hidden z-50 max-w-xs sm:max-w-sm p-3 rounded-xl bg-slate-900/95 text-slate-100 dark:bg-slate-900/95 dark:text-slate-100 border border-slate-700/80 shadow-2xl transition-opacity duration-150 text-xs backdrop-blur-md pointer-events-none"
+        style="top: 0; left: 0;"
+      >
+        <div class="flex items-center gap-2 mb-1.5 pb-1.5 border-b border-slate-800">
+          <span id="matrix-tooltip-icon" class="text-sm shrink-0">ℹ️</span>
+          <span id="matrix-tooltip-title" class="font-bold font-mono text-slate-100"></span>
+        </div>
+        <p id="matrix-tooltip-desc" class="text-slate-300 text-xs leading-relaxed font-sans"></p>
+        <div id="matrix-tooltip-hint" class="mt-2 pt-1.5 border-t border-slate-800 text-[11px] text-emerald-400 font-sans flex items-center gap-1.5 font-medium hidden">
+          <span>👉 Click on cell for deep dive</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Mobile Drawer Modal -->
+    <div id="mobile-drawer" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs p-4 flex items-center justify-center">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 max-w-sm w-full shadow-2xl space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5">
+          <span class="font-bold text-slate-900 dark:text-slate-100 text-sm font-mono">📑 Table of Contents</span>
+          <button id="close-drawer" type="button" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-bold p-1">✕</button>
+        </div>
+        <nav class="space-y-2 text-xs font-mono max-h-[60vh] overflow-y-auto">
+          <a href="#problema" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">1. The Problem: Farmacy Food</a>
+          <a href="#tablero" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">2. The Global Podium</a>
+          <a href="#dilema-1" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">3. Starting Principles</a>
+          <a href="#dilema-2" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">4. The Style Decision</a>
+          <a href="#dilema-3" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">5. Domain Modeling & DDD</a>
+          <a href="#dilema-4" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">6. Data & Consistency</a>
+          <a href="#dilema-5" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">7. Physical Hardware Reality</a>
+          <a href="#dilema-6" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">8. Risk Management & ADRs</a>
+          <a href="#archcolider-blueprint" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">9. Blueprint & 16 ADRs (Top 1)</a>
+          <a href="#guia-campo" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">10. Field Guide (Best Practices)</a>
+          <a href="#sintesis" class="mobile-toc-link block p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">11. Synthesis & Repositories</a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Matrix Cell Deep Dive Modal -->
+    <div 
+      id="matrix-cell-modal" 
+      class="hidden fixed inset-0 z-50 bg-slate-950/70 dark:bg-black/80 backdrop-blur-xs p-3 sm:p-5 flex items-center justify-center opacity-0 transition-opacity duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="matrix-modal-headline"
+    >
+      <div 
+        id="matrix-modal-card"
+        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden text-slate-900 dark:text-slate-100 transform transition-all duration-200 scale-95"
+      >
+        <!-- Modal Header -->
+        <div class="px-5 py-4 sm:px-6 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 flex items-start justify-between gap-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2 flex-wrap text-xs font-mono text-slate-500 dark:text-slate-400">
+              <span id="matrix-modal-feature-icon" class="text-sm"></span>
+              <span id="matrix-modal-feature-name" class="font-medium text-slate-700 dark:text-slate-300"></span>
+              <span class="opacity-40">·</span>
+              <span id="matrix-modal-style-icon" class="text-sm"></span>
+              <span id="matrix-modal-style-name" class="font-medium text-slate-700 dark:text-slate-300"></span>
+              <span id="matrix-modal-rating-badge" class="px-2 py-0.5 rounded text-[11px] font-bold font-mono border"></span>
+            </div>
+            <h3 id="matrix-modal-headline" class="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 leading-snug"></h3>
+          </div>
+          <button 
+            id="matrix-modal-close" 
+            type="button" 
+            class="shrink-0 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-hidden"
+            aria-label="Close modal"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Content (Scrollable) -->
+        <div class="p-5 sm:p-6 overflow-y-auto space-y-5 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          <!-- Mechanism in Detail -->
+          <div>
+            <h4 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1.5">
+              <span>⚙️</span>
+              <span>The Mechanism in Detail</span>
+            </h4>
+            <p id="matrix-modal-core-problem" class="leading-relaxed text-slate-800 dark:text-slate-200"></p>
+          </div>
+
+          <!-- Key Terms Glossary -->
+          <div id="matrix-modal-terms-container" class="space-y-2">
+            <h4 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1.5">
+              <span>📚</span>
+              <span>Key Architectural Concepts</span>
+            </h4>
+            <div id="matrix-modal-terms-list" class="space-y-2.5"></div>
+          </div>
+
+          <!-- Real-world Case in Farmacy Food -->
+          <div class="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/25 border border-emerald-200/80 dark:border-emerald-800/60">
+            <h4 class="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 mb-1.5 flex items-center gap-1.5">
+              <span>🥗</span>
+              <span>In Practice: Farmacy Food Case</span>
+            </h4>
+            <p id="matrix-modal-farmacy-example" class="text-slate-800 dark:text-emerald-100 text-xs sm:text-sm leading-relaxed"></p>
+          </div>
+
+          <!-- Architectural Lesson -->
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border-l-4 border-emerald-500 text-slate-700 dark:text-slate-300">
+            <h4 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1 flex items-center gap-1.5">
+              <span>💡</span>
+              <span>Architectural Takeaway</span>
+            </h4>
+            <p id="matrix-modal-architectural-lesson" class="text-xs sm:text-sm leading-relaxed italic text-slate-800 dark:text-slate-200"></p>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="px-5 py-3 sm:px-6 bg-slate-50/80 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <span class="text-[11px] font-mono text-slate-500 dark:text-slate-400">Press <kbd class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-[10px] font-mono">Esc</kbd> to exit</span>
+          <button 
+            id="matrix-modal-footer-close" 
+            type="button" 
+            class="px-4 py-1.5 rounded-lg text-xs font-mono font-medium bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer"
+          >
+            Got it
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data payload for matrix deep dives (English) -->
+    <script id="matrix-deep-dives-data" type="application/json" set:html={JSON.stringify(matrixDeepDivesEn)} />
+
+    <!-- Main Article Body -->
+    <article id="article-content" class="flex-1 min-w-0 w-full space-y-16 transition-all duration-300">
+
+      <!-- Section 1 -->
+      <section id="problema" class="space-y-6 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 1</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">The Problem: The Farmacy Food Case</h2>
+        </div>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-base">
+          In the fall of 2020, O'Reilly hosted its inaugural Architecture Kata centered on an actual commercial enterprise: Farmacy Food. Based in Detroit, the startup prepares fresh, healthy meals in commercial ghost kitchens (closed-door prep facilities without customer-facing dining rooms) and distributes ready-to-eat dishes through two distinct physical retail channels with contrasting technical requirements:
+        </p>
+
+        <ul class="list-disc pl-6 space-y-2.5 text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          <li>
+            <span class="font-semibold text-slate-900 dark:text-slate-100">Smart Fridges (autonomous retail units):</span> Unattended IoT refrigerators supplied by a commercial vendor (<a href="https://www.bytetechnology.com/" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 underline font-medium">Byte Technology</a>). Customers swipe a payment card to release the magnetic door latch, take whatever meals they choose (weight sensors and RFID tags detect items removed in real time), and upon closing the door, the system settles the payment automatically without cashiers.
+          </li>
+          <li>
+            <span class="font-semibold text-slate-900 dark:text-slate-100">Assisted Kiosks:</span> Standard refrigerators placed within partnered coffee shops, gyms, or co-working spaces, equipped with third-party POS counter terminals (<a href="https://pos.toasttab.com/" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 underline font-medium">Toast POS</a>). Customers pick their food, and an on-site store employee processes the sale at the counter register.
+          </li>
+        </ul>
+
+        <Mermaid code={contextDiagram} title="System Context Diagram for Farmacy Food" />
+
+        <div class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 space-y-2.5 shadow-xs transition-colors">
+          <div class="font-bold text-slate-900 dark:text-slate-100 font-mono uppercase tracking-wider text-xs">Core Business Constraints</div>
+          <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">Day 1 Scale:</span> Only 2 pilot locations in Detroit handling ~300 meals per week. Near-zero initial traffic.</p>
+          <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">12-Month Target:</span> Expand to 8 locations during the first half of the year, finishing year one with 68 retail locations, 2,000 weekly meals, and 1,000 active subscribers.</p>
+          <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">Out of Scope:</span> Physical delivery van routing logistics and internal fridge firmware were explicitly excluded from the platform architecture.</p>
+          <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">Integration Challenges:</span> How to validate customer profiles to apply meal subsidies in a fridge lacking screens or keypads? How to ensure offline sales during kiosk network outages? How to prevent two customers from claiming the last meal simultaneously?</p>
+        </div>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
+          Faced with these specifications, participating teams confronted a classic dilemma: design an austere, lightweight system to validate product viability with two initial fridges, or construct an elastic distributed platform capable of handling the projected 68 locations from Day 1? Each team drew its own architectural boundaries, reflected in the overall competition standings.
+        </p>
+      </section>
+
+      <!-- Section 2 -->
+      <section id="tablero" class="space-y-6 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 2</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">The Global Podium: Cross-Team Comparative Matrix</h2>
+        </div>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          Before exploring specific technical decisions, the following matrix compares the core approaches and principal trade-offs documented by the teams in their open repositories on <a href="https://github.com/TheKataLog" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-medium">TheKataLog</a>:
+        </p>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800 font-mono">
+                <th class="p-3 w-[14%] whitespace-nowrap">Team</th>
+                <th class="p-3 w-[14%] whitespace-nowrap">Standing</th>
+                <th class="p-3 w-[18%]">Foundational Style</th>
+                <th class="p-3 w-[16%]">Domain Strategy</th>
+                <th class="p-3 w-[16%]">Communication</th>
+                <th class="p-3 w-[22%]">Primary Trade-off Assumed</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200/80 dark:divide-slate-800 font-sans text-slate-700 dark:text-slate-300">
+              <tr class="bg-emerald-50/40 dark:bg-emerald-950/20">
+                <td class="p-3 font-bold text-emerald-900 dark:text-emerald-300 font-mono whitespace-nowrap">
+                  <a href="https://github.com/TheKataLog/ArchColider" target="_blank" class="hover:underline">ArchColider</a>
+                </td>
+                <td class="p-3 whitespace-nowrap"><span class="inline-block whitespace-nowrap px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 font-semibold font-mono border border-emerald-300 dark:border-emerald-700">🥇 1st Place</span></td>
+                <td class="p-3 font-bold text-slate-900 dark:text-slate-100">Modular Monolith (AWS EC2 / ASG)</td>
+                <td class="p-3">DDD: Core, Supporting, Generic</td>
+                <td class="p-3">Async (RabbitMQ) + Public Facades</td>
+                <td class="p-3 text-slate-600 dark:text-slate-400">Risk of architectural decay into a Big Ball of Mud without automated boundary checks.</td>
+              </tr>
+              <tr class="bg-slate-50/50 dark:bg-slate-900/50">
+                <td class="p-3 font-bold text-slate-900 dark:text-slate-100 font-mono whitespace-nowrap">
+                  <a href="https://github.com/TheKataLog/Myagis-Forest" target="_blank" class="hover:underline">Myagis-Forest</a>
+                </td>
+                <td class="p-3 whitespace-nowrap"><span class="inline-block whitespace-nowrap px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-300 font-semibold font-mono border border-slate-300 dark:border-slate-700">🥈 2nd Place</span></td>
+                <td class="p-3 font-medium text-slate-900 dark:text-slate-200">Microservices on K8s (EKS)</td>
+                <td class="p-3">Context Map DDD (Inventory / Orders)</td>
+                <td class="p-3">
+                  <span>Domain Events + BFF Pattern</span>
+                  <span class="block text-[11px] text-slate-500 dark:text-slate-400 font-sans font-normal">Dedicated adapters per consumer</span>
+                </td>
+                <td class="p-3 text-slate-600 dark:text-slate-400">Eventual consistency under CQRS; heavy operational overhead of Kubernetes for two initial fridges.</td>
+              </tr>
+              <tr class="bg-slate-50/30 dark:bg-slate-900/30">
+                <td class="p-3 font-bold text-slate-900 dark:text-slate-100 font-mono whitespace-nowrap">
+                  <a href="https://github.com/TheKataLog/Jedis" target="_blank" class="hover:underline">Jedis</a>
+                </td>
+                <td class="p-3 whitespace-nowrap"><span class="inline-block whitespace-nowrap px-2.5 py-0.5 rounded-full bg-stone-200/80 dark:bg-stone-800 text-stone-800 dark:text-stone-300 font-semibold font-mono border border-stone-300 dark:border-stone-700">🥉 3rd Place</span></td>
+                <td class="p-3 font-medium text-slate-900 dark:text-slate-200">Evolutionary Stages + EDA</td>
+                <td class="p-3">Chronological Capability Roadmap</td>
+                <td class="p-3">Central Event Bus (Apache Kafka)</td>
+                <td class="p-3 text-slate-600 dark:text-slate-400">Overengineered messaging infrastructure for Year 1 operational volumes.</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-mono text-slate-900 dark:text-slate-200 whitespace-nowrap"><a href="https://github.com/TheKataLog/Hey-Dragon" target="_blank" class="hover:underline">Hey-Dragon</a></td>
+                <td class="p-3 whitespace-nowrap"><span class="inline-block whitespace-nowrap px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 font-mono text-[11px] border border-slate-200 dark:border-slate-700">⚡ Runner-Up</span></td>
+                <td class="p-3">3-Stage Evolutionary Architecture</td>
+                <td class="p-3">Migration: Layered Monolith to Services</td>
+                <td class="p-3">REST to gRPC and Events</td>
+                <td class="p-3 text-slate-600 dark:text-slate-400">Risk of stalling permanently in Stage 1 if follow-up funding falls short.</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-mono text-slate-900 dark:text-slate-200 whitespace-nowrap"><a href="https://github.com/TheKataLog/Team-Pacman" target="_blank" class="hover:underline">Team-Pacman</a></td>
+                <td class="p-3 whitespace-nowrap"><span class="inline-block whitespace-nowrap px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 font-mono text-[11px] border border-slate-200 dark:border-slate-700">⚡ Runner-Up</span></td>
+                <td class="p-3">100% Serverless (AWS Lambda)</td>
+                <td class="p-3">Domain-Specific Functions</td>
+                <td class="p-3">SQS Queues / SNS Notifications</td>
+                <td class="p-3 text-slate-600 dark:text-slate-400">Cold starts and deep proprietary cloud lock-in with AWS.</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-mono text-slate-900 dark:text-slate-200 whitespace-nowrap"><a href="https://github.com/TheKataLog/Hananoyama" target="_blank" class="hover:underline">Hananoyama</a></td>
+                <td class="p-3 whitespace-nowrap"><span class="inline-block whitespace-nowrap px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 font-mono text-[11px] border border-slate-200 dark:border-slate-700">⚡ Runner-Up</span></td>
+                <td class="p-3">Channel Segregated Platform</td>
+                <td class="p-3">Hardware Constraints (Fridge vs. POS)</td>
+                <td class="p-3">REST queries, asynchronous queues</td>
+                <td class="p-3 text-slate-600 dark:text-slate-400">Early discard of dynamic pricing due to hardware card reader limits.</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-mono text-slate-900 dark:text-slate-200 whitespace-nowrap"><a href="https://github.com/TheKataLog/da-Vinci" target="_blank" class="hover:underline">da Vinci</a></td>
+                <td class="p-3 whitespace-nowrap"><span class="inline-block whitespace-nowrap px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 font-mono text-[11px] border border-slate-200 dark:border-slate-700">⚡ Runner-Up</span></td>
+                <td class="p-3">Event-Driven Microservices</td>
+                <td class="p-3">Benefit Dependency Network (BDN)</td>
+                <td class="p-3">AWS Managed Event Bus</td>
+                <td class="p-3 text-slate-600 dark:text-slate-400">Testing and observability complexity across asynchronous event chains.</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-mono text-slate-900 dark:text-slate-200 whitespace-nowrap"><a href="https://github.com/TheKataLog/Self-Driven-Team" target="_blank" class="hover:underline">Self-Driven Team</a></td>
+                <td class="p-3 whitespace-nowrap"><span class="inline-block whitespace-nowrap px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 font-mono text-[11px] border border-slate-200 dark:border-slate-700">⚡ Runner-Up</span></td>
+                <td class="p-3">Domain Microservices</td>
+                <td class="p-3">8 Services + Regional Sharding</td>
+                <td class="p-3">Synchronous REST (RPC) + Queues</td>
+                <td class="p-3 text-slate-600 dark:text-slate-400">Mandatory distributed tracing to identify tail latency across cascading calls.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
+          This comparison reveals a distinct divide: ArchColider selected a modular monolith to minimize fixed operational costs during Year 1, whereas Myagis-Forest and Jedis opted for distributed architectures from the start to avoid future structural refactorings. The following sections examine the technical principles underpinning each approach.
+        </p>
+      </section>
+
+      <!-- Section 3 -->
+      <section id="dilema-1" class="space-y-6 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 3</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">What to Define Before Drawing the First Box?</h2>
+        </div>
+
+        <TheoryBox concept="Architecture Characteristics (The Non-Functional Requirements)" chapter="Chapters 3 and 4">
+          <p>
+            Functional requirements dictate what the system must accomplish. Architecture characteristics (availability, scalability, operational cost, maintainability) govern how the system behaves under real-world production stress.
+          </p>
+          <p class="mt-2 text-slate-700 dark:text-slate-300">
+            In <em>Fundamentals of Software Architecture</em> (Chapter 4), Mark Richards and Neal Ford emphasize that trying to optimize for every possible characteristic simultaneously is an anti-pattern. Every additional characteristic introduces structural complexity, cost, and maintenance friction. A successful system concentrates on a core set of three to five critical characteristics that serve as objective criteria for ruling out alternatives.
+          </p>
+        </TheoryBox>
+
+        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span>🥇 ArchColider's Strategy: 4 Guiding Principles to Drive Decisions</span>
+        </h3>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          Before drawing system components or committing to infrastructure, ArchColider defined four core design principles in their <a href="https://github.com/TheKataLog/ArchColider/blob/master/2.SolutionBackground/SolutionOverview.md#L3-L9" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">Solution Overview</a> to evaluate every technical trade-off:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <span class="font-bold text-emerald-800 dark:text-emerald-400 font-mono">1. Strive for Cognitive Simplicity</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">The system mental model must remain intuitive for every team member, rejecting layers of indirection or premature abstractions that offer no immediate return.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <span class="font-bold text-emerald-800 dark:text-emerald-400 font-mono">2. Extensibility and Modifiability in Trade-offs</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">When attributes conflict, favor choices that allow components to be modified, replaced, or extracted as independent services later without global rewrites.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <span class="font-bold text-emerald-800 dark:text-emerald-400 font-mono">3. Mandatory Telemetry</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">No component enters production without emitting detailed metrics, traces, and logs, ensuring future scaling decisions stem from empirical production data.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <span class="font-bold text-emerald-800 dark:text-emerald-400 font-mono">4. Messages Over Direct Calls</span>
+            <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">Prioritize asynchronous event messaging to decouple transactional flows from peripheral subsystems, preventing cascading runtime dependencies.</p>
+          </div>
+        </div>
+
+        <PodiumCounterpoint 
+          rank={2} 
+          team="Myagis-Forest" 
+          title="Myagis-Forest Counterpoint: Explicit Quantitative Targets"
+          githubUrl="https://github.com/TheKataLog/Myagis-Forest/blob/main/requirements/architecture-characteristics.md"
+          githubLineRange="L1-L25"
+          lang="en"
+        >
+          <p>
+            Myagis-Forest complemented qualitative principles by establishing concrete numerical service-level targets up front:
+          </p>
+          <ul class="list-disc pl-5 space-y-1 mt-2 text-slate-700 dark:text-slate-300 text-xs sm:text-sm">
+            <li>Integrating an additional smart fridge manufacturer had to take under 3 engineering days.</li>
+            <li>Lunch-hour peak latency: under 1 second for end-user menu browsing queries.</li>
+            <li>Support for 100 concurrent active shopping sessions during Year 1 operations.</li>
+            <li>Strict isolation of payment card data to qualify for the lightest PCI DSS tier (SAQ A): by delegating checkout to Stripe through hosted iframes, no cardholder data touches proprietary servers, reducing compliance checks from over 300 technical controls to a brief ~22 question survey.</li>
+          </ul>
+        </PodiumCounterpoint>
+
+        <RunnerUpInsight 
+          team="da Vinci" 
+          tag="Business to Architecture" 
+          title="Benefit Dependency Network (BDN): ROI Alignment"
+          githubUrl="https://github.com/TheKataLog/da-Vinci/blob/master/solution-discovery/benefit_dependency_network.md#L1-L23"
+          githubSnippet="L1-L23"
+          lang="en"
+        >
+          da Vinci built a formal network mapping every architectural choice directly to an objective business return (such as decreasing the onboarding time for new locations). Technical additions lacking measurable operational impact were pruned.
+        </RunnerUpInsight>
+
+        <RunnerUpInsight 
+          team="Hananoyama" 
+          tag="Requirement Validation" 
+          title="Critical Audit of Client Operational Assumptions"
+          githubUrl="https://github.com/TheKataLog/Hananoyama/blob/main/README.md#L60-L105"
+          githubSnippet="L60-L105"
+          lang="en"
+        >
+          Hananoyama began by stress-testing the customer's operational assumptions: they posed critical questions regarding patron behavior and the physical constraints of unattended retail environments.
+        </RunnerUpInsight>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
+          Clarifying architectural quality attributes does not automatically build the system, but it establishes the decision framework: once you understand whether your top priority is time to market, operational cost, or deployment independence, selecting an architectural style becomes an objective exercise.
+        </p>
+      </section>
+
+      <!-- Section 4 -->
+      <section id="dilema-2" class="space-y-6 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 4</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">The Core Style Decision: Monolith, Microservices, or Serverless?</h2>
+        </div>
+
+        <TheoryBox concept="Architectural Quantum and the Fallacies of Distributed Computing" chapter="Chapters 2, 7 and 8">
+          <p>
+            An <em>architectural quantum</em> is the smallest independently deployable unit of a system, featuring high functional cohesion and its own dedicated data store. A monolith consists of a single quantum: if a single background task demands elastic scaling, the entire monolithic artifact must be replicated across servers.
+          </p>
+          <p class="mt-2">
+            <span class="font-semibold text-slate-900 dark:text-slate-100">Deutsch's Fallacies:</span> Assuming the network is reliable, latency is zero, or bandwidth is infinite. Teams that disregard these realities in early-stage products pay the operational overhead of microservices without realizing their organizational benefits.
+          </p>
+        </TheoryBox>
+
+        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span>🥇 ArchColider's Choice: Modular Monolith vs. Microservices</span>
+        </h3>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          When choosing a baseline architectural style, engineering discussions frequently gravitate toward distributed microservices. In their <a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/002%20System%20approach.md#L24-L36" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 002: System approach</a>, ArchColider constructed a comparative matrix weighing each candidate style against the business's projected transaction scale:
+        </p>
+
+        <!-- Help Tip Banner for Matrix Table -->
+        <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 font-mono my-3 bg-slate-100/80 dark:bg-slate-900/90 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors">
+          <span class="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">💡 Interactive Explorer:</span>
+          <span>Hover over any cell for a quick summary, or <strong>click any rating badge</strong> to open an in-depth breakdown with key concepts and real-world examples.</span>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs my-4 text-xs font-mono transition-colors">
+          <table class="w-full text-center">
+            <thead class="bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">
+              <tr>
+                <th class="p-3 text-left font-sans whitespace-nowrap">Characteristic</th>
+                <th class="p-3 whitespace-nowrap">
+                  <span 
+                    class="cursor-pointer inline-flex items-center hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
+                    data-matrix-tooltip
+                    data-tooltip-title={styleDescriptions.traditional.name}
+                    data-tooltip-desc={styleDescriptions.traditional.desc}
+                    data-tooltip-icon={styleDescriptions.traditional.icon}
+                  >
+                    <span>Traditional Monolith</span>
+                  </span>
+                </th>
+                <th class="p-3 whitespace-nowrap">
+                  <span 
+                    class="cursor-pointer inline-flex items-center hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
+                    data-matrix-tooltip
+                    data-tooltip-title={styleDescriptions.microservices.name}
+                    data-tooltip-desc={styleDescriptions.microservices.desc}
+                    data-tooltip-icon={styleDescriptions.microservices.icon}
+                  >
+                    <span>Microservices</span>
+                  </span>
+                </th>
+                <th class="p-3 whitespace-nowrap">
+                  <span 
+                    class="cursor-pointer inline-flex items-center hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
+                    data-matrix-tooltip
+                    data-tooltip-title={styleDescriptions.microkernel.name}
+                    data-tooltip-desc={styleDescriptions.microkernel.desc}
+                    data-tooltip-icon={styleDescriptions.microkernel.icon}
+                  >
+                    <span>Microkernel</span>
+                  </span>
+                </th>
+                <th class="p-3 whitespace-nowrap bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-300 font-bold border-l border-r border-emerald-200 dark:border-emerald-800">
+                  <span 
+                    class="cursor-pointer inline-flex items-center hover:text-emerald-600 transition-colors"
+                    data-matrix-tooltip
+                    data-tooltip-title={styleDescriptions.modular.name}
+                    data-tooltip-desc={styleDescriptions.modular.desc}
+                    data-tooltip-icon={styleDescriptions.modular.icon}
+                  >
+                    <span>Modular Monolith 🥇</span>
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+              {styleMatrix.map((row) => (
+                <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-950/40 transition-colors">
+                  <td class="p-2.5 text-left font-sans font-medium whitespace-nowrap">
+                    <span 
+                      class="cursor-pointer inline-flex items-center hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
+                      data-matrix-tooltip
+                      data-tooltip-title={row.feature}
+                      data-tooltip-desc={featureDescriptions[row.feature]?.desc || ""}
+                      data-tooltip-icon={featureDescriptions[row.feature]?.icon || "📊"}
+                    >
+                      <span>{row.feature}</span>
+                    </span>
+                  </td>
+                  
+                  {/* Traditional */}
+                  <td class="p-2">
+                    <button
+                      type="button"
+                      class={`cursor-pointer inline-flex items-center px-2 py-0.5 rounded text-[11px] font-sans border transition-transform hover:scale-105 active:scale-95 select-none focus:outline-hidden ${ratingBadges[row.traditional.rating].classes}`}
+                      data-matrix-tooltip
+                      data-cell-key={`${row.id}-traditional`}
+                      data-tooltip-title={`${row.feature} · Traditional Monolith`}
+                      data-tooltip-desc={row.traditional.reason}
+                      data-tooltip-icon="🏛️"
+                      title="Click to view deep-dive analysis"
+                    >
+                      <span>{ratingBadges[row.traditional.rating].label}</span>
+                    </button>
+                  </td>
+
+                  {/* Microservices */}
+                  <td class="p-2">
+                    <button
+                      type="button"
+                      class={`cursor-pointer inline-flex items-center px-2 py-0.5 rounded text-[11px] font-sans border transition-transform hover:scale-105 active:scale-95 select-none focus:outline-hidden ${ratingBadges[row.microservices.rating].classes}`}
+                      data-matrix-tooltip
+                      data-cell-key={`${row.id}-microservices`}
+                      data-tooltip-title={`${row.feature} · Microservices`}
+                      data-tooltip-desc={row.microservices.reason}
+                      data-tooltip-icon="🌐"
+                      title="Click to view deep-dive analysis"
+                    >
+                      <span>{ratingBadges[row.microservices.rating].label}</span>
+                    </button>
+                  </td>
+
+                  {/* Microkernel */}
+                  <td class="p-2">
+                    <button
+                      type="button"
+                      class={`cursor-pointer inline-flex items-center px-2 py-0.5 rounded text-[11px] font-sans border transition-transform hover:scale-105 active:scale-95 select-none focus:outline-hidden ${ratingBadges[row.microkernel.rating].classes}`}
+                      data-matrix-tooltip
+                      data-cell-key={`${row.id}-microkernel`}
+                      data-tooltip-title={`${row.feature} · Microkernel`}
+                      data-tooltip-desc={row.microkernel.reason}
+                      data-tooltip-icon="🧩"
+                      title="Click to view deep-dive analysis"
+                    >
+                      <span>{ratingBadges[row.microkernel.rating].label}</span>
+                    </button>
+                  </td>
+
+                  {/* Modular Monolith */}
+                  <td class="p-2 bg-emerald-50/40 dark:bg-emerald-950/20 border-l border-r border-emerald-200 dark:border-emerald-800">
+                    <button
+                      type="button"
+                      class={`cursor-pointer inline-flex items-center px-2 py-0.5 rounded text-[11px] font-sans font-semibold border transition-transform hover:scale-105 active:scale-95 select-none focus:outline-hidden ${ratingBadges[row.modular.rating].classes}`}
+                      data-matrix-tooltip
+                      data-cell-key={`${row.id}-modular`}
+                      data-tooltip-title={`${row.feature} · Modular Monolith`}
+                      data-tooltip-desc={row.modular.reason}
+                      data-tooltip-icon="🥇"
+                      title="Click to view deep-dive analysis"
+                    >
+                      <span>{ratingBadges[row.modular.rating].label}</span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          <span class="font-semibold text-slate-900 dark:text-slate-100">Economic and operational rationale:</span> For an initial scale of 68 locations and 1,000 subscribers, managing a distributed cluster introduces disproportionate infrastructure expenses and observability overhead. By adopting a modular monolith, ArchColider structured the platform as a single <em>architectural quantum</em>: all functional modules share the same deployment lifecycle and relational persistence on managed instances (AWS EC2 inside Auto-Scaling Groups). This choice minimizes initial operational complexity and neutralizes distributed network failure risks. Should an individual module (such as the meal catalog) face independent traffic surges in the future, its clear facade boundaries permit extracting that quantum into a standalone microservice without rewriting application logic.
+        </p>
+
+        <Mermaid code={styleDecisionTree} title="Architectural Style Decision Tree" />
+
+        <PodiumCounterpoint 
+          rank={2} 
+          team="Myagis-Forest" 
+          title="Myagis-Forest: The Danger of Delaying Distributed Decomposition"
+          githubUrl="https://github.com/TheKataLog/Myagis-Forest/blob/main/ADRs/ADR001-microservice-style.md#L30-L44"
+          githubLineRange="L30-L44"
+          lang="en"
+        >
+          <p>
+            In their ADR 001, Myagis-Forest argued the opposing viewpoint, asserting that building a monolith with the intention of later decomposing it doubles mid-term architectural effort:
+          </p>
+          <blockquote class="border-l-2 border-slate-400 dark:border-slate-600 pl-3 my-2 text-slate-700 dark:text-slate-300 text-xs sm:text-sm italic">
+            "In the Farmacy Food scenario, which is 'green field' to the most extent, we don't see the need to invest time in designing and implementing stage architectures (e.g., modular monolith ==&gt; service-based or macroservices ==&gt; microservice). We have good reasons to believe using the microservice style from the getgo is perfectly feasible time-wise, as well as technically and financially."
+          </blockquote>
+          <p>
+            To manage Kubernetes complexity, they structured each service using hexagonal architecture (Ports & Adapters) and implemented the Backend for Frontend (BFF) pattern: thin translation layers formatting payloads specifically for web and kiosk clients, shielding them from internal microservice APIs.
+          </p>
+        </PodiumCounterpoint>
+
+        <PodiumCounterpoint 
+          rank={3} 
+          team="Jedis" 
+          title="Jedis: Investing in Event Streaming from Phase 1"
+          githubUrl="https://github.com/TheKataLog/Jedis/blob/main/Strategy.md#L16-L19"
+          githubLineRange="L16-L19"
+          lang="en"
+        >
+          <p>
+            Jedis justified their infrastructure on the premise of preparing early for large-scale data ingestion: they accepted the operational complexity of deploying Apache Kafka from Phase 1 to capture every inventory and purchase event in real time, unlocking future recommendation models and analytics.
+          </p>
+        </PodiumCounterpoint>
+
+        <RunnerUpInsight 
+          team="Team-Pacman" 
+          tag="Cost Economics" 
+          title="100% Serverless: Slashing Idle Infrastructure Costs"
+          githubUrl="https://github.com/TheKataLog/Team-Pacman/blob/main/adrs/serverless-approach.md#L13-L22"
+          githubSnippet="L13-L22"
+          lang="en"
+        >
+          Team-Pacman eliminated long-running server instances: they demonstrated that an architecture leveraging AWS Lambda and DynamoDB cut infrastructure costs by 70% to 90% relative to 24/7 provisioned servers, accepting function cold starts as a calculated trade-off for zero idle spend.
+        </RunnerUpInsight>
+
+        <RunnerUpInsight 
+          team="Hey-Dragon" 
+          tag="Evolutionary Architecture" 
+          title="3-Stage Evolutionary Architecture and Transition Risks"
+          githubUrl="https://github.com/TheKataLog/Hey-Dragon/blob/main/Stage%201%20-%20Layered%20Monolith/ADR%20-%20Layered%20Monolith%20as%20a%20short%20term%20Architecture.md#L1-L20"
+          githubSnippet="L1-L20"
+          lang="en"
+        >
+          Hey-Dragon planned an evolutionary transition across three phases: Stage 1 (Layered monolith for rapid market entry) to Stage 2 (Services sharing a database) to Stage 3 (Decoupled microservices with gRPC and events). They noted the operational risk: if budget tightening occurs post-launch, systems often remain in Stage 1 indefinitely.
+        </RunnerUpInsight>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
+          Whether selecting a modular monolith or committing to microservices from the start, a platform succeeds or fails based on how its boundaries are drawn. Flawed boundaries in a monolith produce unmanageable coupling; in microservices, they create a distributed monolith. Consequently, the next decision centered on domain decomposition.
+        </p>
+      </section>
+
+      <!-- Section 5 -->
+      <section id="dilema-3" class="space-y-6 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 5</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">How to Decompose the Domain? (Bounded Contexts)</h2>
+        </div>
+
+        <TheoryBox concept="Domain Partitioning vs. Technical Layer Partitioning" chapter="Chapters 8 and 9">
+          <p>
+            Technical partitioning organizes code by horizontal technological layers (controllers, services, repositories): any change to a business requirement forces edits across all layers. Domain partitioning organizes code around business capabilities (Orders, Inventory, Billing), encapsulating business rules so modifications stay confined to their respective context.
+          </p>
+        </TheoryBox>
+
+        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span>🥇 ArchColider's DDD Strategy: Strategic Subdomain Categorization</span>
+        </h3>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          Rather than organizing code into technical layers, ArchColider applied Domain-Driven Design (DDD) to partition their modules. To maximize development return for their small team, they categorized subdomains into three strategic tiers (<a href="https://github.com/TheKataLog/ArchColider/blob/master/2.SolutionBackground/SolutionOverview.md#L27-L47" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">see SolutionOverview.md</a>):
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div class="p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col transition-colors">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 w-fit mb-2">Core Domain</span>
+            <div class="text-xs text-slate-600 dark:text-slate-400 mb-3 font-medium leading-relaxed">Bespoke custom software providing direct competitive advantage.</div>
+            <ul class="text-slate-700 dark:text-slate-300 space-y-1.5 list-disc pl-4 text-xs mt-auto">
+              <li><span class="font-semibold text-slate-900 dark:text-slate-100">Meal Catalog:</span> Nutritional data, allergens, and real-time stock per fridge.</li>
+              <li><span class="font-semibold text-slate-900 dark:text-slate-100">Order Processing:</span> Core engine managing transactions and subscriptions.</li>
+              <li><span class="font-semibold text-slate-900 dark:text-slate-100">Loyalty & Rewards:</span> Proprietary retention mechanics and reward tiering.</li>
+            </ul>
+          </div>
+          <div class="p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col transition-colors">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700/80 w-fit mb-2">Supporting Domain</span>
+            <div class="text-xs text-slate-600 dark:text-slate-400 mb-3 font-medium leading-relaxed">Necessary operational functionality without proprietary competitive edge.</div>
+            <ul class="text-slate-700 dark:text-slate-300 space-y-1.5 list-disc pl-4 text-xs mt-auto">
+              <li><span class="font-semibold text-slate-900 dark:text-slate-100">Feedback & Surveys:</span> Asynchronous post-purchase customer surveys.</li>
+              <li><span class="font-semibold text-slate-900 dark:text-slate-100">Kitchen Scheduling:</span> Order batching dispatched to ghost kitchen facilities.</li>
+            </ul>
+          </div>
+          <div class="p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs flex flex-col transition-colors">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700/80 w-fit mb-2">Generic Domain</span>
+            <div class="text-xs text-slate-600 dark:text-slate-400 mb-3 font-medium leading-relaxed">Commodity capabilities best handled by commercial SaaS or OSS libraries.</div>
+            <ul class="text-slate-700 dark:text-slate-300 space-y-1.5 list-disc pl-4 text-xs mt-auto">
+              <li><span class="font-semibold text-slate-900 dark:text-slate-100">Payments:</span> Delegated to Stripe (zero cardholder data stored internally).</li>
+              <li><span class="font-semibold text-slate-900 dark:text-slate-100">Notifications:</span> Twilio for SMS and SendGrid for automated emails.</li>
+              <li><span class="font-semibold text-slate-900 dark:text-slate-100">Reporting:</span> Dashboards built with off-the-shelf business intelligence tools.</li>
+            </ul>
+          </div>
+        </div>
+
+        <PodiumCounterpoint 
+          rank={2} 
+          team="Myagis-Forest" 
+          title="Myagis-Forest: Context Map Focused on Perishable Logistics"
+          githubUrl="https://github.com/TheKataLog/Myagis-Forest/blob/main/architecture/ddd-context-map.md"
+          lang="en"
+        >
+          <p>
+            Myagis-Forest designed a formal DDD Context Map centered on the shelf-life management of fresh food items. Because inventory spoils rapidly, stock inaccuracies result in immediate financial losses. They designated the real-time synchronization between smart fridge inventory and ghost kitchen prep schedules as their primary Core Domain.
+          </p>
+        </PodiumCounterpoint>
+
+        <RunnerUpInsight 
+          team="Jedis" 
+          tag="Chronological Roadmap" 
+          title="Domain Decomposition Aligned with Business Growth Phases"
+          githubUrl="https://github.com/TheKataLog/Jedis/blob/main/Strategy.md#L7-L15"
+          githubSnippet="L7-L15"
+          lang="en"
+        >
+          Rather than partitioning purely on functional lines, Jedis structured their system decomposition to match business milestones: Phase 1 (Fridge unlocking and payment capture); Phase 2 (Subscriptions and loyalty rewards); Phase 3 (Machine learning analytics and personalized diet recommendations).
+        </RunnerUpInsight>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
+          Defining subdomain boundaries clarifies which component owns which data model, but introduces a deeper architectural question: how do we keep distributed state synchronized when physical purchases happen in the real world? This brings storage models and data consistency to center stage.
+        </p>
+      </section>
+
+      <!-- Section 6 -->
+      <section id="dilema-4" class="space-y-6 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 6</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">Data and Consistency: Event Sourcing, CQRS, or Classical Relational Tables?</h2>
+        </div>
+
+        <TheoryBox concept="CAP/PACELC and the Hidden Overhead of Eventual Consistency" chapter="Chapter 14">
+          <p>
+            Eric Brewer's CAP theorem demonstrated that in the presence of a network partition, a system must choose between consistency (C) and availability (A). Daniel Abadi later formulated the PACELC theorem to explain normal, non-partitioned operational states:
+          </p>
+          <p class="mt-2">
+            The rule dictates: if there is a partition (<em>P</em>), trade off availability (<em>A</em>) or consistency (<em>C</em>); <em>E</em>lse, under normal operation, trade off latency (<em>L</em>) or consistency (<em>C</em>). Guaranteeing strictly consistent reads across distributed nodes requires waiting for replica confirmations, increasing response times. Returning sub-millisecond responses on mobile devices often demands accepting eventual consistency.
+          </p>
+          <p class="mt-2">
+            Additionally, event choreography grants microservices autonomy but scatters business workflows across services, complicating end-to-end debugging. Centralized orchestration makes workflows explicit at the risk of creating single points of contention.
+          </p>
+        </TheoryBox>
+
+        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span>🥇 ArchColider: Auditability and Immutability via Event Sourcing</span>
+        </h3>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          In unattended retail environments, transaction disputes demand total auditability: if an RFID sensor misreads or a customer disputes an automated charge, mutating records with <code>UPDATE orders SET status = 'cancelled'</code> destroys critical diagnostic history. In <a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/007%20Event%20sourcing%20usage.md#L1-L35" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 007: Event sourcing usage</a>, ArchColider selected EventStore to ensure auditability:
+        </p>
+
+        <blockquote class="border-l-2 border-emerald-500 pl-3 my-2 text-slate-700 dark:text-slate-300 text-xs sm:text-sm italic">
+          "Keeping only the final state of a domain entity won't help to understand how we end up with a specific state... The event sourcing approach gives us a full history of changes and can help investigate issues and users' complaints."
+        </blockquote>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          To decouple auxiliary tasks without threatening core checkout performance, they integrated RabbitMQ (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/008%20At%20least%20once%20delivery%20for%20ready%20to%20pay%20order.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 008</a>) with explicit message acknowledgments (ACKs) and automated retries.
+        </p>
+
+        <Mermaid code={posSequence} title="POS Purchase Flow, Inventory Reservation, and Asynchronous Event Dispatch" heightClass="h-[500px] sm:h-[580px]" />
+
+        <PodiumCounterpoint 
+          rank={2} 
+          team="Myagis-Forest" 
+          title="CQRS in Myagis-Forest: Segregating Menu Browsing from Stock Deductions"
+          githubUrl="https://github.com/TheKataLog/Myagis-Forest/blob/main/ADRs/ADR005-cqrs-pattern.md"
+          lang="en"
+        >
+          <p>
+            Conversely, Myagis-Forest favored read latency by implementing CQRS (Command Query Responsibility Segregation): a transactional relational database processed inventory updates, while denormalized read replicas absorbed high-volume lunch-hour menu traffic, accepting slight eventual consistency in available counts to protect response times.
+          </p>
+        </PodiumCounterpoint>
+
+        <RunnerUpInsight 
+          team="Self-Driven Team" 
+          tag="RPC vs. Events" 
+          title="Synchronous REST for Instant Checkout Authorization"
+          githubUrl="https://github.com/TheKataLog/Self-Driven-Team/blob/main/doc/arc/adrs/adr_013.md#L1-L25"
+          githubSnippet="ADR 013"
+          lang="en"
+        >
+          Self-Driven Team deliberately rejected asynchronous messaging for payment authorizations: they implemented direct synchronous REST calls between the kiosk register and the payment service to guarantee immediate visual confirmation for customers at the counter, reserving asynchronous queues for non-blocking post-sale notifications.
+        </RunnerUpInsight>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
+          Designing events and database schemas in the abstract is clean until the software encounters the physical world: magnetic latches, card swipes, and smart fridges with unyielding operational constraints.
+        </p>
+      </section>
+
+      <!-- Section 7 -->
+      <section id="dilema-5" class="space-y-6 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 7</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">Physical Hardware Reality and Sensor Constraints</h2>
+        </div>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          The kata specifications called for dynamic pricing rules and targeted meal subsidies in Smart Fridges for qualified customer demographics. While several submissions modeled pricing engines in software, team Hananoyama began by examining the physical specifications and API docs of the fridge hardware vendor (<a href="https://github.com/TheKataLog/Hananoyama/blob/main/README.md#L100-L125" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">Byte Technology</a>):
+        </p>
+
+        <RunnerUpInsight 
+          team="Hananoyama" 
+          tag="Hardware Reality Check" 
+          title="The Physical Hardware Constraint Identified by Hananoyama"
+          githubUrl="https://github.com/TheKataLog/Hananoyama/blob/main/README.md#L100-L125"
+          githubSnippet="L100-L125"
+          lang="en"
+        >
+          Hananoyama uncovered a decisive hardware constraint: swiping a card simultaneously unlatches the door and pre-authorizes the transaction. The smart fridge contains no touchscreens, numerical keypads, or biometric readers. Consequently, autonomous dynamic subsidies at the physical fridge are impossible; discounts must be claimed in advance via the web application before visiting the fridge.
+        </RunnerUpInsight>
+
+        <Mermaid code={fridgeParadox} title="The Physical Gesture Paradox in Smart Fridge Transactions" heightClass="h-[360px] sm:h-[420px]" />
+
+        <RunnerUpInsight 
+          team="Self-Driven Team" 
+          tag="Frontend Trade-off" 
+          title="Responsive Web App vs. Native Mobile App: Geolocation Trade-offs"
+          githubUrl="https://github.com/TheKataLog/Self-Driven-Team/blob/main/doc/arc/adrs/adr_012.md#L1-L35"
+          githubSnippet="ADR 012"
+          lang="en"
+        >
+          In their ADR 012, Self-Driven Team selected a responsive web application over native mobile apps to minimize initial development overhead, accepting that without background mobile geolocation, nearby store discovery requires manual zip code entry.
+        </RunnerUpInsight>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
+          This collision with hardware realities proves why software architecture cannot be separated from physical constraints. Every decision brings trade-offs that must be explicitly captured and mitigated.
+        </p>
+      </section>
+
+      <!-- Section 8 -->
+      <section id="dilema-6" class="space-y-6 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 8</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">Risk Management and Architectural Commitments in ADRs</h2>
+        </div>
+
+        <TheoryBox concept="Michael Nygard's ADR Format and Risk Storming" chapter="Chapters 18 and 19">
+          <p>
+            An Architectural Decision Record (ADR) captures the context, chosen approach, and consequences (trade-offs) of a significant architectural choice, establishing transparent rationale before writing code.
+          </p>
+          <p class="mt-2">
+            <span class="font-semibold text-slate-900 dark:text-slate-100">Risk Storming</span> (developed by Simon Brown) is an exercise where engineering teams analyze architecture diagrams to uncover risk areas (network drops, database bottlenecks, run-away cloud bills), plotting them on a Likelihood vs. Impact grid. Unavoidable high-impact threats are documented as ADRs with explicit mitigations.
+          </p>
+        </TheoryBox>
+
+        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span>🥇 ArchColider's Risk Management: Resilient System Design</span>
+        </h3>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          In their <a href="https://github.com/TheKataLog/ArchColider/blob/master/2.SolutionBackground/RisksAndSensitivePoints.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">Risks and Sensitive Points</a> document, ArchColider pinpointed key operational vulnerabilities and paired each with an ADR mitigation:
+        </p>
+
+        <div class="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <span class="font-bold text-red-600 dark:text-red-400 font-mono">Risk 1: Accidental Coupling Between Internal Modules</span>
+            <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">A classic risk in monolithic systems occurs when developers bypass public domain facades to access foreign tables directly. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Automated architectural fitness functions in the CI pipeline that fail builds if unauthorized package dependencies are detected.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <span class="font-bold text-red-600 dark:text-red-400 font-mono">Risk 2: Uncontrolled Cloud Auto-Scaling Costs</span>
+            <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">Uncapped autoscaling policies can provision excess instances during abnormal traffic bursts or error loops. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Hard ceilings on EC2 instances requiring manual intervention to approve budget expansions.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <span class="font-bold text-red-600 dark:text-red-400 font-mono">Risk 3: Network Dropouts at Physical Locations</span>
+            <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">Intermittent internet outages at retail counters would block scheduled meal pickups. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Offline pickup verification using one-time PIN codes (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/011%20Every%20meal%20delivery%20has%20pick%20up%20pin%20code.md" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 011</a>), validating claims locally and reconciling inventory upon reconnection.</p>
+          </div>
+        </div>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
+          Having analyzed the technical considerations across all teams, we examine the complete winning solution: ArchColider's full blueprint and 16 ADRs.
+        </p>
+      </section>
+
+      <!-- Section 9: ArchColider Blueprint & 16 ADRs -->
+      <section id="archcolider-blueprint" class="space-y-8 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 9 · Principal Case Study</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">
+            ArchColider's Complete Blueprint and 16 ADRs (1st Place)
+          </h2>
+          <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            Comprehensive breakdown of the winning Kata design: core principles, domain decomposition, actor-based concurrency, itemized cost projections, and complete decision logs.
+          </p>
+        </div>
+
+        <!-- Team & Methodology Card -->
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs transition-colors space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span class="font-bold text-sm text-slate-900 dark:text-slate-100 font-mono">Winning Team Technical Profile</span>
+            </div>
+            <a 
+              href="https://github.com/TheKataLog/ArchColider" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 text-xs font-mono text-emerald-700 dark:text-emerald-400 hover:underline font-semibold"
+            >
+              <span>GitHub Repository (Branch: master)</span>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            ArchColider was composed of Andrei Gordienkov, Han Vermolen, Hemanth Pradeep Varanasi, and Lukasz Dynowski. They structured their submission using Nick Rozanski & Eoin Woods' <em><a href="https://github.com/TheKataLog/ArchColider/blob/master/3.ViewsAndPerspectives/Readme.md#L13" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-semibold">Viewpoints and Perspectives</a></em> methodology. The depth of their proposal (featuring rigorous cost modeling, actor-based concurrency, and 16 complete ADRs) established it as the competition's benchmark.
+          </p>
+        </div>
+
+        <!-- 9.1: Constraints and Principles -->
+        <div class="space-y-4">
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span>9.1 Global Constraints and 4 Core Design Principles</span>
+          </h3>
+          <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+            In their <a href="https://github.com/TheKataLog/ArchColider/blob/master/1.ProblemBackground/Constraints.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">Constraints.md</a> document, ArchColider identified four governing constraints:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+            <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60">
+              <span class="font-bold text-slate-900 dark:text-slate-100 font-mono">1. Small Engineering Team</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed"><em>"Development team is limited, so the solution should be simple at the beginning to prove business ideas."</em> Avoid squandering engineering bandwidth on complex distributed scaffolding.</p>
+            </div>
+            <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60">
+              <span class="font-bold text-slate-900 dark:text-slate-100 font-mono">2. Fast Time-to-Market</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed"><em>"Time-to-market is critical, and with support of the previous constraint, it should be super simple to deploy."</em> Clean, frictionless release pipelines.</p>
+            </div>
+            <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60">
+              <span class="font-bold text-slate-900 dark:text-slate-100 font-mono">3. AWS Primary Target</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed"><em>"AWS is the primary target platform for deployment."</em> Rely on managed cloud primitives in us-east close to Detroit.</p>
+            </div>
+            <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/60">
+              <span class="font-bold text-slate-900 dark:text-slate-100 font-mono">4. Tight Budget</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed"><em>"Budget is very limited, so OSS and tools provided by the target platform should end up higher in prioritization."</em> Prioritize open source and economical SaaS solutions.</p>
+            </div>
+          </div>
+
+          <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-3">
+            From these constraints, the team formalized four guiding design principles in their <a href="https://github.com/TheKataLog/ArchColider/blob/master/2.SolutionBackground/SolutionOverview.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">Solution Overview</a>:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+            <div class="p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/20">
+              <div class="font-mono font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5 mb-1">
+                <span>Principle 1</span>
+                <span class="text-slate-500 font-normal">· Simplicity</span>
+              </div>
+              <span class="block font-bold text-slate-900 dark:text-slate-100">Strive for cognitive simplicity</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">The architecture must remain straightforward to reason about and operate. Reject abstractions that introduce conceptual overhead without measurable value.</p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/20">
+              <div class="font-mono font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5 mb-1">
+                <span>Principle 2</span>
+                <span class="text-slate-500 font-normal">· Evolution</span>
+              </div>
+              <span class="block font-bold text-slate-900 dark:text-slate-100">Extensibility and modifiability preferred in trade-offs</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">When system attributes conflict, favor designs that allow extracting standalone services in the future without painful code rewrites.</p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/20">
+              <div class="font-mono font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5 mb-1">
+                <span>Principle 3</span>
+                <span class="text-slate-500 font-normal">· Observability</span>
+              </div>
+              <span class="block font-bold text-slate-900 dark:text-slate-100">Telemetry is mandatory</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">Every subdomain must emit metrics and traces. Future decisions to decompose modules into services must rely on hard performance data.</p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50/40 dark:bg-emerald-950/20">
+              <div class="font-mono font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5 mb-1">
+                <span>Principle 4</span>
+                <span class="text-slate-500 font-normal">· Decoupling</span>
+              </div>
+              <span class="block font-bold text-slate-900 dark:text-slate-100">Messages over direct calls</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">Favor asynchronous events to isolate core transactions from peripheral consumers, avoiding cascading failure modes.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9.2: Strategic Domain Decomposition -->
+        <div class="space-y-4">
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span>9.2 Strategic Domain Decomposition (Core, Supporting, Generic)</span>
+          </h3>
+          <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+            ArchColider implemented strategic Domain-Driven Design patterns to divide capabilities according to business importance:
+          </p>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+            <table class="w-full text-left text-xs sm:text-sm border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-mono">
+                  <th class="p-3">DDD Classification</th>
+                  <th class="p-3">Subsystems</th>
+                  <th class="p-3">Engineering Strategy</th>
+                  <th class="p-3">ArchColider Justification</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-slate-600 dark:text-slate-400">
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-mono font-bold text-emerald-800 dark:text-emerald-300">
+                    <span class="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-700 whitespace-nowrap">Core Domain</span>
+                  </td>
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">
+                    Meal Catalog, Ordering, Loyalty
+                  </td>
+                  <td class="p-3 font-mono text-emerald-700 dark:text-emerald-400">Bespoke In-House Code</td>
+                  <td class="p-3 leading-relaxed">
+                    Direct competitive differentiators: nutritional catalog with live fridge availability; order engine supporting subscription schedules; in-house loyalty incentives to retain customers.
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-mono font-bold text-sky-800 dark:text-sky-300">
+                    <span class="px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950/60 border border-sky-300 dark:border-sky-700 whitespace-nowrap">Supporting Domain</span>
+                  </td>
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">
+                    Feedback, Scheduling
+                  </td>
+                  <td class="p-3 font-mono text-sky-700 dark:text-sky-400">Custom / Modular Adapters</td>
+                  <td class="p-3 leading-relaxed">
+                    Necessary operational functions without unique competitive value. Feedback interfaces with third-party survey tooling (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/010%20Feedback%20System%20separation.md" class="text-emerald-700 dark:text-emerald-400 underline font-mono">ADR 010</a>). Scheduling coordinates meal production queues with ghost kitchens.
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-mono font-bold text-slate-800 dark:text-slate-300">
+                    <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 whitespace-nowrap">Generic Domain</span>
+                  </td>
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">
+                    Reporting, Payments, Notifications
+                  </td>
+                  <td class="p-3 font-mono text-slate-700 dark:text-slate-300">COTS / External SaaS</td>
+                  <td class="p-3 leading-relaxed">
+                    Solved commodity problems: Stripe for PCI DSS SAQ A compliance (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/009%20Rely%20on%20payment%20service%20provider.md" class="text-emerald-700 dark:text-emerald-400 underline font-mono">ADR 009</a>); Twilio and AWS SNS for notifications; Tableau and Apache Superset over a segregated historical warehouse for analytics.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 9.3: Concurrency and Persistence -->
+        <div class="space-y-4">
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span>9.3 Concurrency Architecture: In-Memory Fridge Actors</span>
+          </h3>
+          <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+            To prevent two users from claiming the same meal without incurring distributed lock contention, ArchColider introduced three architectural mechanisms in their <a href="https://github.com/TheKataLog/ArchColider/blob/master/3.ViewsAndPerspectives/Concurrency.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">Concurrency View</a>:
+          </p>
+
+          <div class="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+              <span class="font-bold text-slate-900 dark:text-slate-100 font-mono text-emerald-800 dark:text-emerald-400">1. In-Memory Actor per Physical Fridge</span>
+              <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">
+                Leveraging the Actor Model, each fridge is represented by an in-memory entity that serializes reservation and inventory changes sequentially. Executing at CPU speed in memory eliminates race conditions and avoids heavy relational database table locks.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+              <span class="font-bold text-slate-900 dark:text-slate-100 font-mono text-emerald-800 dark:text-emerald-400">2. Event Sourcing with Versioned Aggregates</span>
+              <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">
+                Orders are stored as append-only immutable event streams (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/007%20Event%20sourcing%20usage.md" class="text-emerald-700 dark:text-emerald-400 underline font-mono">ADR 007</a>) using optimistic concurrency checks. If a billing dispute occurs, the system reconstructs the exact sequence of events that produced the state.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+              <span class="font-bold text-slate-900 dark:text-slate-100 font-mono text-emerald-800 dark:text-emerald-400">3. Log-Based Message Streaming</span>
+              <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">
+                Orders publish domain events to RabbitMQ with at-least-once delivery guarantees (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/008%20At%20least%20once%20delivery%20for%20ready%20to%20pay%20order.md" class="text-emerald-700 dark:text-emerald-400 underline font-mono">ADR 008</a>). Downstream consumers process tasks at their own pace without competing for resources with checkout.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9.4: Cost Modeling (1-Year TCO) -->
+        <div class="space-y-4">
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span>9.4 Precise 1-Year TCO Cost Breakdown Across Three Growth Scenarios</span>
+          </h3>
+          <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+            ArchColider provided an exceptional <a href="https://github.com/TheKataLog/ArchColider/blob/master/3.ViewsAndPerspectives/CostAnalysis.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">Cost Analysis</a>, projecting total infrastructure costs across three operational growth models:
+          </p>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+            <table class="w-full text-left text-xs sm:text-sm border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-mono">
+                  <th class="p-3">Infrastructure Service</th>
+                  <th class="p-3">Provider</th>
+                  <th class="p-3 text-right">Minimum Scale<br/><span class="font-normal text-[11px] text-slate-500">(15k req/mo)</span></th>
+                  <th class="p-3 text-right">Projected Growth<br/><span class="font-normal text-[11px] text-slate-500">(31k req/mo)</span></th>
+                  <th class="p-3 text-right">Rapid Scale<br/><span class="font-normal text-[11px] text-slate-500">(310k req/mo)</span></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-800 font-mono text-xs">
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">EC2 (Compute + EBS)</td>
+                  <td class="p-3 text-slate-500">AWS</td>
+                  <td class="p-3 text-right">$3,114.96</td>
+                  <td class="p-3 text-right">$3,114.96</td>
+                  <td class="p-3 text-right text-amber-700 dark:text-amber-400">$6,230.04</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">Amazon MQ (RabbitMQ)</td>
+                  <td class="p-3 text-slate-500">AWS</td>
+                  <td class="p-3 text-right">$508.32</td>
+                  <td class="p-3 text-right">$546.72</td>
+                  <td class="p-3 text-right">$1,203.36</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">Amazon S3 (Storage)</td>
+                  <td class="p-3 text-slate-500">AWS</td>
+                  <td class="p-3 text-right">$262.32</td>
+                  <td class="p-3 text-right">$524.52</td>
+                  <td class="p-3 text-right">$5,245.20</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">Amazon DynamoDB</td>
+                  <td class="p-3 text-slate-500">AWS</td>
+                  <td class="p-3 text-right">$3,072.00</td>
+                  <td class="p-3 text-right">$3,072.00</td>
+                  <td class="p-3 text-right">$3,072.00</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">DataDog (APM & Metrics)</td>
+                  <td class="p-3 text-slate-500">DataDog</td>
+                  <td class="p-3 text-right">$3,336.00</td>
+                  <td class="p-3 text-right">$3,336.00</td>
+                  <td class="p-3 text-right">$3,336.00</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">Tableau (BI & Analytics)</td>
+                  <td class="p-3 text-slate-500">Tableau</td>
+                  <td class="p-3 text-right">$1,440.00</td>
+                  <td class="p-3 text-right">$1,440.00</td>
+                  <td class="p-3 text-right">$2,880.00</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">AWS SNS (Notifications)</td>
+                  <td class="p-3 text-slate-500">AWS</td>
+                  <td class="p-3 text-right">$366.12</td>
+                  <td class="p-3 text-right">$366.12</td>
+                  <td class="p-3 text-right">$366.12</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">Kafka / Kinesis Data Streams</td>
+                  <td class="p-3 text-slate-500">AWS</td>
+                  <td class="p-3 text-right">$138.72</td>
+                  <td class="p-3 text-right">$138.72</td>
+                  <td class="p-3 text-right">$138.72</td>
+                </tr>
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-colors">
+                  <td class="p-3 font-semibold text-slate-900 dark:text-slate-100">Site-to-Site VPN</td>
+                  <td class="p-3 text-slate-500">AWS</td>
+                  <td class="p-3 text-right">$9.13</td>
+                  <td class="p-3 text-right">$9.13</td>
+                  <td class="p-3 text-right">$9.13</td>
+                </tr>
+                <tr class="bg-emerald-50/70 dark:bg-emerald-950/40 font-bold border-t-2 border-emerald-300 dark:border-emerald-700 text-slate-900 dark:text-slate-100 text-sm">
+                  <td class="p-3" colspan="2">TOTAL ANNUAL (1-Year TCO)</td>
+                  <td class="p-3 text-right text-emerald-800 dark:text-emerald-300">$12,247.57 USD</td>
+                  <td class="p-3 text-right text-emerald-800 dark:text-emerald-300">$12,548.17 USD</td>
+                  <td class="p-3 text-right text-emerald-800 dark:text-emerald-300">$22,480.57 USD</td>
+                </tr>
+                <tr class="bg-slate-50 dark:bg-slate-900/60 font-medium text-slate-600 dark:text-slate-400 text-xs">
+                  <td class="p-2.5" colspan="2">Approximate monthly cost</td>
+                  <td class="p-2.5 text-right">~$1,020.63 / mo</td>
+                  <td class="p-2.5 text-right">~$1,045.68 / mo</td>
+                  <td class="p-2.5 text-right">~$1,873.38 / mo</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            <span class="font-mono font-bold text-slate-900 dark:text-slate-100">The explicit SaaS trade-off:</span>
+            Notice that DataDog ($3,336/yr) and Tableau ($1,440/yr) account for almost 40% of the baseline budget. ArchColider reasoned that the engineering salaries required to self-host and maintain equivalent monitoring stacks (e.g., Prometheus + Grafana + Elasticsearch on EC2) would dramatically exceed the subscription cost, freeing the small engineering team to focus entirely on core business logic.
+          </div>
+        </div>
+
+        <!-- 9.5: Risks and Sensitive Points -->
+        <div class="space-y-4">
+          <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span>9.5 Documented Risk Register and Sensitive Points</span>
+          </h3>
+          <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+            In their <a href="https://github.com/TheKataLog/ArchColider/blob/master/2.SolutionBackground/RisksAndSensitivePoints.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">RisksAndSensitivePoints.md</a> document, ArchColider cataloged failure scenarios and concrete mitigations:
+          </p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+              <span class="font-bold text-red-600 dark:text-red-400 font-mono">Stale Catalog Display vs. Actual Stock</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                A user views an in-stock meal on their mobile app that was already physically taken from the fridge. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Optimistic catalog browsing in the mobile client for fast UI feedback, paired with mandatory real-time stock verification against the in-memory fridge actor at the exact moment of payment authorization.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+              <span class="font-bold text-red-600 dark:text-red-400 font-mono">The Dev vs. Prod Parity Trap (1:1 Problem)</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                Running a single instance in local development masks concurrency races and distributed deadlocks. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Running at least 2 instances of business services in development environments to surface communication failures early.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+              <span class="font-bold text-red-600 dark:text-red-400 font-mono">Breaking Changes in Event Message Contracts</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                Schema evolution in RabbitMQ breaking existing consumer services. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Backwards and forwards compatible serialization rules with sunset headers on deprecated fields.
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+              <span class="font-bold text-red-600 dark:text-red-400 font-mono">Review Bombing Partner Ghost Kitchens</span>
+              <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                Malicious review spam targeting third-party kitchens. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Customer review submissions are restricted to users with settled purchases recorded in the event store.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9.6: Interactive ADR Compendium -->
+        <div class="space-y-4">
+          <div class="border-t border-slate-200 dark:border-slate-800 pt-6">
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <span>9.6 Complete Interactive Compendium of the 16 ADRs</span>
+            </h3>
+            <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-2">
+              ArchColider adopted Michael Nygard's format (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/001%20We%20are%20using%20ADR%20(template).md" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 001</a>) to document every system decision. Explore the full record of all 16 decisions (Accepted, Proposed, Declined, Draft) below:
+            </p>
+          </div>
+
+          <!-- Interactive ADRs Component (English) -->
+          <ArchColiderAdrs lang="en" />
+
+          <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
+            ArchColider's thoroughness demonstrates how to formalize system design without ambiguity. However, applying these insights to everyday engineering work does not require writing sixteen ADRs on Day 1: it requires building consistent architectural decision-making habits.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 10 -->
+      <section id="guia-campo" class="space-y-6 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 10</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">Field Guide: Practical Principles for Real-World Projects</h2>
+        </div>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          Beyond the kata competition, analyzing these proposals yields four practical principles for production systems:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <div class="font-bold text-emerald-800 dark:text-emerald-400 font-mono mb-1">1. Concise ADRs for High-Reversal-Cost Choices</div>
+            <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Focus formal documentation on decisions with high costs of reversal: datastore engine selection, transaction boundaries (ACID vs. eventual consistency), or third-party vendor integrations.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <div class="font-bold text-emerald-800 dark:text-emerald-400 font-mono mb-1">2. Early Proof of Concept for External Dependencies</div>
+            <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Before finalizing architectural blueprints or committing project deadlines, validate real-world third-party API behavior and physical hardware limitations through targeted proof of concepts.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <div class="font-bold text-emerald-800 dark:text-emerald-400 font-mono mb-1">3. Logical Modularity Before Physical Distribution</div>
+            <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Starting with a modular monolith featuring enforced domain boundaries minimizes initial operational complexity while preserving the ability to extract microservices when true traffic scale justifies it.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
+            <div class="font-bold text-emerald-800 dark:text-emerald-400 font-mono mb-1">4. Explicit Decision Tie-Breakers Up Front</div>
+            <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Establishing clear criteria (such as cognitive simplicity over premature optimization) provides an objective benchmark for resolving technical disagreements and evaluating implementation tradeoffs.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 11 -->
+      <section id="sintesis" class="space-y-6 pt-2">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">Section 11</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">Final Synthesis & Original Repositories</h2>
+        </div>
+
+        <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
+          Ultimately, software architecture is the discipline of making trade-offs explicit: consciously choosing which quality attributes to prioritize at each stage of a system's life, and transparently documenting the consequences of every choice.
+        </p>
+
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4 shadow-xs transition-colors">
+          <div class="font-bold text-slate-900 dark:text-slate-100 font-mono uppercase text-xs tracking-wider">Original GitHub Repositories (TheKataLog)</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+            <a href="https://github.com/TheKataLog/ArchColider" target="_blank" class="p-3 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-300 hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/40 flex items-center justify-between font-bold transition-all shadow-xs">
+              <span>🥇 ArchColider (Branch: master)</span>
+              <span>↗</span>
+            </a>
+            <a href="https://github.com/TheKataLog/Myagis-Forest" target="_blank" class="p-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:border-slate-400 hover:bg-slate-200/70 dark:hover:bg-slate-700 flex items-center justify-between font-bold transition-all shadow-xs">
+              <span>🥈 Myagis-Forest (Branch: main)</span>
+              <span>↗</span>
+            </a>
+            <a href="https://github.com/TheKataLog/Jedis" target="_blank" class="p-3 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 hover:border-amber-400 hover:bg-amber-100/70 dark:hover:bg-amber-900/40 flex items-center justify-between font-bold transition-all shadow-xs">
+              <span>🥉 Jedis (Branch: main)</span>
+              <span>↗</span>
+            </a>
+            <a href="https://github.com/TheKataLog/Hey-Dragon" target="_blank" class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900 flex items-center justify-between transition-all">
+              <span>⚡ Hey-Dragon (Branch: main)</span>
+              <span>↗</span>
+            </a>
+            <a href="https://github.com/TheKataLog/Team-Pacman" target="_blank" class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900 flex items-center justify-between transition-all">
+              <span>⚡ Team-Pacman (Branch: main)</span>
+              <span>↗</span>
+            </a>
+            <a href="https://github.com/TheKataLog/Hananoyama" target="_blank" class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900 flex items-center justify-between transition-all">
+              <span>⚡ Hananoyama (Branch: main)</span>
+              <span>↗</span>
+            </a>
+            <a href="https://github.com/TheKataLog/da-Vinci" target="_blank" class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900 flex items-center justify-between transition-all">
+              <span>⚡ da Vinci (Branch: master)</span>
+              <span>↗</span>
+            </a>
+            <a href="https://github.com/TheKataLog/Self-Driven-Team" target="_blank" class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-900 flex items-center justify-between transition-all">
+              <span>⚡ Self-Driven Team (Branch: main)</span>
+              <span>↗</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </article>
+  </div>
+</Layout>
+
+<script>
+  // Desktop TOC Rail Interaction Elements
+  const tocSidebar = document.getElementById('toc-sidebar');
+  const tocCard = document.getElementById('toc-card');
+  const tocExpandedView = document.getElementById('toc-expanded-view');
+  const tocCollapsedView = document.getElementById('toc-collapsed-view');
+  const collapseBtn = document.getElementById('collapse-toc-desktop');
+  const expandBtn = document.getElementById('expand-toc-desktop');
+  const floatingTooltip = document.getElementById('toc-floating-tooltip');
+  const tocDots = document.querySelectorAll('.toc-dot');
+
+  function collapseTOC() {
+    if (!tocSidebar || !tocCard || !tocExpandedView || !tocCollapsedView) return;
+    tocSidebar.classList.remove('w-72');
+    tocSidebar.classList.add('w-14');
+    tocCard.classList.remove('p-4');
+    tocCard.classList.add('p-2', 'flex', 'flex-col', 'items-center');
+    tocExpandedView.classList.add('hidden');
+    tocCollapsedView.classList.remove('hidden');
+    tocCollapsedView.classList.add('flex');
+    localStorage.setItem('toc-collapsed', 'true');
+  }
+
+  function expandTOC() {
+    if (!tocSidebar || !tocCard || !tocExpandedView || !tocCollapsedView) return;
+    tocSidebar.classList.remove('w-14');
+    tocSidebar.classList.add('w-72');
+    tocCard.classList.remove('p-2', 'flex', 'flex-col', 'items-center');
+    tocCard.classList.add('p-4');
+    tocCollapsedView.classList.add('hidden');
+    tocCollapsedView.classList.remove('flex');
+    tocExpandedView.classList.remove('hidden');
+    localStorage.setItem('toc-collapsed', 'false');
+    floatingTooltip?.classList.add('hidden');
+  }
+
+  collapseBtn?.addEventListener('click', collapseTOC);
+  expandBtn?.addEventListener('click', expandTOC);
+
+  // Restore saved collapse state
+  if (localStorage.getItem('toc-collapsed') === 'true') {
+    collapseTOC();
+  }
+
+  // Floating Tooltip for Collapsed Rail Dots
+  tocDots.forEach((dot) => {
+    dot.addEventListener('mouseenter', () => {
+      if (!floatingTooltip) return;
+      const text = dot.getAttribute('data-tooltip') || '';
+      floatingTooltip.textContent = text;
+      floatingTooltip.classList.remove('hidden');
+      const rect = dot.getBoundingClientRect();
+      const top = rect.top + (rect.height / 2);
+      const left = rect.right + 12;
+      floatingTooltip.style.top = `${top}px`;
+      floatingTooltip.style.left = `${left}px`;
+    });
+
+    dot.addEventListener('mouseleave', () => {
+      floatingTooltip?.classList.add('hidden');
+    });
+  });
+
+  window.addEventListener('scroll', () => {
+    floatingTooltip?.classList.add('hidden');
+  }, { passive: true });
+
+  // Mobile Drawer elements
+  const toggleMobileBtn = document.getElementById('toggle-toc-mobile');
+  const mobileDrawer = document.getElementById('mobile-drawer');
+  const closeDrawerBtn = document.getElementById('close-drawer');
+  const mobileLinks = document.querySelectorAll('.mobile-toc-link');
+
+  // Mobile Drawer Toggle
+  toggleMobileBtn?.addEventListener('click', () => {
+    mobileDrawer?.classList.remove('hidden');
+  });
+
+  closeDrawerBtn?.addEventListener('click', () => {
+    mobileDrawer?.classList.add('hidden');
+  });
+
+  mobileDrawer?.addEventListener('click', (e) => {
+    if (e.target === mobileDrawer) {
+      mobileDrawer.classList.add('hidden');
+    }
+  });
+
+  mobileLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      mobileDrawer?.classList.add('hidden');
+    });
+  });
+
+  // Scrollspy: Synchronously highlight active TOC link (Expanded) and dot indicator (Collapsed Rail)
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        
+        // Update Expanded Text Links
+        document.querySelectorAll('.toc-link').forEach((link) => {
+          if (link.getAttribute('href') === `#${id}`) {
+            link.classList.add('text-emerald-800', 'dark:text-emerald-300', 'bg-emerald-50', 'dark:bg-emerald-950/60', 'font-bold', 'border-l-2', 'border-emerald-600');
+            link.classList.remove('text-slate-600', 'dark:text-slate-400');
+          } else {
+            link.classList.remove('text-emerald-800', 'dark:text-emerald-300', 'bg-emerald-50', 'dark:bg-emerald-950/60', 'font-bold', 'border-l-2', 'border-emerald-600');
+            link.classList.add('text-slate-600', 'dark:text-slate-400');
+          }
+        });
+
+        // Update Collapsed Rail Dot Indicators
+        document.querySelectorAll('.toc-dot').forEach((dotLink) => {
+          const target = dotLink.getAttribute('data-target');
+          const indicator = dotLink.querySelector('.dot-indicator');
+          if (!indicator) return;
+
+          if (target === id) {
+            indicator.classList.add('bg-emerald-600', 'dark:bg-emerald-400', 'ring-4', 'ring-emerald-200', 'dark:ring-emerald-950', 'scale-125');
+            indicator.classList.remove('bg-slate-300', 'dark:bg-slate-700');
+          } else {
+            indicator.classList.remove('bg-emerald-600', 'dark:bg-emerald-400', 'ring-4', 'ring-emerald-200', 'dark:ring-emerald-950', 'scale-125');
+            indicator.classList.add('bg-slate-300', 'dark:bg-slate-700');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-100px 0px -66% 0px' });
+
+  document.querySelectorAll('section[id]').forEach((section) => {
+    observer.observe(section);
+  });
+
+  // Floating Tooltip for Architectural Style Matrix
+  const matrixTooltip = document.getElementById('matrix-tooltip');
+  const matrixTooltipIcon = document.getElementById('matrix-tooltip-icon');
+  const matrixTooltipTitle = document.getElementById('matrix-tooltip-title');
+  const matrixTooltipDesc = document.getElementById('matrix-tooltip-desc');
+  const matrixTooltipHint = document.getElementById('matrix-tooltip-hint');
+
+  // Matrix Deep Dive Modal Elements
+  const matrixCellModal = document.getElementById('matrix-cell-modal');
+  const matrixModalCard = document.getElementById('matrix-modal-card');
+  const matrixModalClose = document.getElementById('matrix-modal-close');
+  const matrixModalFooterClose = document.getElementById('matrix-modal-footer-close');
+  const matrixModalFeatureIcon = document.getElementById('matrix-modal-feature-icon');
+  const matrixModalFeatureName = document.getElementById('matrix-modal-feature-name');
+  const matrixModalStyleIcon = document.getElementById('matrix-modal-style-icon');
+  const matrixModalStyleName = document.getElementById('matrix-modal-style-name');
+  const matrixModalRatingBadge = document.getElementById('matrix-modal-rating-badge');
+  const matrixModalHeadline = document.getElementById('matrix-modal-headline');
+  const matrixModalCoreProblem = document.getElementById('matrix-modal-core-problem');
+  const matrixModalTermsList = document.getElementById('matrix-modal-terms-list');
+  const matrixModalTermsContainer = document.getElementById('matrix-modal-terms-container');
+  const matrixModalFarmacyExample = document.getElementById('matrix-modal-farmacy-example');
+  const matrixModalArchitecturalLesson = document.getElementById('matrix-modal-architectural-lesson');
+
+  let deepDivesMap: Record<string, any> = {};
+  const dataScript = document.getElementById('matrix-deep-dives-data');
+  if (dataScript && dataScript.textContent) {
+    try {
+      deepDivesMap = JSON.parse(dataScript.textContent);
+    } catch (err) {
+      console.error('Error parsing matrix deep dives data:', err);
+    }
+  }
+
+  function openMatrixCellModal(cellKey: string) {
+    const detail = deepDivesMap[cellKey];
+    if (!detail || !matrixCellModal || !matrixModalCard) return;
+
+    // Dismiss tooltip
+    hideMatrixTooltip();
+
+    // Populate data
+    if (matrixModalFeatureIcon) matrixModalFeatureIcon.textContent = detail.featureIcon;
+    if (matrixModalFeatureName) matrixModalFeatureName.textContent = detail.featureName;
+    if (matrixModalStyleIcon) matrixModalStyleIcon.textContent = detail.styleIcon;
+    if (matrixModalStyleName) matrixModalStyleName.textContent = detail.styleName;
+    
+    if (matrixModalRatingBadge) {
+      matrixModalRatingBadge.textContent = detail.ratingLabel;
+      matrixModalRatingBadge.className = `px-2 py-0.5 rounded text-[11px] font-bold font-mono border ${detail.badgeClasses}`;
+    }
+
+    if (matrixModalHeadline) matrixModalHeadline.textContent = detail.headline;
+    if (matrixModalCoreProblem) matrixModalCoreProblem.textContent = detail.coreProblem;
+
+    if (matrixModalTermsList) {
+      matrixModalTermsList.innerHTML = '';
+      if (detail.keyTerms && detail.keyTerms.length > 0) {
+        detail.keyTerms.forEach((item: { term: string; explanation: string }) => {
+          const card = document.createElement('div');
+          card.className = 'p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-1';
+          
+          const title = document.createElement('div');
+          title.className = 'text-xs font-mono font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5';
+          title.innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><span>${item.term}</span>`;
+          
+          const exp = document.createElement('div');
+          exp.className = 'text-xs text-slate-700 dark:text-slate-300 leading-relaxed pl-3';
+          exp.textContent = item.explanation;
+          
+          card.appendChild(title);
+          card.appendChild(exp);
+          matrixModalTermsList.appendChild(card);
+        });
+        matrixModalTermsContainer?.classList.remove('hidden');
+      } else {
+        matrixModalTermsContainer?.classList.add('hidden');
+      }
+    }
+
+    if (matrixModalFarmacyExample) matrixModalFarmacyExample.textContent = detail.farmacyExample;
+    if (matrixModalArchitecturalLesson) matrixModalArchitecturalLesson.textContent = detail.architecturalLesson;
+
+    // Show modal with animation
+    matrixCellModal.classList.remove('hidden');
+    requestAnimationFrame(() => {
+      matrixCellModal.classList.remove('opacity-0');
+      matrixModalCard.classList.remove('scale-95');
+      matrixModalCard.classList.add('scale-100');
+    });
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeMatrixCellModal() {
+    if (!matrixCellModal || !matrixModalCard || matrixCellModal.classList.contains('hidden')) return;
+
+    matrixCellModal.classList.add('opacity-0');
+    matrixModalCard.classList.remove('scale-100');
+    matrixModalCard.classList.add('scale-95');
+
+    setTimeout(() => {
+      matrixCellModal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    }, 200);
+  }
+
+  function hideMatrixTooltip() {
+    matrixTooltip?.classList.add('hidden');
+  }
+
+  function showMatrixTooltip(el: Element) {
+    if (!matrixTooltip || !matrixTooltipTitle || !matrixTooltipDesc) return;
+    
+    const title = el.getAttribute('data-tooltip-title') || '';
+    const desc = el.getAttribute('data-tooltip-desc') || '';
+    const icon = el.getAttribute('data-tooltip-icon') || 'ℹ️';
+    const isCell = el.hasAttribute('data-cell-key');
+
+    if (matrixTooltipIcon) matrixTooltipIcon.textContent = icon;
+    matrixTooltipTitle.textContent = title;
+    matrixTooltipDesc.textContent = desc;
+
+    if (isCell) {
+      matrixTooltipHint?.classList.remove('hidden');
+    } else {
+      matrixTooltipHint?.classList.add('hidden');
+    }
+
+    matrixTooltip.classList.remove('hidden');
+
+    const rect = el.getBoundingClientRect();
+    const tooltipRect = matrixTooltip.getBoundingClientRect();
+    const margin = 6;
+
+    // Prefer positioning below target; flip above if near bottom edge
+    let top = rect.bottom + margin;
+    if (top + tooltipRect.height > window.innerHeight - margin) {
+      top = rect.top - tooltipRect.height - margin;
+    }
+    if (top < margin) top = margin;
+
+    // Center horizontally on target, clamped within screen
+    let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+    if (left < margin) left = margin;
+    if (left + tooltipRect.width > window.innerWidth - margin) {
+      left = window.innerWidth - tooltipRect.width - margin;
+    }
+
+    matrixTooltip.style.top = `${top}px`;
+    matrixTooltip.style.left = `${left}px`;
+  }
+
+  // Triggers (cells and headers)
+  document.querySelectorAll('[data-matrix-tooltip]').forEach((el) => {
+    el.addEventListener('mouseenter', () => showMatrixTooltip(el));
+    el.addEventListener('mouseleave', hideMatrixTooltip);
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const cellKey = el.getAttribute('data-cell-key');
+      if (cellKey) {
+        hideMatrixTooltip();
+        openMatrixCellModal(cellKey);
+      } else {
+        showMatrixTooltip(el);
+      }
+    });
+  });
+
+  // Modal close handlers
+  matrixModalClose?.addEventListener('click', closeMatrixCellModal);
+  matrixModalFooterClose?.addEventListener('click', closeMatrixCellModal);
+  matrixCellModal?.addEventListener('click', (e) => {
+    if (e.target === matrixCellModal) {
+      closeMatrixCellModal();
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeMatrixCellModal();
+    }
+  });
+
+  // Click outside to dismiss tooltip
+  document.addEventListener('click', (e) => {
+    const isTrigger = (e.target as HTMLElement | null)?.closest('[data-matrix-tooltip]');
+    if (!isTrigger) {
+      hideMatrixTooltip();
+    }
+  });
+
+  // Dismiss immediately on page scroll
+  window.addEventListener('scroll', hideMatrixTooltip, { passive: true });
+</script>
