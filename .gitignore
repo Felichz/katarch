@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
-web/node_modules/
+
+# Deprecated subfolder
+web/
 
 # Local Kata sources (cloned repos with binary assets)
 fall-2020-farmacy-food/
@@ -28,3 +30,6 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+.vercel
+.env*

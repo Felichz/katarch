@@ -36,7 +36,7 @@ After cloning and auditing the 10 original participant repositories in [fall-202
   - **ArchColider (1st Place):** Serves as the **central spine and cognitive anchor** (~70% of each architectural dilemma).
   - **Myagis-Forest (2nd Place) & Jedis (3rd Place):** Act as **dialectical podium counterpoints** (~20%), highlighting alternative design paradigms (e.g., Day-1 microservices on Kubernetes vs. Kafka event streaming).
   - **Runner-Up Submissions:** Highlighted as **tactical insights and honorable mentions** (~10%), linked directly to exact GitHub file lines (`#L...`).
-  - **Interactive Web Implementation:** Built using **Astro + Tailwind CSS**, featuring bilingual support (ES/EN), interactive diagrams (Mermaid), sticky table of contents, and deep-dive modals for architectural styles.
+  - **Interactive Web Implementation:** Built using **Astro + Tailwind CSS** directly at the repository root, featuring bilingual support (`/` for Spanish and `/en` for English), interactive diagrams (Mermaid), collapsible sticky table of contents rail, 32 interactive deep-dive matrix modals with technical terms, 16 interactive ArchColider ADRs, and automated zero-config Vercel production deployment.
 
 ---
 
@@ -48,18 +48,20 @@ We adopt **Option 4**:
    - **Cognitive Anchor (ArchColider):** Readers follow a cohesive, end-to-end architecture from Day 1 to scale.
    - **Immediate Dialectic (Myagis-Forest & Jedis):** Competing approaches are debated right when the architectural question is actively explored.
    - **Targeted Runner-Up Highlights (Hananoyama, Pacman, Hey-Dragon, da Vinci):** High-value individual contributions (such as hardware bill of materials, serverless cost breakdowns, or evolutionary migration paths) are isolated and referenced with primary source links.
-   - **Architecture Fundamentals Integration:** Concepts from Richards & Ford are woven directly into the text (First and Second Laws of Architecture, Architectural Quanta, Fallacies of Distributed Computing, Conway's Law, CAP theorem, Nygard ADRs).
+   - **Architecture Fundamentals Integration:** Concepts from Richards & Ford are woven directly into the text (First and Second Laws of Architecture, Architectural Quanta, Fallacies of Distributed Computing, Conway's Law, PACELC theorem, Nygard ADRs).
 
 2. **Technology Platform and Visual Design System:**
-   - **Framework:** **Astro** (static generation, zero unnecessary client-side JavaScript, optimal performance).
+   - **Framework:** **Astro** in the repository root (static generation, zero unnecessary client-side JavaScript, optimal performance).
    - **Styling:** **Tailwind CSS** with typography plugin and dark-mode-first aesthetic (Linear / GitHub Dimmed style).
    - **Modular Interactive Components:**
-     - `<PodiumCounterpoint>`: High-contrast card with silver/bronze accent borders for debating 2nd and 3rd place designs.
-     - `<RunnerUpInsight>`: Compact dashed card with accent badges and direct GitHub repository deep links.
+     - `<PodiumCounterpoint>`: High-contrast card with silver/bronze accent borders for debating 2nd and 3rd place designs, localized for English and Spanish.
+     - `<RunnerUpInsight>`: Compact dashed card with accent badges and direct GitHub repository deep links, localized for English and Spanish.
      - `<TheoryBox>`: Conceptual callout linking real decisions to Richards & Ford's textbook chapters.
      - `<Mermaid>`: Dynamic SVG diagrams for context, sequence flows, and decision trees.
-     - Sticky and collapsible table of contents with reading position indicators.
-     - Bilingual support with header language switcher (`ES / EN`).
+     - `<ArchColiderAdrs>`: Interactive ADR explorer rendering all 16 ArchColider decision records with status filters and full bilingual data (`ARCHCOLIDER_ADRS` and `ARCHCOLIDER_ADRS_EN`).
+     - **32 Deep-Dive Matrix Modals:** Powered by `matrixDeepDives` and `matrixDeepDivesEn`, providing instant technical glossaries, Farmacy Food examples, and architectural takeaways for every trade-off combination.
+     - Sticky and collapsible table of contents rail with reading position indicators and floating tooltips.
+     - Bilingual support with sticky header language switcher (`🌐 ES / EN`) routing between `/` and `/en`.
 
 ---
 
@@ -69,15 +71,18 @@ We adopt **Option 4**:
 - **Maximum Pedagogical Effectiveness:** Implements the *Anchor & Delta* learning principle (learn one solid model thoroughly, then evaluate variations).
 - **Reduced Cognitive Load:** Visual component hierarchy immediately signals the relative significance of each proposal.
 - **Traceability to Primary Sources:** Direct GitHub links (`#L...`) enable readers to verify decisions against the original submission files.
-- **Production-Ready Deployment:** The resulting static artifact is self-contained and ready for deployment on Vercel, Netlify, or GitHub Pages.
+- **Production-Ready Deployment:** Hosted directly on Vercel (`https://katarch.vercel.app`) with sub-second static load times and zero-maintenance infrastructure.
+- **Flattened Repository Architecture:** Standard root-level Astro project structure simplifies continuous integration, local development, and build pipelines without subfolder delegation.
 
 ### Negative / Incurred Overhead
-- Requires maintaining a frontend workspace (`web/`) with Node.js build tooling.
-- Content changes must remain synchronized between bilingual editions and component props.
+- Content changes must remain synchronized between both language editions (`src/pages/index.astro` and `src/pages/en.astro`).
+- Interactive modal data dictionaries must be maintained in both Spanish (`matrixDeepDives`) and English (`matrixDeepDivesEn`).
 
 ---
 
 ## 5. References and Evidence
-- Cloned participant repositories: `fall-2020-farmacy-food/`
+- Cloned participant repositories: `fall-2020-farmacy-food/` (kept locally and ignored from git).
 - Official competition repository: [TheKataLog](https://github.com/TheKataLog)
 - Theoretical foundation: *Fundamentals of Software Architecture* (O'Reilly) by Mark Richards & Neal Ford.
+- Production deployment: [https://katarch.vercel.app](https://katarch.vercel.app)
+
