@@ -1,0 +1,20 @@
+---
+interface Props {
+  id: string;
+  label: string;
+  icon?: string;
+}
+
+const { id, label, icon } = Astro.props;
+---
+
+<button 
+  type="button" 
+  class="concept-chip inline-flex items-center gap-1 px-2 py-0.5 my-0.5 rounded-md bg-emerald-50/90 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/60 font-mono text-[11px] font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-all cursor-pointer shadow-2xs group align-baseline" 
+  data-concept={id}
+  title={`Explorar concepto técnico: ${label}`}
+>
+  {icon && <span class="text-xs leading-none">{icon}</span>}
+  <span class="underline decoration-dotted underline-offset-2 decoration-emerald-400/60 dark:decoration-emerald-500/60">{label}</span>
+  <span class="text-[10px] text-emerald-600 dark:text-emerald-400 group-hover:translate-x-0.5 transition-transform leading-none font-bold">↗</span>
+</button>

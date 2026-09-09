@@ -5,6 +5,8 @@ import RunnerUpInsight from '../components/RunnerUpInsight.astro';
 import TheoryBox from '../components/TheoryBox.astro';
 import Mermaid from '../components/Mermaid.astro';
 import ArchColiderAdrs from '../components/ArchColiderAdrs.astro';
+import ConceptChip from '../components/ConceptChip.astro';
+import ConceptModal from '../components/ConceptModal.astro';
 import { matrixDeepDives } from '../data/matrix-deep-dives';
 
 const contextDiagram = `flowchart TD
@@ -675,7 +677,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
           <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">La escala del Día 1:</span> Solo 2 locaciones piloto en Detroit y unas ~300 comidas por semana. Tráfico casi nulo.</p>
           <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">La meta a 12 meses:</span> Crecer a 8 locaciones en el primer semestre y cerrar el año con 68 puntos de venta, 2.000 comidas semanales y 1.000 clientes con suscripción activa.</p>
           <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">Fuera de alcance (Out of Scope):</span> La logística física de las camionetas de reparto y el firmware interno de las heladeras no formaban parte del software a diseñar.</p>
-          <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">Los desafíos de integración:</span> ¿Cómo validar el perfil de un cliente para subsidiar platos en una heladera que no tiene pantalla ni teclado? ¿Cómo garantizar la venta si se corta la conexión en un kiosco? ¿Cómo evitar que dos personas reserven la misma vianda en simultáneo?</p>
+          <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">Los desafíos de integración:</span> ¿Cómo validar el perfil de un cliente para subsidiar platos en una heladera que no tiene pantalla ni teclado? ¿Cómo garantizar la venta si se corta la conexión en un kiosco mediante <ConceptChip id="store-and-forward" label="Modo Offline & Store-and-Forward" icon="📡" />? ¿Cómo evitar que dos personas reserven la misma vianda en simultáneo sin congelar la base de datos mediante <ConceptChip id="optimistic-concurrency" label="Concurrencia Optimista" icon="🛡️" />?</p>
         </div>
 
         <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
@@ -1060,7 +1062,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
             "In the Farmacy Food scenario, which is 'green field' to the most extent, we don't see the need to invest time in designing and implementing stage architectures (e.g., modular monolith ==&gt; service-based or macroservices ==&gt; microservice). We have good reasons to believe using the microservice style from the getgo is perfectly feasible time-wise, as well as technically and financially."
           </blockquote>
           <p>
-            Para contener la sobrecarga operacional de Kubernetes, estructuraron cada servicio mediante arquitectura hexagonal (Ports & Adapters) y adoptaron el patrón BFF (Backend for Frontend): capas de adaptación ligeras que moldean las respuestas específicamente para la aplicación web y los kioscos físicos, evitando que las interfaces de usuario consuman directamente las APIs internas de los microservicios.
+            Para contener la sobrecarga operacional de Kubernetes, estructuraron cada servicio mediante <ConceptChip id="hexagonal-architecture" label="Arquitectura Hexagonal (Ports & Adapters)" icon="⬡" /> y adoptaron el <ConceptChip id="bff-pattern" label="Patrón BFF (Backend for Frontend)" icon="📱" />: capas de adaptación ligeras que moldean las respuestas específicamente para la aplicación web y los kioscos físicos, evitando que las interfaces de usuario consuman directamente las APIs internas de los microservicios.
           </p>
         </PodiumCounterpoint>
 
@@ -1110,7 +1112,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
 
         <TheoryBox concept="Particionamiento por Dominio vs. Particionamiento por Capas Técnicas" chapter="Capítulos 8 y 9">
           <p>
-            En el particionamiento técnico se organiza el código por capas horizontales (controladores, servicios, repositorios): cualquier cambio en una regla de negocio obliga a modificar múltiples capas simultáneamente. En el particionamiento por dominio, el código se agrupa en torno a conceptos de negocio (Órdenes, Stock, Facturación), encapsulando la lógica para que las modificaciones no desborden su contexto.
+            En el particionamiento técnico se organiza el código por capas horizontales (controladores, servicios, repositorios): cualquier cambio en una regla de negocio obliga a modificar múltiples capas simultáneamente. En el particionamiento por dominio, el código se agrupa en torno a conceptos de negocio (Órdenes, Stock, Facturación), encapsulando la lógica en <ConceptChip id="bounded-contexts" label="Bounded Contexts" icon="🗺️" /> para que las modificaciones no desborden su contexto semántico.
           </p>
         </TheoryBox>
 
@@ -1186,7 +1188,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
 
         <TheoryBox concept="CAP/PACELC y el Costo Oculto de la Consistencia Eventual" chapter="Capítulo 14">
           <p>
-            El teorema CAP de Eric Brewer postuló que ante una partición de red es inevitable elegir entre consistencia inmediata (C) o disponibilidad (A). Daniel Abadi formuló luego una extensión clave para entender los sistemas en régimen ordinario: el teorema PACELC.
+            El teorema CAP de Eric Brewer postuló que ante una partición de red es inevitable elegir entre consistencia inmediata (C) o disponibilidad (A). Daniel Abadi formuló luego una extensión clave para entender los sistemas en régimen ordinario: el <ConceptChip id="pacelc-theorem" label="Teorema PACELC" icon="⚖️" />.
           </p>
           <p class="mt-2">
             La regla establece: ante una partición (<em>P</em>), se elige entre disponibilidad (<em>A</em>) o consistencia (<em>C</em>); si la red opera sin fallas (<em>E</em>lse), el dilema permanente es entre latencia (<em>L</em>) o consistencia (<em>C</em>). Garantizar lecturas estrictamente consistentes en sistemas distribuidos obliga a esperar confirmaciones entre réplicas, elevando los tiempos de respuesta. Para responder en milisegundos en la app del usuario, el sistema debe tolerar lecturas ligeramente desactualizadas (consistencia eventual).
@@ -1221,7 +1223,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
           githubUrl="https://github.com/TheKataLog/Myagis-Forest/blob/main/ADRs/ADR005-cqrs-pattern.md"
         >
           <p>
-            En contraste, Myagis-Forest resolvió el trade-off de PACELC a favor de la latencia en lecturas mediante CQRS (Command Query Responsibility Segregation): implementaron una base relacional transaccional para procesar mutaciones críticas de inventario, y vistas de lectura desnormalizadas y cacheadas para absorber el tráfico masivo de consulta de menús. El trade-off asumido fue la consistencia eventual en la visualización de platos disponibles a cambio de blindar el tiempo de respuesta en el pico del mediodía.
+            En contraste, Myagis-Forest resolvió el trade-off de PACELC a favor de la latencia en lecturas mediante <ConceptChip id="cqrs" label="CQRS" icon="🔀" /> (Command Query Responsibility Segregation): implementaron una base relacional transaccional para procesar mutaciones críticas de inventario, y vistas de lectura desnormalizadas y cacheadas para absorber el tráfico masivo de consulta de menús. El trade-off asumido fue la consistencia eventual en la visualización de platos disponibles a cambio de blindar el tiempo de respuesta en el pico del mediodía.
           </p>
         </PodiumCounterpoint>
 
@@ -1357,7 +1359,16 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
         </div>
 
         <!-- 9.1: Restricciones y Principios Rectores -->
-        <div class="space-y-4">
+        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
+            <div class="font-bold text-xs font-mono uppercase text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+              <span>🌐</span>
+              <span>Protección Perimetral: Offloading de Autenticación en Capa 7 (Security.md)</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              Para no gastar ciclos de CPU del monolito validando tokens JWT en cada petición, la seguridad se delegó en el borde de la red mediante <ConceptChip id="layer7-auth-offloading" label="Offloading al Load Balancer (ALB + Cognito)" icon="🌐" />: el balanceador valida la sesión contra Cognito y solo reenvía tráfico auténtico con cabeceras firmadas hacia las instancias privadas de EC2.
+            </p>
+          </div>
+          <div class="space-y-4">
           <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <span>9.1 Las Restricciones Globales y los 4 Principios de Diseño</span>
           </h3>
@@ -1769,6 +1780,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
       </section>
     </article>
   </div>
+  <ConceptModal lang="es" />
 </Layout>
 
 <script>
