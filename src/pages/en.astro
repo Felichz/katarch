@@ -678,7 +678,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
           <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">Day 1 Scale:</span> Only 2 pilot locations in Detroit handling ~300 meals per week. Near-zero initial traffic.</p>
           <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">12-Month Target:</span> Expand to 8 locations during the first half of the year, finishing year one with 68 retail locations, 2,000 weekly meals, and 1,000 active subscribers.</p>
           <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">Out of Scope:</span> Physical delivery van routing logistics and internal fridge firmware were explicitly excluded from the platform architecture.</p>
-          <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">Integration Challenges:</span> How to validate customer profiles to apply meal subsidies in a fridge lacking screens or keypads? How to ensure offline sales during kiosk network outages? How to prevent two customers from claiming the last meal simultaneously?</p>
+          <p>• <span class="font-semibold text-slate-900 dark:text-slate-100">Integration Challenges:</span> How to validate customer profiles to apply meal subsidies in a fridge lacking screens or keypads? How to ensure offline sales during kiosk network outages using <ConceptChip id="store-and-forward" label="Offline Mode & Store-and-Forward" icon="📡" />? How to prevent two customers from claiming the last meal simultaneously without deadlocks using <ConceptChip id="optimistic-concurrency" label="Optimistic Concurrency Control" icon="🛡️" />?</p>
         </div>
 
         <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base mt-4">
@@ -850,7 +850,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
             <li>Integrating an additional smart fridge manufacturer had to take under 3 engineering days.</li>
             <li>Lunch-hour peak latency: under 1 second for end-user menu browsing queries.</li>
             <li>Support for 100 concurrent active shopping sessions during Year 1 operations.</li>
-            <li>Strict isolation of payment card data to qualify for the lightest PCI DSS tier (SAQ A): by delegating checkout to Stripe through hosted iframes, no cardholder data touches proprietary servers, reducing compliance checks from over 300 technical controls to a brief ~22 question survey.</li>
+            <li>Strict isolation of payment card data to qualify for the lightest PCI DSS tier (<ConceptChip id="pci-dss-saq-a" label="SAQ A vs SAQ D" icon="💳" />): by delegating checkout to Stripe through hosted iframes, no cardholder data touches proprietary servers, reducing compliance checks from over 300 technical controls to a brief ~22 question administrative checklist.</li>
           </ul>
         </PodiumCounterpoint>
 
@@ -890,10 +890,10 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
 
         <TheoryBox concept="Architectural Quantum and the Fallacies of Distributed Computing" chapter="Chapters 2, 7 and 8">
           <p>
-            An <em>architectural quantum</em> is the smallest independently deployable unit of a system, featuring high functional cohesion and its own dedicated data store. A monolith consists of a single quantum: if a single background task demands elastic scaling, the entire monolithic artifact must be replicated across servers.
+            An <ConceptChip id="architectural-quantum" label="Architectural Quantum" icon="⚛️" /> is the smallest independently deployable unit of a system, featuring high functional cohesion and its own dedicated data store. A monolith consists of a single quantum: if a single background task demands elastic scaling, the entire monolithic artifact must be replicated across servers.
           </p>
           <p class="mt-2">
-            <span class="font-semibold text-slate-900 dark:text-slate-100">Deutsch's Fallacies:</span> Assuming the network is reliable, latency is zero, or bandwidth is infinite. Teams that disregard these realities in early-stage products pay the operational overhead of microservices without realizing their organizational benefits.
+            <span class="font-semibold text-slate-900 dark:text-slate-100"><ConceptChip id="distributed-fallacies" label="Deutsch's Fallacies" icon="💣" />:</span> Assuming the network is reliable, latency is zero, or bandwidth is infinite. Teams that disregard these realities in early-stage products pay the operational overhead of microservices without realizing their organizational benefits.
           </p>
         </TheoryBox>
 
@@ -1067,7 +1067,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
             "In the Farmacy Food scenario, which is 'green field' to the most extent, we don't see the need to invest time in designing and implementing stage architectures (e.g., modular monolith ==&gt; service-based or macroservices ==&gt; microservice). We have good reasons to believe using the microservice style from the getgo is perfectly feasible time-wise, as well as technically and financially."
           </blockquote>
           <p>
-            To manage Kubernetes complexity, they structured each service using hexagonal architecture (Ports & Adapters) and implemented the Backend for Frontend (BFF) pattern: thin translation layers formatting payloads specifically for web and kiosk clients, shielding them from internal microservice APIs.
+            To manage Kubernetes complexity, they structured each service using <ConceptChip id="hexagonal-architecture" label="Hexagonal Architecture (Ports & Adapters)" icon="⬡" /> and implemented the <ConceptChip id="bff-pattern" label="Backend for Frontend (BFF) Pattern" icon="📱" />: thin translation layers formatting payloads specifically for web and kiosk clients, shielding them from internal microservice APIs.
           </p>
         </PodiumCounterpoint>
 
@@ -1129,7 +1129,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
         </h3>
 
         <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
-          Rather than organizing code into technical layers, ArchColider applied Domain-Driven Design (DDD) to partition their modules. To maximize development return for their small team, they categorized subdomains into three strategic tiers (<a href="https://github.com/TheKataLog/ArchColider/blob/master/2.SolutionBackground/SolutionOverview.md#L27-L47" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">see SolutionOverview.md</a>):
+          Rather than organizing code into technical layers, ArchColider applied Domain-Driven Design (DDD) to partition their modules into <ConceptChip id="bounded-contexts" label="Bounded Contexts" icon="🗺️" />. To maximize development return for their small team, they categorized subdomains into three tiers of <ConceptChip id="strategic-subdomains" label="Strategic Subdomains" icon="🎯" /> (<a href="https://github.com/TheKataLog/ArchColider/blob/master/2.SolutionBackground/SolutionOverview.md#L27-L47" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">see SolutionOverview.md</a>):
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
@@ -1198,7 +1198,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
 
         <TheoryBox concept="CAP/PACELC and the Hidden Overhead of Eventual Consistency" chapter="Chapter 14">
           <p>
-            Eric Brewer's CAP theorem demonstrated that in the presence of a network partition, a system must choose between consistency (C) and availability (A). Daniel Abadi later formulated the PACELC theorem to explain normal, non-partitioned operational states:
+            Eric Brewer's CAP theorem demonstrated that in the presence of a network partition, a system must choose between consistency (C) and availability (A). Daniel Abadi later formulated the <ConceptChip id="pacelc-theorem" label="PACELC Theorem" icon="⚖️" /> to explain normal, non-partitioned operational states:
           </p>
           <p class="mt-2">
             The rule dictates: if there is a partition (<em>P</em>), trade off availability (<em>A</em>) or consistency (<em>C</em>); <em>E</em>lse, under normal operation, trade off latency (<em>L</em>) or consistency (<em>C</em>). Guaranteeing strictly consistent reads across distributed nodes requires waiting for replica confirmations, increasing response times. Returning sub-millisecond responses on mobile devices often demands accepting eventual consistency.
@@ -1213,7 +1213,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
         </h3>
 
         <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
-          In unattended retail environments, transaction disputes demand total auditability: if an RFID sensor misreads or a customer disputes an automated charge, mutating records with <code>UPDATE orders SET status = 'cancelled'</code> destroys critical diagnostic history. In <a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/007%20Event%20sourcing%20usage.md#L1-L35" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 007: Event sourcing usage</a>, ArchColider selected EventStore to ensure auditability:
+          In unattended retail environments, transaction disputes demand total auditability: if an RFID sensor misreads or a customer disputes an automated charge, mutating records with <code>UPDATE orders SET status = 'cancelled'</code> destroys critical diagnostic history. In <a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/007%20Event%20sourcing%20usage.md#L1-L35" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 007: Event sourcing usage</a>, ArchColider selected <ConceptChip id="event-sourcing" label="Event Sourcing" icon="📜" /> with EventStore. As noted in their ADR, because an append-only log is the single source of truth, relational read views need no complex backups since they can be reconstructed by replaying historical events:
         </p>
 
         <blockquote class="border-l-2 border-emerald-500 pl-3 my-2 text-slate-700 dark:text-slate-300 text-xs sm:text-sm italic">
@@ -1221,7 +1221,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
         </blockquote>
 
         <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
-          To decouple auxiliary tasks without threatening core checkout performance, they integrated RabbitMQ (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/008%20At%20least%20once%20delivery%20for%20ready%20to%20pay%20order.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 008</a>) with explicit message acknowledgments (ACKs) and automated retries.
+          To decouple auxiliary tasks without threatening core checkout performance, they integrated RabbitMQ (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/008%20At%20least%20once%20delivery%20for%20ready%20to%20pay%20order.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 008</a>) with <ConceptChip id="event-delivery-guarantees" label="At-Least-Once Delivery & Idempotency" icon="📬" /> (ACKs) and automated retries.
         </p>
 
         <Mermaid code={posSequence} title="POS Purchase Flow, Inventory Reservation, and Asynchronous Event Dispatch" heightClass="h-[500px] sm:h-[580px]" />
@@ -1234,7 +1234,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
           lang="en"
         >
           <p>
-            Conversely, Myagis-Forest favored read latency by implementing CQRS (Command Query Responsibility Segregation): a transactional relational database processed inventory updates, while denormalized read replicas absorbed high-volume lunch-hour menu traffic, accepting slight eventual consistency in available counts to protect response times.
+            Conversely, Myagis-Forest favored read latency by implementing <ConceptChip id="cqrs" label="CQRS" icon="🔀" /> (Command Query Responsibility Segregation): a transactional relational database processed inventory updates, while denormalized read replicas absorbed high-volume lunch-hour menu traffic, accepting slight eventual consistency in available counts to protect response times.
           </p>
         </PodiumCounterpoint>
 
@@ -1321,7 +1321,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
         <div class="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
           <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
             <span class="font-bold text-red-600 dark:text-red-400 font-mono">Risk 1: Accidental Coupling Between Internal Modules</span>
-            <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">A classic risk in monolithic systems occurs when developers bypass public domain facades to access foreign tables directly. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Automated architectural fitness functions in the CI pipeline that fail builds if unauthorized package dependencies are detected.</p>
+            <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">A classic risk in monolithic systems occurs when developers bypass public domain facades to access foreign tables directly. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Automated architectural <ConceptChip id="fitness-functions" label="Fitness Functions with ArchUnit" icon="🧪" /> in the CI pipeline that fail builds if unauthorized package dependencies are detected.</p>
           </div>
           <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
             <span class="font-bold text-red-600 dark:text-red-400 font-mono">Risk 2: Uncontrolled Cloud Auto-Scaling Costs</span>
@@ -1329,7 +1329,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
           </div>
           <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
             <span class="font-bold text-red-600 dark:text-red-400 font-mono">Risk 3: Network Dropouts at Physical Locations</span>
-            <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">Intermittent internet outages at retail counters would block scheduled meal pickups. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Offline pickup verification using one-time PIN codes (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/011%20Every%20meal%20delivery%20has%20pick%20up%20pin%20code.md" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 011</a>), validating claims locally and reconciling inventory upon reconnection.</p>
+            <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">Intermittent internet outages at retail counters would block scheduled meal pickups. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Offline pickup verification using <ConceptChip id="store-and-forward" label="Store-and-Forward & PIN Codes" icon="📡" /> (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/011%20Every%20meal%20delivery%20has%20pick%20up%20pin%20code.md" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 011</a>), validating claims locally and reconciling inventory upon reconnection.</p>
           </div>
         </div>
 
@@ -1347,6 +1347,16 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
           </h2>
           <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
             Comprehensive breakdown of the winning Kata design: core principles, domain decomposition, actor-based concurrency, itemized cost projections, and complete decision logs.
+          </p>
+        </div>
+
+        <div class="mb-6 p-4.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/60 text-slate-800 dark:text-emerald-200 text-xs sm:text-sm leading-relaxed space-y-2">
+          <div class="font-bold font-mono flex items-center gap-2 text-emerald-900 dark:text-emerald-300 text-xs uppercase tracking-wide">
+            <span>👥</span>
+            <span>The Human Context Behind the Winning Team (The Script.md)</span>
+          </div>
+          <p>
+            ArchColider was not a massive corporation: they were four developers from four different countries collaborating across GMT+1 late at night after their families were asleep. In their defense script before Mark Richards and Neal Ford, they confessed that their greatest initial fear was that clashing opinions would create a "Service-Oriented Monstrolith". Their victory stemmed not from chasing trendy tech, but from fierce pragmatism solving real-world constraints for an early-stage startup.
           </p>
         </div>
 
@@ -1526,7 +1536,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
             <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
               <span class="font-bold text-slate-900 dark:text-slate-100 font-mono text-emerald-800 dark:text-emerald-400">1. In-Memory Actor per Physical Fridge</span>
               <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">
-                Leveraging the Actor Model, each fridge is represented by an in-memory entity that serializes reservation and inventory changes sequentially. Executing at CPU speed in memory eliminates race conditions and avoids heavy relational database table locks.
+                Leveraging the <ConceptChip id="actor-model" label="Actor Model" icon="🧊" />, each fridge is represented by an in-memory entity that serializes reservation and inventory changes sequentially. In the team's original words to the judges: <em>"We propose using the actor pattern because we have natural actors in real life: the fridges. A user always purchases from a specific fridge, and a meal cannot magically hop from one fridge to another."</em> Executing at CPU speed in memory eliminates race conditions and avoids heavy relational database table locks.
               </p>
             </div>
 
@@ -1541,6 +1551,28 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
               <span class="font-bold text-slate-900 dark:text-slate-100 font-mono text-emerald-800 dark:text-emerald-400">3. Log-Based Message Streaming</span>
               <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">
                 Orders publish domain events to RabbitMQ with at-least-once delivery guarantees (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/008%20At%20least%20once%20delivery%20for%20ready%20to%20pay%20order.md" class="text-emerald-700 dark:text-emerald-400 underline font-mono">ADR 008</a>). Downstream consumers process tasks at their own pace without competing for resources with checkout.
+              </p>
+            </div>
+
+            <!-- Tactic 4: The Inhibition Window -->
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors space-y-2">
+              <span class="font-bold text-xs font-mono uppercase text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5">
+                <span>⏱️</span>
+                <span>The Inhibition Window: Clean Cancellations Gmail-Style (InformationModels.md)</span>
+              </span>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                To prevent chaotic compensating transactions and non-refundable payment gateway fees upon impulsive cancellations, ArchColider implemented an <ConceptChip id="inhibit-window" label="Inhibition Window (Gmail Undo Send)" icon="⏱️" />: buffering customer orders for 10-30 seconds in the backend before charging Stripe. Immediate user cancellations abort locally at $0 cost without calling banking APIs.
+              </p>
+            </div>
+
+            <!-- Tactic 5: Pragmatic CRDT Rejection -->
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors space-y-2">
+              <span class="font-bold text-xs font-mono uppercase text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5">
+                <span>📊</span>
+                <span>Radical Pragmatism: Rejecting CRDTs for Google Sheets (Concurrency.md)</span>
+              </span>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                For the promotional campaign module, the team avoided distributed state sync algorithms (<ConceptChip id="crdt-pragmatism" label="CRDT Rejection vs Spreadsheets" icon="📊" />): <em>"From the operator perspective we don't want to complicate it involving CRDTs... preparing campaigns in Google Spreadsheets or Excel is perfectly sufficient."</em>
               </p>
             </div>
           </div>
@@ -1672,7 +1704,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
             <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
               <span class="font-bold text-red-600 dark:text-red-400 font-mono">The Dev vs. Prod Parity Trap (1:1 Problem)</span>
               <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-                Running a single instance in local development masks concurrency races and distributed deadlocks. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Running at least 2 instances of business services in development environments to surface communication failures early.
+                Running a single instance in local development masks concurrency races and distributed deadlocks. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigation:</span> Running at least 2 instances of business services (<ConceptChip id="dev-prod-parity-concurrency" label="1:1 Concurrency Parity Trap" icon="👥" />) behind a local reverse proxy to surface shared-state memory issues and locking bugs before deployment.
               </p>
             </div>
 

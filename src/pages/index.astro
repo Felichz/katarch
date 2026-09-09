@@ -848,7 +848,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
             <li>Integrar un nuevo fabricante de heladeras inteligentes debía requerir menos de 3 días de trabajo.</li>
             <li>Latencia en el pico del mediodía: menos de 1 segundo de respuesta en la consulta de menús.</li>
             <li>Capacidad para sostener 100 sesiones concurrentes durante el primer año de operaciones.</li>
-            <li>Aislamiento estricto de datos de tarjetas para calificar en el nivel más simple de PCI DSS (SAQ A): al delegar el cobro a Stripe vía iframes embebidos, ningún dato financiero pasa por servidores propios, reduciendo la auditoría de más de 300 controles técnicos (SAQ D) a un checklist mínimo de ~22 preguntas.</li>
+            <li>Aislamiento estricto de datos de tarjetas para calificar en el nivel más simple de PCI DSS (<ConceptChip id="pci-dss-saq-a" label="SAQ A vs SAQ D" icon="💳" />): al delegar el cobro a Stripe vía iframes embebidos, ningún dato financiero pasa por servidores propios, reduciendo la auditoría de más de 300 controles técnicos a un checklist administrativo mínimo de ~22 preguntas.</li>
           </ul>
         </PodiumCounterpoint>
 
@@ -886,10 +886,10 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
 
         <TheoryBox concept="Architectural Quantum y las Falacias de los Sistemas Distribuidos" chapter="Capítulos 2, 7 y 8">
           <p>
-            Un <em>architectural quantum</em> es la parte más pequeña del sistema que puede desplegarse de manera independiente, con su propia base de datos y alta cohesión funcional. Un monolito posee un único quantum: si una sola funcionalidad requiere escalar o demanda alta disponibilidad, obliga a escalar el artefacto completo.
+            Un <ConceptChip id="architectural-quantum" label="Architectural Quantum" icon="⚛️" /> es la parte más pequeña del sistema que puede desplegarse de manera independiente, con su propia base de datos y alta cohesión funcional. Un monolito posee un único quantum: si una sola funcionalidad requiere escalar o demanda alta disponibilidad, obliga a escalar el artefacto completo.
           </p>
           <p class="mt-2">
-            <span class="font-semibold text-slate-900 dark:text-slate-100">Las Falacias de Deutsch:</span> Asumir que la red nunca falla, que la latencia entre servicios es cero o que el ancho de banda es infinito. Quien ignora esto en un proyecto inicial termina pagando el sobrecosto de los microservicios sin capitalizar ninguno de sus beneficios.
+            <span class="font-semibold text-slate-900 dark:text-slate-100"><ConceptChip id="distributed-fallacies" label="Falacias de Deutsch" icon="💣" />:</span> Asumir que la red nunca falla, que la latencia entre servicios es cero o que el ancho de banda es infinito. Quien ignora esto en un proyecto inicial termina pagando el sobrecosto de los microservicios sin capitalizar ninguno de sus beneficios.
           </p>
         </TheoryBox>
 
@@ -1121,7 +1121,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
         </h3>
 
         <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
-          En lugar de organizar el código por capas técnicas horizontales (controladores y repositorios genéricos), ArchColider adoptó un particionamiento por dominio mediante Domain-Driven Design (DDD). Para maximizar el retorno de inversión del pequeño equipo, clasificaron sus módulos en tres categorías estratégicas de subdominios (<a href="https://github.com/TheKataLog/ArchColider/blob/master/2.SolutionBackground/SolutionOverview.md#L27-L47" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ver SolutionOverview.md</a>):
+          En lugar de organizar el código por capas técnicas horizontales (controladores y repositorios genéricos), ArchColider adoptó un particionamiento por dominio mediante Domain-Driven Design (DDD). Para maximizar el retorno de inversión del pequeño equipo, clasificaron sus módulos en tres categorías de <ConceptChip id="strategic-subdomains" label="Subdominios Estratégicos" icon="🎯" /> (<a href="https://github.com/TheKataLog/ArchColider/blob/master/2.SolutionBackground/SolutionOverview.md#L27-L47" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ver SolutionOverview.md</a>):
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
@@ -1203,7 +1203,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
         </h3>
 
         <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
-          Frente al trade-off de PACELC (en operación normal, latencia vs. consistencia), en operaciones físicas desatendidas las disputas transaccionales exigen trazabilidad absoluta: si un sensor falla o el cliente reclama un cobro indebido, modificar estados mediante <code>UPDATE orders SET status = 'cancelled'</code> destruye la evidencia histórica. En su <a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/007%20Event%20sourcing%20usage.md#L1-L35" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 007: Event sourcing usage</a>, ArchColider priorizó la consistencia e inmutabilidad adoptando EventStore:
+          Frente al trade-off de PACELC (en operación normal, latencia vs. consistencia), en operaciones físicas desatendidas las disputas transaccionales exigen trazabilidad absoluta: si un sensor falla o el cliente reclama un cobro indebido, modificar estados mediante <code>UPDATE orders SET status = 'cancelled'</code> destruye la evidencia histórica. En su <a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/007%20Event%20sourcing%20usage.md#L1-L35" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 007: Event sourcing usage</a>, ArchColider priorizó la consistencia e inmutabilidad adoptando <ConceptChip id="event-sourcing" label="Event Sourcing" icon="📜" /> mediante EventStore. Documentaron además una ventaja decisiva: al ser el log append-only la fuente única de verdad, las vistas de lectura relacionales no necesitan backups complejos, ya que pueden regenerarse desde cero reejecutando los eventos históricos:
         </p>
 
         <blockquote class="border-l-2 border-emerald-500 pl-3 my-2 text-slate-700 dark:text-slate-300 text-xs sm:text-sm italic">
@@ -1211,7 +1211,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
         </blockquote>
 
         <p class="leading-relaxed text-slate-700 dark:text-slate-300 text-sm sm:text-base">
-          Asimismo, para desacoplar procesos secundarios sin comprometer la transacción principal, integraron RabbitMQ (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/008%20At%20least%20once%20delivery%20for%20ready%20to%20pay%20order.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 008</a>) con confirmaciones de entrega explícitas (*ACKs*) y reintentos automáticos.
+          Asimismo, para desacoplar procesos secundarios sin comprometer la transacción principal, integraron RabbitMQ (<a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/008%20At%20least%20once%20delivery%20for%20ready%20to%20pay%20order.md" target="_blank" class="text-emerald-700 dark:text-emerald-400 underline font-mono font-semibold">ADR 008</a>) con <ConceptChip id="event-delivery-guarantees" label="Garantía At-Least-Once e Idempotencia" icon="📬" /> (*ACKs*) y reintentos automáticos.
         </p>
 
         <Mermaid code={posSequence} title="Flujo de Compra en POS, Consistencia y Publicación Asíncrona" heightClass="h-[500px] sm:h-[580px]" />
@@ -1307,7 +1307,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
         <div class="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
           <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
             <span class="font-bold text-red-600 dark:text-red-400 font-mono">Riesgo 1: Acoplamiento indebido entre módulos internos</span>
-            <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">La degradación arquitectónica clásica de un monolito se produce cuando los componentes invocan directamente estructuras internas o tablas ajenas evadiendo las interfaces públicas. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigación:</span> Pruebas automáticas de arquitectura en el pipeline de CI (fitness functions) que impiden la compilación si se detectan dependencias no autorizadas entre capas.</p>
+            <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">La degradación arquitectónica clásica de un monolito se produce cuando los componentes invocan directamente estructuras internas o tablas ajenas evadiendo las interfaces públicas. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigación:</span> Pruebas automáticas de arquitectura en el pipeline de CI (<ConceptChip id="fitness-functions" label="Fitness Functions con ArchUnit" icon="🧪" />) que impiden la compilación si se detectan dependencias no autorizadas entre paquetes.</p>
           </div>
           <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
             <span class="font-bold text-red-600 dark:text-red-400 font-mono">Riesgo 2: Sobrecostos imprevistos por auto-escalado ilimitado</span>
@@ -1512,7 +1512,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
             <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
               <span class="font-bold text-slate-900 dark:text-slate-100 font-mono text-emerald-800 dark:text-emerald-400">1. Un Actor en Memoria por cada Heladera Física</span>
               <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">
-                Inspirados en el <em>Actor Model</em>, cada heladera física cuenta con una entidad lógica (un actor) que procesa las solicitudes de reserva y deducción de stock en cola de forma estrictamente secuencial. Al ejecutarse en memoria a velocidad de CPU, las operaciones de stock se resuelven en microsegundos, eliminando <em>race conditions</em> y la necesidad de bloqueos pesados de filas o tablas a nivel de base de datos relacional.
+                Inspirados en el <ConceptChip id="actor-model" label="Patrón Actor" icon="🧊" />, cada heladera física cuenta con una entidad lógica (un actor) que procesa las solicitudes de reserva y deducción de stock en cola de forma estrictamente secuencial. En las palabras textuales que el equipo presentó al jurado: <em>"Proponemos usar el patrón de actores porque tenemos actores naturales en la vida real: las heladeras. Un usuario siempre compra de una heladera específica, y una vianda no puede saltar mágicamente de una heladera a otra."</em> Al ejecutarse en memoria a velocidad de CPU, las operaciones de stock se resuelven en microsegundos, eliminando <em>race conditions</em> y la necesidad de bloqueos pesados de filas o tablas a nivel de base de datos relacional.
               </p>
             </div>
 
@@ -1527,6 +1527,28 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
               <span class="font-bold text-slate-900 dark:text-slate-100 font-mono text-emerald-800 dark:text-emerald-400">3. Log-Based Streams (Inspirado en Martin Kleppmann)</span>
               <p class="mt-1 leading-relaxed text-slate-600 dark:text-slate-400">
                 Para evitar que módulos no críticos (como notificaciones por SMS o actualización de reportes de negocio) compitan por recursos con el flujo de venta, los eventos de órdenes se publican a RabbitMQ (con garantía <em>at-least-once</em>, <a href="https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/008%20At%20least%20once%20delivery%20for%20ready%20to%20pay%20order.md" class="text-emerald-700 dark:text-emerald-400 underline font-mono">ADR 008</a>) y se propagan mediante Kinesis o Kafka. Cada servicio consumidor procesa los datos a su propia cadencia sin degradar la experiencia de compra en el frontend.
+              </p>
+            </div>
+
+            <!-- Táctica 4: Ventana de Inhibición -->
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors space-y-2">
+              <span class="font-bold text-xs font-mono uppercase text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5">
+                <span>⏱️</span>
+                <span>La Ventana de Inhibición: Anulación Limpia estilo Gmail (InformationModels.md)</span>
+              </span>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Para evitar el caos de transacciones compensatorias y comisiones no reembolsables de pasarela ante cancelaciones impulsivas, ArchColider diseñó una <ConceptChip id="inhibit-window" label="Ventana de Inhibición (Gmail Undo Send)" icon="⏱️" />: retener la orden entre 10 y 30 segundos en el backend antes de invocar a Stripe. Si el usuario cancela de inmediato, el pedido se anula en local con costo $0 y sin llamar al banco.
+              </p>
+            </div>
+
+            <!-- Táctica 5: Descarte de CRDTs vs Planillas -->
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors space-y-2">
+              <span class="font-bold text-xs font-mono uppercase text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5">
+                <span>📊</span>
+                <span>Pragmatismo Radical: Descarte de CRDTs vs Google Sheets (Concurrency.md)</span>
+              </span>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                Para el módulo de promociones, el equipo evitó la sobre-ingeniería de algoritmos distribuidos (<ConceptChip id="crdt-pragmatism" label="Descarte de CRDTs vs Planillas de Google" icon="📊" />): <em>"Desde la perspectiva del operador no queremos complicarlo involucrando CRDTs... preparar las campañas en Google Spreadsheet o Excel alcanza perfectamente."</em>
               </p>
             </div>
           </div>
@@ -1658,7 +1680,7 @@ const ratingBadges: Record<string, { label: string; symbol: string; classes: str
             <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs transition-colors">
               <span class="font-bold text-red-600 dark:text-red-400 font-mono">El problema de paridad Dev/Prod (1:1 Problem)</span>
               <p class="text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-                Ejecutar una sola instancia en desarrollo enmascara problemas de concurrencia y bloqueos. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigación:</span> Correr en desarrollo al menos 1 elemento de servicios puramente infraestructurales y al menos 2 instancias para servicios de negocio para revelar fallas de comunicación tempranamente.
+                Ejecutar una sola instancia en desarrollo enmascara problemas de concurrencia y bloqueos. <span class="font-semibold text-emerald-700 dark:text-emerald-400">Mitigación:</span> Correr en desarrollo al menos 2 instancias de servicios de negocio (<ConceptChip id="dev-prod-parity-concurrency" label="Paridad 1:1 en Concurrencia" icon="👥" />) detrás de un balanceador local para forzar que cualquier conflicto de estado compartido en memoria o bloqueo distribuido se manifieste de inmediato. Correr en desarrollo al menos 1 elemento de servicios puramente infraestructurales y al menos 2 instancias para servicios de negocio para revelar fallas de comunicación tempranamente.
               </p>
             </div>
 
