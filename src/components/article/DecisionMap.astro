@@ -1,0 +1,25 @@
+---
+import { DECISIONS, PILLARS } from '../../data/article/decision-map';
+import DecisionCard from './DecisionCard.astro';
+
+interface Props {
+  lang: 'es' | 'en';
+}
+
+const { lang } = Astro.props;
+const pillars = PILLARS[lang];
+const byPillar = [1, 2, 3].map((p) => DECISIONS.filter((d) => d.pillar === p));
+---
+<div class="decision-map">
+  {pillars.map((pillar, i) => (
+    <div class="pillar">
+      <div class="pillar-head">
+        <h3>{pillar.title}</h3>
+        <p>{pillar.subtitle}</p>
+      </div>
+      <div class="pillar-grid">
+        {byPillar[i].map((d) => <DecisionCard entry={d} lang={lang} variant="map" />)}
+      </div>
+    </div>
+  ))}
+</div>

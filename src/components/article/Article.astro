@@ -1,0 +1,888 @@
+---
+/**
+ * KatArch article renderer — one component, two languages.
+ * Content comes entirely from src/data/article/{es,en}.ts; this file owns
+ * layout, interaction affordances and modals. Editorials rules encoded here:
+ * concepts and ADRs open contextual modals (never spoilers of later
+ * sections), figures open in a lightbox, and every modal locks page scroll.
+ */
+import type { ArticleContent, Block } from '../../data/article/types';
+import { CONCEPTS } from '../../data/article/concepts';
+import { DECISIONS } from '../../data/article/decision-map';
+import BlockRenderer from './BlockRenderer.astro';
+
+interface Props {
+  content: ArticleContent;
+}
+
+const { content } = Astro.props;
+const lang = content.lang;
+const isES = lang === 'es';
+
+const ui = {
+  close: isES ? 'Cerrar' : 'Close',
+  problem: isES ? 'El problema' : 'The problem',
+  decision: isES ? 'La decisión' : 'The decision',
+  tradeoff: isES ? 'La compensación' : 'The trade-off',
+} as const;
+
+const conceptEntries = Object.entries(CONCEPTS);
+const usedConcepts = new Set<string>();
+const htmlSources: string[] = [...content.heroParagraphs];
+for (const section of content.sections) {
+  for (const block of section.blocks) {
+    if (block.type === 'p' || block.type === 'list') {
+      const htmls =
+        block.type === 'p' ? [block.html] : (block as { items: string[] }).items;
+      htmlSources.push(...htmls);
+    }
+  }
+}
+for (const h of htmlSources) {
+  for (const m of h.matchAll(/data-concept="([^"]+)"/g)) usedConcepts.add(m[1]);
+}
+const modalConcepts = conceptEntries.filter(([id]) => usedConcepts.has(id));
+const adrToDecision: Record<string, string> = {};
+for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.id;
+---
+
+<!-- Decision/ADR modal shells -->
+{DECISIONS.map((d) => (
+  <dialog
+    id={`decision-${d.id}`}
+    class="modal-shell"
+    data-decision-modal={d.id}
+    aria-labelledby={`decision-${d.id}-title`}
+  >
+    <div class="modal-card">
+      <button
+        class="modal-close"
+        data-close-modal
+        type="button"
+        aria-label={ui.close}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <h3 id={`decision-${d.id}-title`} class="modal-title">{d.title[lang]}</h3>
+      <div class="modal-sections">
+        <div>
+          <h4>{ui.problem}</h4>
+          <p>{d.problem[lang]}</p>
+        </div>
+        <div>
+          <h4>{ui.decision}</h4>
+          <p>{d.decision[lang]}</p>
+        </div>
+        <div>
+          <h4>{ui.tradeoff}</h4>
+          <p>{d.tradeoff[lang]}</p>
+        </div>
+      </div>
+      <div class="modal-adrs">
+        {d.adrs.map((ref) => (
+          <a
+            href={d.githubBase}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="adr-link"
+          >
+            {ref.label}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
+        ))}
+      </div>
+    </div>
+  </dialog>
+))}
+
+<!-- Concept modal shells (only those actually referenced in the article) -->
+{modalConcepts.map(([id, c]) => (
+  <dialog id={`concept-${id}`} class="modal-shell" aria-labelledby={`concept-${id}-title`}>
+    <div class="modal-card">
+      <button class="modal-close" data-close-modal type="button" aria-label={ui.close}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <h3 id={`concept-${id}-title`} class="modal-title">{c.title[lang]}</h3>
+      <div class="modal-body set-prose" set:html={c.body[lang]} />
+    </div>
+  </dialog>
+))}
+
+<!-- Lightbox -->
+<dialog id="lightbox" class="modal-shell modal-shell--wide" aria-label="Image viewer">
+  <div class="modal-card modal-card--image">
+    <button class="modal-close" data-close-modal type="button" aria-label={ui.close}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <img id="lightbox-img" alt="" />
+    <p id="lightbox-caption" class="lightbox-caption"></p>
+  </div>
+</dialog>
+
+<div class="article-shell">
+  <!-- Collapsible TOC rail: collapsed dots by default, expands to the full index -->
+  <aside class="toc-rail" id="toc-rail" aria-label={content.tocTitle}>
+    <div class="toc-card" data-toc-card>
+      <button
+        class="toc-expand"
+        data-toc-expand
+        type="button"
+        aria-label={isES ? 'Expandir índice' : 'Expand contents'}
+        title={isES ? 'Expandir índice' : 'Expand contents'}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+      <nav class="toc-full" data-toc-full hidden>
+        <div class="toc-full-head">
+          <p class="toc-heading">{content.tocTitle}</p>
+          <button
+            class="toc-collapse"
+            data-toc-collapse
+            type="button"
+            aria-label={isES ? 'Colapsar índice' : 'Collapse contents'}
+            title={isES ? 'Colapsar a barra de puntos' : 'Collapse to dot rail'}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>
+          </button>
+        </div>
+        {content.sections.map((s) => (
+          <a href={`#${s.id}`} class="toc-item" data-toc={s.id}>
+            <span class="toc-phase">{s.phase}</span>
+            <span class="toc-title">{s.title}</span>
+          </a>
+        ))}
+      </nav>
+      <nav class="toc-dots" data-toc-dots>
+        {content.sections.map((s) => (
+          <a
+            href={`#${s.id}`}
+            class="toc-dot"
+            data-toc={s.id}
+            data-tooltip={s.title}
+            aria-label={s.title}
+          >
+            <span class="dot-indicator" />
+          </a>
+        ))}
+      </nav>
+    </div>
+    <div class="toc-tooltip" data-toc-tooltip hidden></div>
+  </aside>
+
+  <article class="article">
+    <!-- Hero -->
+    <header class="hero">
+      <p class="hero-kicker">{content.heroKicker}</p>
+      <h1 class="hero-title">
+        {content.heroTitleA}
+        <span class="hero-title-b">{content.heroTitleB}</span>
+      </h1>
+      <div class="hero-prose set-prose">
+        {content.heroParagraphs.map((p) => <p set:html={p} />)}
+      </div>
+      <dl class="hero-meta">
+        {content.heroMeta.map((m) => (
+          <div><dt>{m.label}</dt><dd>{m.value}</dd></div>
+        ))}
+      </dl>
+    </header>
+
+    {content.sections.map((section, si) => {
+      const prevPhase = si > 0 ? content.sections[si - 1].phase : null;
+      const phaseChanged = section.phase !== prevPhase;
+      return (
+        <section id={section.id} class="article-section" data-section>
+          {phaseChanged && si > 0 && (
+            <div class="phase-divider">
+              <span>{section.phase}</span>
+            </div>
+          )}
+          <h2 class="section-title">{section.title}</h2>
+          <div class="section-body">
+            {section.blocks.map((block) => (
+              <BlockRenderer block={block} lang={lang} />
+            ))}
+          </div>
+        </section>
+      );
+    })}
+
+    <footer class="article-closing">
+      <p class="closing-title">{content.closing.title}</p>
+      {content.closing.paragraphs.map((p) => <p>{p}</p>)}
+    </footer>
+  </article>
+</div>
+
+<script>
+  import '../../scripts/article-interactions';
+</script>
+
+<style is:global>
+  /* ── Shell: full viewport width, fixed paddings only ── */
+  .article-shell {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    width: 100%;
+    min-width: 0;
+  }
+  .article { flex: 1; min-width: 0; }
+
+  /* ── TOC rail (collapsed by default) ───────────────── */
+  .toc-rail {
+    position: sticky;
+    top: 5.5rem;
+    flex: 0 0 auto;
+    z-index: 30;
+  }
+  .toc-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 0.85rem;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    background: rgb(30 41 59 / 0.4);
+    padding: 0.4rem;
+    overflow: hidden;
+    transition: width 0.25s ease;
+    width: 3rem;
+  }
+  :root:not(.dark) .toc-card { background: rgb(255 255 255); box-shadow: 0 1px 2px rgb(15 23 42 / 0.05); }
+  .toc-card[data-expanded] { width: 15rem; align-items: stretch; padding: 0.75rem; }
+  .toc-expand {
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.55rem;
+    color: rgb(148 163 184);
+    cursor: pointer;
+  }
+  .toc-expand:hover { color: rgb(52 211 153); background: rgb(16 185 129 / 0.1); }
+  .toc-card[data-expanded] .toc-expand { display: none; }
+  .toc-dots {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    padding-top: 0.35rem;
+  }
+  .toc-card[data-expanded] .toc-dots { display: none; }
+  .toc-dot {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 0.5rem;
+  }
+  .toc-dot:hover { background: rgb(148 163 184 / 0.12); }
+  .dot-indicator {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 9999px;
+    background: rgb(100 116 139);
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .toc-dot:hover .dot-indicator { background: rgb(52 211 153); }
+  .toc-dot.active .dot-indicator {
+    background: rgb(16 185 129);
+    box-shadow: 0 0 0 3px rgb(16 185 129 / 0.2);
+  }
+  .toc-full { display: flex; flex-direction: column; gap: 1px; }
+  .toc-full[hidden] { display: none; }
+  .toc-full-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgb(51 65 85 / 0.6);
+  }
+  .toc-collapse {
+    display: grid;
+    place-items: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 0.5rem;
+    color: rgb(148 163 184);
+    cursor: pointer;
+  }
+  .toc-collapse:hover { color: inherit; background: rgb(148 163 184 / 0.12); }
+  .toc-tooltip {
+    position: fixed;
+    z-index: 60;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.45rem;
+    background: #0f172a;
+    color: rgb(241 245 249);
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translateY(-50%);
+    border: 1px solid rgb(51 65 85);
+    box-shadow: 0 8px 24px rgb(2 6 23 / 0.4);
+    max-width: 20rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  :root:not(.dark) .toc-tooltip { background: #ffffff; color: rgb(15 23 42); }
+  .toc-heading {
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgb(100 116 139);
+  }
+  .toc-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 0.45rem 0.6rem;
+    border-radius: 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.3;
+    color: rgb(100 116 139);
+    transition: color 0.15s, background-color 0.15s;
+  }
+  .toc-item:hover { color: inherit; background: rgb(148 163 184 / 0.08); text-decoration: none; }
+  .toc-item.active { color: rgb(16 185 129); background: rgb(16 185 129 / 0.06); }
+  .toc-phase {
+    font-size: 0.62rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.75;
+  }
+  .toc-title { font-weight: 600; }
+  @media (max-width: 71.99rem) {
+    .toc-rail { display: none; }
+  }
+
+  /* ── Hero ──────────────────────────────────────────── */
+  .hero { padding-bottom: 2.5rem; border-bottom: 1px solid rgb(51 65 85 / 0.5); margin-bottom: 2.5rem; }
+  .hero-kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgb(16 185 129);
+    margin-bottom: 1.1rem;
+  }
+  .hero-title {
+    font-size: clamp(1.9rem, 4.5vw, 3.1rem);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    color: rgb(241 245 249);
+    margin-bottom: 1.6rem;
+    max-width: 30ch;
+  }
+  :root:not(.dark) .hero-title { color: rgb(15 23 42); }
+  .hero-title-b { display: block; color: rgb(52 211 153); }
+  :root:not(.dark) .hero-title-b { color: rgb(4 120 87); }
+  .hero-prose { max-width: 68ch; }
+  .hero-prose p + p { margin-top: 1rem; }
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  .hero-meta dt {
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgb(100 116 139);
+  }
+  .hero-meta dd { font-size: 0.85rem; font-weight: 600; margin-top: 2px; }
+
+  /* ── Sections: ONE shared container for every element ── */
+  .article-section { min-width: 0; scroll-margin-top: 5.5rem; }
+  .article-section + .article-section { margin-top: 3.5rem; }
+  /* Body type scales up as the column widens, keeping line length sane */
+  .article .set-prose,
+  .article .block-list {
+    font-size: clamp(1.04rem, 0.62rem + 0.34vw, 1.22rem);
+  }
+  .phase-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.75rem;
+  }
+  .phase-divider::before,
+  .phase-divider::after {
+    content: '';
+    height: 1px;
+    background: rgb(51 65 85 / 0.6);
+    flex: 1;
+  }
+  :root:not(.dark) .phase-divider::before,
+  :root:not(.dark) .phase-divider::after { background: rgb(203 213 225); }
+  .phase-divider span {
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgb(16 185 129);
+    white-space: nowrap;
+  }
+  .section-title {
+    font-size: clamp(1.45rem, 3vw, 1.9rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: rgb(241 245 249);
+  }
+  :root:not(.dark) .section-title { color: rgb(15 23 42); }
+  .section-body { display: flex; flex-direction: column; gap: 1.15rem; }
+
+  /* ── Blocks ────────────────────────────────────────── */
+  .set-prose { line-height: 1.75; }
+  .set-prose a { color: rgb(52 211 153); text-decoration: underline; text-underline-offset: 3px; }
+  :root:not(.dark) .set-prose a { color: rgb(4 120 87); }
+  .set-prose strong { color: inherit; font-weight: 700; }
+  .block-h3 {
+    font-size: 1.12rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-top: 1.25rem;
+    margin-bottom: -0.25rem;
+    color: rgb(226 232 240);
+  }
+  :root:not(.dark) .block-h3 { color: rgb(30 41 59); }
+  .block-list { padding-left: 1.3rem; display: flex; flex-direction: column; gap: 0.55rem; line-height: 1.7; }
+  .block-list li::marker { color: rgb(16 185 129); }
+
+  .block-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+    margin: 0.5rem 0;
+  }
+  @media (min-width: 48rem) {
+    .block-cards { grid-template-columns: repeat(3, 1fr); }
+    .block-cards[data-cols='2'] { grid-template-columns: repeat(2, 1fr); }
+  }
+  .block-card {
+    padding: 1.1rem 1.15rem;
+    border-radius: 0.85rem;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    background: rgb(30 41 59 / 0.35);
+  }
+  :root:not(.dark) .block-card { background: rgb(255 255 255); border-color: rgb(226 232 240); box-shadow: 0 1px 2px rgb(15 23 42 / 0.05); }
+  .block-card .tag {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgb(16 185 129);
+    margin-bottom: 0.4rem;
+  }
+  .block-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.45rem; }
+  .block-card p { font-size: 0.85rem; line-height: 1.65; color: rgb(148 163 184); }
+  :root:not(.dark) .block-card p { color: rgb(71 85 105); }
+
+  .block-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    border-radius: 0.85rem;
+    overflow: hidden;
+    background: rgb(51 65 85 / 0.7);
+  }
+  @media (min-width: 48rem) { .block-stats { grid-template-columns: repeat(4, 1fr); } }
+  .stat-cell { padding: 1.1rem 1.15rem; background: rgb(22 27 34); }
+  :root:not(.dark) .stat-cell { background: rgb(255 255 255); }
+  .stat-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: rgb(52 211 153);
+    line-height: 1.1;
+  }
+  :root:not(.dark) .stat-value { color: rgb(4 120 87); }
+  .stat-label { font-size: 0.72rem; line-height: 1.45; color: rgb(148 163 184); margin-top: 0.35rem; }
+  :root:not(.dark) .stat-label { color: rgb(71 85 105); }
+
+  .block-callout {
+    padding: 1.2rem 1.35rem;
+    border-radius: 0.85rem;
+    margin: 0.5rem 0;
+  }
+  .block-callout h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.45rem;
+  }
+  .block-callout p { font-size: 0.92rem; line-height: 1.7; }
+  .block-callout[data-tone='emerald'] {
+    background: rgb(16 185 129 / 0.07);
+    border: 1px solid rgb(16 185 129 / 0.25);
+  }
+  .block-callout[data-tone='emerald'] h4 { color: rgb(52 211 153); }
+  :root:not(.dark) .block-callout[data-tone='emerald'] h4 { color: rgb(4 120 87); }
+  .block-callout[data-tone='amber'] {
+    background: rgb(245 158 11 / 0.06);
+    border: 1px solid rgb(245 158 11 / 0.25);
+  }
+  .block-callout[data-tone='amber'] h4 { color: rgb(251 191 36); }
+  :root:not(.dark) .block-callout[data-tone='amber'] h4 { color: rgb(180 83 9); }
+  .block-callout[data-tone='slate'] {
+    background: rgb(148 163 184 / 0.07);
+    border: 1px solid rgb(148 163 184 / 0.25);
+  }
+
+  .block-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  .block-table { border: 1px solid rgb(51 65 85 / 0.7); border-radius: 0.85rem; overflow: hidden; }
+  .block-table .table-caption {
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgb(100 116 139);
+    padding: 0.8rem 1rem 0;
+  }
+  .block-table th, .block-table td {
+    padding: 0.6rem 1rem;
+    text-align: left;
+    line-height: 1.5;
+    border-top: 1px solid rgb(51 65 85 / 0.45);
+  }
+  .block-table thead th {
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgb(16 185 129);
+    border-top: none;
+    background: rgb(30 41 59 / 0.5);
+  }
+  :root:not(.dark) .block-table thead th { color: rgb(4 120 87); background: rgb(248 250 252); }
+  .block-table tbody th { font-weight: 600; white-space: nowrap; }
+
+  .block-figure {
+    margin: 1rem 0 0.5rem;
+    cursor: zoom-in;
+  }
+  .block-figure figure { margin: 0; }
+  .block-figure img {
+    width: 100%;
+    border-radius: 0.85rem;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    background: rgb(255 255 255);
+    display: block;
+  }
+  .block-figure figcaption {
+    font-size: 0.75rem;
+    color: rgb(100 116 139);
+    margin-top: 0.5rem;
+    line-height: 1.5;
+    cursor: default;
+  }
+
+  /* ── Concept chips & ADR refs ──────────────────────── */
+  .concept-chip {
+    display: inline;
+    font-weight: 600;
+    color: rgb(52 211 153);
+    background: rgb(16 185 129 / 0.1);
+    border-radius: 0.4rem;
+    padding: 0.05rem 0.4rem;
+    margin: 0 0.1rem;
+    cursor: pointer;
+    border-bottom: 1px dotted rgb(16 185 129 / 0.6);
+  }
+  :root:not(.dark) .concept-chip { color: rgb(4 120 87); background: rgb(16 185 129 / 0.12); }
+  .concept-chip:hover, .concept-chip:focus-visible { background: rgb(16 185 129 / 0.2); outline: none; }
+  .adr-ref {
+    font: inherit;
+    font-weight: 600;
+    color: rgb(52 211 153);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    border-bottom: 1px dotted rgb(16 185 129 / 0.6);
+  }
+  :root:not(.dark) .adr-ref { color: rgb(4 120 87); }
+  .adr-ref:hover { border-bottom-style: solid; }
+
+  /* ── Decision card (inline + map) ──────────────────── */
+  .decision-card {
+    padding: 1.35rem 1.45rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgb(16 185 129 / 0.3);
+    background: linear-gradient(180deg, rgb(16 185 129 / 0.05), rgb(16 185 129 / 0.02));
+    margin: 0.75rem 0;
+  }
+  .decision-card h4 {
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.9rem;
+    color: rgb(241 245 249);
+  }
+  :root:not(.dark) .decision-card h4 { color: rgb(15 23 42); }
+  .decision-card dl { display: flex; flex-direction: column; gap: 0.7rem; }
+  .decision-card dt {
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgb(16 185 129);
+    margin-bottom: 2px;
+  }
+  :root:not(.dark) .decision-card dt { color: rgb(4 120 87); }
+  .decision-card dd { font-size: 0.9rem; line-height: 1.65; }
+  .decision-card .decision-open {
+    margin-top: 1rem;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: rgb(52 211 129);
+    background: rgb(16 185 129 / 0.1);
+    border: 1px solid rgb(16 185 129 / 0.3);
+    border-radius: 0.55rem;
+    padding: 0.45rem 0.85rem;
+    cursor: pointer;
+  }
+  .decision-card .decision-open:hover { background: rgb(16 185 129 / 0.18); }
+
+  /* ── Decision map (section 9) ──────────────────────── */
+  .decision-map { display: flex; flex-direction: column; gap: 2.25rem; }
+  .pillar + .pillar { margin-top: 0.5rem; }
+  .pillar-head { margin-bottom: 1rem; max-width: 60ch; }
+  .pillar-head h3 {
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: rgb(52 211 153);
+  }
+  :root:not(.dark) .pillar-head h3 { color: rgb(4 120 87); }
+  .pillar-head p { font-size: 0.82rem; color: rgb(148 163 184); line-height: 1.6; margin-top: 0.25rem; }
+  :root:not(.dark) .pillar-head p { color: rgb(71 85 105); }
+  .pillar-grid { display: flex; flex-direction: column; gap: 0.9rem; max-width: 68ch; }
+  .map-entry {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.95rem 1.2rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    background: rgb(30 41 59 / 0.3);
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+  }
+  :root:not(.dark) .map-entry { background: rgb(255 255 255); border-color: rgb(226 232 240); }
+  .map-entry:hover { border-color: rgb(16 185 129 / 0.5); }
+  .map-entry .entry-title { font-size: 0.92rem; font-weight: 600; line-height: 1.4; }
+  .map-entry .entry-adrs {
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: rgb(100 116 139);
+    white-space: nowrap;
+  }
+
+  /* ── Context diagram ───────────────────────────────── */
+  .context-diagram {
+    border: 1px solid rgb(51 65 85 / 0.7);
+    border-radius: 0.85rem;
+    padding: 1.4rem 1.2rem;
+    background: rgb(30 41 59 / 0.3);
+    margin: 0.5rem 0;
+  }
+  :root:not(.dark) .context-diagram { background: rgb(255 255 255); }
+  .cd-title {
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgb(100 116 139);
+    margin-bottom: 1.1rem;
+    text-align: center;
+  }
+  .cd-col-title {
+    font-size: 0.62rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgb(100 116 139);
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  .cd-flow {
+    display: grid;
+    grid-template-columns: 1.1fr auto minmax(13rem, auto) auto 1.1fr;
+    gap: 1.25rem;
+    align-items: center;
+  }
+  .cd-flow .cd-stack:first-child { grid-column: 1; }
+  .cd-flow .cd-arrows:first-of-type { grid-column: 2; }
+  .cd-central { grid-column: 3; }
+  .cd-flow .cd-arrows:last-of-type { grid-column: 4; }
+  .cd-flow .cd-stack:last-child { grid-column: 5; }
+  @media (max-width: 40rem) {
+    .cd-flow { grid-template-columns: 1fr; }
+    .cd-flow .cd-stack:first-child,
+    .cd-flow .cd-arrows:first-of-type,
+    .cd-central,
+    .cd-flow .cd-arrows:last-of-type,
+    .cd-flow .cd-stack:last-child { grid-column: 1; }
+    .cd-arrows { justify-content: center; }
+    .cd-arrows svg { transform: rotate(90deg); }
+  }
+  .cd-stack { display: flex; flex-direction: column; gap: 0.5rem; }
+  .cd-node {
+    padding: 0.55rem 0.8rem;
+    border-radius: 0.6rem;
+    border: 1px solid rgb(51 65 85);
+    font-size: 0.78rem;
+    text-align: center;
+    background: rgb(22 27 34);
+  }
+  :root:not(.dark) .cd-node { background: rgb(248 250 252); border-color: rgb(203 213 225); }
+  .cd-central {
+    padding: 1.4rem 1.5rem;
+    border-radius: 0.75rem;
+    border: 1.5px solid rgb(16 185 129);
+    background: rgb(16 185 129 / 0.08);
+    text-align: center;
+  }
+  .cd-central strong { font-size: 0.9rem; display: block; line-height: 1.35; }
+  .cd-central span { font-size: 0.68rem; color: rgb(148 163 184); display: block; margin-top: 0.3rem; }
+  .cd-arrows { display: flex; flex-direction: column; gap: 0.4rem; align-items: center; color: rgb(16 185 129); }
+
+  /* ── Closing ───────────────────────────────────────── */
+  .article-closing {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgb(51 65 85 / 0.5);
+    font-size: 0.8rem;
+    color: rgb(100 116 139);
+    line-height: 1.7;
+    max-width: 68ch;
+  }
+  .closing-title { font-weight: 700; color: rgb(148 163 184); margin-bottom: 0.5rem; }
+  :root:not(.dark) .article-closing { border-top-color: rgb(226 232 240); }
+
+  /* ── Modals ────────────────────────────────────────── */
+  .modal-shell {
+    margin: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    max-width: min(40rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 3rem);
+  }
+  .modal-shell::backdrop {
+    background: rgb(2 6 23 / 0.72);
+    backdrop-filter: blur(3px);
+  }
+  .modal-shell--wide { max-width: min(60rem, calc(100vw - 2rem)); }
+  .modal-card {
+    position: relative;
+    background: #161b22;
+    border: 1px solid rgb(51 65 85);
+    border-radius: 1rem;
+    padding: 1.75rem 1.9rem;
+    box-shadow: 0 24px 60px rgb(2 6 23 / 0.5);
+    overflow-y: auto;
+    max-height: calc(100dvh - 3rem);
+  }
+  :root:not(.dark) .modal-card { background: #ffffff; box-shadow: 0 24px 60px rgb(15 23 42 / 0.18); }
+  .modal-close {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    border-radius: 0.55rem;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    background: transparent;
+    color: rgb(148 163 184);
+    cursor: pointer;
+  }
+  .modal-close:hover { color: inherit; border-color: rgb(16 185 129 / 0.5); }
+  .modal-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    padding-right: 2.5rem;
+    margin-bottom: 1.1rem;
+    color: rgb(241 245 249);
+  }
+  :root:not(.dark) .modal-title { color: rgb(15 23 42); }
+  .modal-sections { display: flex; flex-direction: column; gap: 0.95rem; }
+  .modal-sections h4 {
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgb(16 185 129);
+    margin-bottom: 0.25rem;
+  }
+  :root:not(.dark) .modal-sections h4 { color: rgb(4 120 87); }
+  .modal-sections p, .modal-body p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: rgb(203 213 225);
+  }
+  :root:not(.dark) .modal-sections p,
+  :root:not(.dark) .modal-body p { color: rgb(51 65 85); }
+  .modal-body p + p { margin-top: 0.8rem; }
+  .modal-adrs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid rgb(51 65 85 / 0.6);
+  }
+  .adr-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: rgb(52 211 153);
+    border: 1px solid rgb(16 185 129 / 0.35);
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.7rem;
+    text-decoration: none;
+  }
+  :root:not(.dark) .adr-link { color: rgb(4 120 87); }
+  .adr-link:hover { background: rgb(16 185 129 / 0.1); }
+  .modal-card--image { padding: 0.9rem; }
+  .modal-card--image img {
+    width: 100%;
+    border-radius: 0.6rem;
+    background: #fff;
+    display: block;
+  }
+  .lightbox-caption {
+    font-size: 0.75rem;
+    color: rgb(148 163 184);
+    margin-top: 0.6rem;
+    line-height: 1.5;
+    padding: 0 0.3rem 0.3rem;
+  }
+</style>

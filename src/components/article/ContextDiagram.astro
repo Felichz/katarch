@@ -1,0 +1,52 @@
+---
+/**
+ * Context diagram rendered as semantic HTML in the site's own visual
+ * language. It closes Section 1: by the time the reader sees it, every
+ * box and arrow has already been introduced in prose.
+ */
+interface Props {
+  lang: 'es' | 'en';
+}
+const { lang } = Astro.props;
+const isES = lang === 'es';
+const t = {
+  title: isES ? 'Diagrama de contexto: los límites del sistema' : 'Context diagram: the boundaries of the system',
+  inputs: isES ? 'Canales de entrada' : 'Incoming channels',
+  outputs: isES ? 'Sistemas existentes (restricciones)' : 'Existing systems (constraints)',
+  central: isES ? 'Plataforma Central de Órdenes' : 'Central Ordering Platform',
+  centralSub: isES ? 'catálogo · órdenes · pagos · reportes' : 'catalog · orders · payments · reporting',
+  fridge: isES ? 'Heladera inteligente (Byte · RFID)' : 'Smart fridge (Byte · RFID)',
+  kiosk: isES ? 'Kiosco con cajero (Toast POS)' : 'Staffed kiosk (Toast POS)',
+  app: isES ? 'App web y móvil (usuario)' : 'Web & mobile app (user)',
+  chef: isES ? 'Cocinas (ChefTec)' : 'Kitchens (ChefTec)',
+  stripe: isES ? 'Pagos (Stripe)' : 'Payments (Stripe)',
+  books: isES ? 'Contabilidad (QuickBooks)' : 'Accounting (QuickBooks)',
+} as const;
+---
+<div class="context-diagram">
+  <p class="cd-title">{t.title}</p>
+  <div class="cd-flow">
+    <div class="cd-stack">
+      <p class="cd-col-title">{t.inputs}</p>
+      <div class="cd-node">{t.fridge}</div>
+      <div class="cd-node">{t.kiosk}</div>
+      <div class="cd-node">{t.app}</div>
+    </div>
+    <div class="cd-arrows" aria-hidden="true">
+      <svg width="34" height="24" viewBox="0 0 34 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M0 12h30M24 6l6 6-6 6"/></svg>
+    </div>
+    <div class="cd-central">
+      <strong>{t.central}</strong>
+      <span>{t.centralSub}</span>
+    </div>
+    <div class="cd-arrows" aria-hidden="true">
+      <svg width="34" height="24" viewBox="0 0 34 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M0 12h30M24 6l6 6-6 6"/></svg>
+    </div>
+    <div class="cd-stack">
+      <p class="cd-col-title">{t.outputs}</p>
+      <div class="cd-node">{t.chef}</div>
+      <div class="cd-node">{t.stripe}</div>
+      <div class="cd-node">{t.books}</div>
+    </div>
+  </div>
+</div>

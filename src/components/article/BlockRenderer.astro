@@ -1,0 +1,81 @@
+---
+import type { Block } from '../../data/article/types';
+import { DECISIONS } from '../../data/article/decision-map';
+import DecisionCard from './DecisionCard.astro';
+import DecisionMap from './DecisionMap.astro';
+import ContextDiagram from './ContextDiagram.astro';
+
+interface Props {
+  block: Block;
+  lang: 'es' | 'en';
+}
+const { block, lang } = Astro.props;
+const decisionFor = (id: string) => DECISIONS.find((d) => d.id === id);
+---
+{block.type === 'p' && <div class="set-prose" set:html={block.html} />}
+{block.type === 'h3' && <h3 class="block-h3" set:html={block.html} />}
+{block.type === 'list' && (
+  <ul class="block-list">
+    {block.items.map((item) => <li set:html={item} />)}
+  </ul>
+)}
+{block.type === 'cards' && (
+  <div class="block-cards" data-cols={block.cols ?? 3}>
+    {block.cards.map((card) => (
+      <div class="block-card">
+        {card.tag && <span class="tag">{card.tag}</span>}
+        <h4>{card.title}</h4>
+        <p set:html={card.html} />
+      </div>
+    ))}
+  </div>
+)}
+{block.type === 'stats' && (
+  <div class="block-stats">
+    {block.items.map((stat) => (
+      <div class="stat-cell">
+        <div class="stat-value">{stat.value}</div>
+        <div class="stat-label">{stat.label}</div>
+      </div>
+    ))}
+  </div>
+)}
+{block.type === 'callout' && (
+  <div class="block-callout" data-tone={block.tone}>
+    <h4>{block.title}</h4>
+    <p class="set-prose" set:html={block.html} />
+  </div>
+)}
+{block.type === 'figure' && (
+  <div class="block-figure" data-lightbox data-src={block.src} data-caption={block.caption} role="button" tabindex="0">
+    <figure>
+      <img src={block.src} alt={block.alt} loading="lazy" />
+      <figcaption>{block.caption}</figcaption>
+    </figure>
+  </div>
+)}
+{block.type === 'table' && (
+  <div class="block-table">
+    {block.caption && <p class="table-caption">{block.caption}</p>}
+    <table>
+      <thead>
+        <tr>{block.headers.map((h) => <th scope="col">{h}</th>)}</tr>
+      </thead>
+      <tbody>
+        {block.rows.map((row) => (
+          <tr>
+            {row.map((cell, i) =>
+              i === 0 ? <th scope="row">{cell}</th> : <td set:html={cell} />,
+            )}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
+{block.type === 'contextDiagram' && <ContextDiagram lang={lang} />}
+{block.type === 'decisionMap' && <DecisionMap lang={lang} />}
+{block.type === 'decision' && decisionFor(block.id) && (
+  <DecisionCard entry={decisionFor(block.id)!} lang={lang} />
+)}
+{block.type === 'spacer' && <div class="block-spacer" />}

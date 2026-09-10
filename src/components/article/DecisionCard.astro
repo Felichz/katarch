@@ -1,0 +1,37 @@
+---
+import type { DecisionEntry } from '../../data/article/decision-map';
+
+interface Props {
+  entry: DecisionEntry;
+  lang: 'es' | 'en';
+  variant?: 'inline' | 'map';
+}
+
+const { entry, lang, variant = 'inline' } = Astro.props;
+const isES = lang === 'es';
+
+const labels = {
+  problem: isES ? 'El problema' : 'The problem',
+  decision: isES ? 'La decisión' : 'The decision',
+  tradeoff: isES ? 'La compensación' : 'The trade-off',
+  open: isES ? 'Abrir la ficha completa' : 'Open the full card',
+} as const;
+---
+{variant === 'inline' ? (
+  <div class="decision-card">
+    <h4>{entry.title[lang]}</h4>
+    <dl>
+      <div><dt>{labels.problem}</dt><dd>{entry.problem[lang]}</dd></div>
+      <div><dt>{labels.decision}</dt><dd>{entry.decision[lang]}</dd></div>
+      <div><dt>{labels.tradeoff}</dt><dd>{entry.tradeoff[lang]}</dd></div>
+    </dl>
+    <button class="decision-open" type="button" data-decision={entry.id}>
+      {labels.open} →
+    </button>
+  </div>
+) : (
+  <button class="map-entry" type="button" data-decision={entry.id}>
+    <span class="entry-title">{entry.title[lang]}</span>
+    <span class="entry-adrs">{entry.adrs.map((a) => a.label.split('·')[0].trim()).join(' · ')}</span>
+  </button>
+)}
