@@ -11,20 +11,13 @@ const { entry, lang, variant = 'inline' } = Astro.props;
 const isES = lang === 'es';
 
 const labels = {
-  problem: isES ? 'El problema' : 'The problem',
-  decision: isES ? 'La decisión' : 'The decision',
-  tradeoff: isES ? 'La compensación' : 'The trade-off',
-  open: isES ? 'Abrir la ficha completa' : 'Open the full card',
+  open: isES ? 'Leer la decisión completa' : 'Read the full decision',
 } as const;
 ---
 {variant === 'inline' ? (
-  <div class="decision-card">
+  <div class="decision-card decision-card--summary">
     <h4>{entry.title[lang]}</h4>
-    <dl>
-      <div><dt>{labels.problem}</dt><dd>{entry.problem[lang]}</dd></div>
-      <div><dt>{labels.decision}</dt><dd>{entry.decision[lang]}</dd></div>
-      <div><dt>{labels.tradeoff}</dt><dd>{entry.tradeoff[lang]}</dd></div>
-    </dl>
+    <p class="decision-one-line">{entry.decision[lang]}</p>
     <button class="decision-open" type="button" data-decision={entry.id}>
       {labels.open} →
     </button>
