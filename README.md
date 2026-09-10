@@ -14,13 +14,6 @@ This repository is the definitive deep-dive of the **Fall 2020** edition, judged
 
 The article reconstructs the team's reasoning in its natural order — business → constraints → principles → style → domain → concurrency → infrastructure → cost — using the original documents, diagrams, spreadsheets and ADRs from their public repository. The finalist solutions of Myagis-Forest and Jedis appear only as the podium counterpoint, not as parallel analyses.
 
-### Editorial rules
-
-- **No spoilers:** every concept, term and ADR appears exactly when its problem appears in the story — never before.
-- **Everything contextualized:** technical concepts open in-page modal deep-dives written in natural language with physical-world analogies, for any developer profile.
-- **All brief information in the main thread:** business facts, constraints, user types and real numbers are never hidden inside optional modals.
-- **Curated, not dumped:** the 16 ADRs are distilled into a three-pillar decision map (problem → decision → trade-off), each linked to the original file on GitHub.
-
 ---
 
 ## Live Demo & Deployment
