@@ -5,7 +5,6 @@
  *   open native <dialog> modals (ESC + backdrop close for free).
  * - Every open modal locks page scroll (the bug the author reported).
  * - Focus is trapped inside the dialog by the browser, restored on close.
- * - Figures open in a lightbox dialog.
  * - TOC highlights the section currently in view.
  */
 
@@ -102,22 +101,6 @@ document.addEventListener('click', (e) => {
     openDialog(`decision-${opener.dataset.decision}`, opener);
     return;
   }
-
-  // Figure lightbox
-  const fig = target.closest<HTMLElement>('[data-lightbox]');
-  if (fig && !target.closest('figcaption')) {
-    const src = fig.dataset.src;
-    if (!src) return;
-    const img = document.getElementById('lightbox-img') as HTMLImageElement | null;
-    const cap = document.getElementById('lightbox-caption');
-    const figImg = fig.querySelector('img');
-    if (img) {
-      img.src = src;
-      img.alt = figImg?.alt ?? '';
-    }
-    if (cap) cap.textContent = fig.dataset.caption ?? '';
-    openDialog('lightbox', fig);
-  }
 });
 
 // Keyboard: Enter/Space on non-button interactive elements
@@ -125,7 +108,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const el = document.activeElement as HTMLElement | null;
   if (!el) return;
-  if (el.classList.contains('concept-chip') || el.hasAttribute('data-lightbox')) {
+  if (el.classList.contains('concept-chip')) {
     e.preventDefault();
     el.click();
   }

@@ -4,7 +4,7 @@
  * Content comes entirely from src/data/article/{es,en}.ts; this file owns
  * layout, interaction affordances and modals. Editorials rules encoded here:
  * concepts and ADRs open contextual modals (never spoilers of later
- * sections), figures open in a lightbox, and every modal locks page scroll.
+ * sections), and every modal locks page scroll.
  */
 import type { ArticleContent, Block } from '../../data/article/types';
 import { CONCEPTS } from '../../data/article/concepts';
@@ -107,17 +107,6 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     </div>
   </dialog>
 ))}
-
-<!-- Lightbox -->
-<dialog id="lightbox" class="modal-shell modal-shell--wide" aria-label="Image viewer">
-  <div class="modal-card modal-card--image">
-    <button class="modal-close" data-close-modal type="button" aria-label={ui.close}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-    </button>
-    <img id="lightbox-img" alt="" />
-    <p id="lightbox-caption" class="lightbox-caption"></p>
-  </div>
-</dialog>
 
 <div class="article-shell">
   <!-- Collapsible TOC rail: collapsed dots by default, expands to the full index -->
@@ -379,12 +368,12 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     letter-spacing: -0.03em;
     color: rgb(241 245 249);
     margin-bottom: 1.6rem;
-    max-width: 30ch;
+    max-width: 44ch;
   }
   :root:not(.dark) .hero-title { color: rgb(15 23 42); }
   .hero-title-b { display: block; color: rgb(52 211 153); }
   :root:not(.dark) .hero-title-b { color: rgb(4 120 87); }
-  .hero-prose { max-width: 68ch; }
+  .hero-prose { max-width: none; }
   .hero-prose p + p { margin-top: 1rem; }
   .hero-meta {
     display: flex;
@@ -547,7 +536,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     font-size: 0.88rem;
   }
   .block-table { border: 1px solid rgb(51 65 85 / 0.7); border-radius: 0.85rem; overflow: hidden; }
-  .block-table .table-caption {
+  .block-table .tbl-caption {
     font-size: 0.68rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
@@ -575,9 +564,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
 
   .block-figure {
     margin: 1rem 0 0.5rem;
-    cursor: zoom-in;
   }
-  .block-figure figure { margin: 0; }
   .block-figure img {
     width: 100%;
     border-radius: 0.85rem;
@@ -586,10 +573,10 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     display: block;
   }
   .block-figure figcaption {
-    font-size: 0.75rem;
-    color: rgb(100 116 139);
-    margin-top: 0.5rem;
-    line-height: 1.5;
+    font-size: 0.9rem;
+    color: rgb(148 163 184);
+    margin-top: 0.6rem;
+    line-height: 1.55;
     cursor: default;
   }
 
@@ -664,7 +651,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   /* ── Decision map (section 9) ──────────────────────── */
   .decision-map { display: flex; flex-direction: column; gap: 2.25rem; }
   .pillar + .pillar { margin-top: 0.5rem; }
-  .pillar-head { margin-bottom: 1rem; max-width: 60ch; }
+  .pillar-head { margin-bottom: 1rem; }
   .pillar-head h3 {
     font-size: 1.08rem;
     font-weight: 700;
@@ -673,7 +660,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   :root:not(.dark) .pillar-head h3 { color: rgb(4 120 87); }
   .pillar-head p { font-size: 0.82rem; color: rgb(148 163 184); line-height: 1.6; margin-top: 0.25rem; }
   :root:not(.dark) .pillar-head p { color: rgb(71 85 105); }
-  .pillar-grid { display: flex; flex-direction: column; gap: 0.9rem; max-width: 68ch; }
+  .pillar-grid { display: flex; flex-direction: column; gap: 0.9rem; }
   .map-entry {
     display: flex;
     align-items: baseline;
@@ -773,10 +760,9 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     margin-top: 4rem;
     padding-top: 2rem;
     border-top: 1px solid rgb(51 65 85 / 0.5);
-    font-size: 0.8rem;
-    color: rgb(100 116 139);
+    font-size: 0.85rem;
+    color: rgb(148 163 184);
     line-height: 1.7;
-    max-width: 68ch;
   }
   .closing-title { font-weight: 700; color: rgb(148 163 184); margin-bottom: 0.5rem; }
   :root:not(.dark) .article-closing { border-top-color: rgb(226 232 240); }
@@ -794,7 +780,6 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     background: rgb(2 6 23 / 0.72);
     backdrop-filter: blur(3px);
   }
-  .modal-shell--wide { max-width: min(60rem, calc(100vw - 2rem)); }
   .modal-card {
     position: relative;
     background: #161b22;
@@ -871,18 +856,4 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   }
   :root:not(.dark) .adr-link { color: rgb(4 120 87); }
   .adr-link:hover { background: rgb(16 185 129 / 0.1); }
-  .modal-card--image { padding: 0.9rem; }
-  .modal-card--image img {
-    width: 100%;
-    border-radius: 0.6rem;
-    background: #fff;
-    display: block;
-  }
-  .lightbox-caption {
-    font-size: 0.75rem;
-    color: rgb(148 163 184);
-    margin-top: 0.6rem;
-    line-height: 1.5;
-    padding: 0 0.3rem 0.3rem;
-  }
 </style>

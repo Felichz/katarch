@@ -47,16 +47,14 @@ const decisionFor = (id: string) => DECISIONS.find((d) => d.id === id);
   </div>
 )}
 {block.type === 'figure' && (
-  <div class="block-figure" data-lightbox data-src={block.src} data-caption={block.caption} role="button" tabindex="0">
-    <figure>
-      <img src={block.src} alt={block.alt} loading="lazy" />
-      <figcaption>{block.caption}</figcaption>
-    </figure>
-  </div>
+  <figure class="block-figure">
+    <img src={block.src} alt={block.alt} loading="lazy" />
+    <figcaption>{block.caption}</figcaption>
+  </figure>
 )}
 {block.type === 'table' && (
   <div class="block-table">
-    {block.caption && <p class="table-caption">{block.caption}</p>}
+    {block.caption && <p class="tbl-caption">{block.caption}</p>}
     <table>
       <thead>
         <tr>{block.headers.map((h) => <th scope="col">{h}</th>)}</tr>
