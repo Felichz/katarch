@@ -18,9 +18,8 @@ The article reconstructs the team's reasoning in its natural order — business 
 
 ## Live Demo & Deployment
 
-- **Production URL:** [https://katarch.vercel.app](https://katarch.vercel.app)
-- **Spanish Edition:** [https://katarch.vercel.app/](https://katarch.vercel.app/)
-- **English Edition:** [https://katarch.vercel.app/en](https://katarch.vercel.app/en)
+- **Production URL (English, default):** [https://katarch.vercel.app](https://katarch.vercel.app)
+- **Spanish Edition:** [https://katarch.vercel.app/es](https://katarch.vercel.app/es)
 
 ---
 
@@ -45,7 +44,7 @@ Ten sections in four phases, identical in both languages:
 
 Built with **Astro** and **Tailwind CSS**, content-driven from typed data files — one renderer, two languages:
 
-- **Bilingual:** full Spanish (`/`) and English (`/en`) editions from `src/data/article/{es,en}.ts`.
+- **Bilingual:** English (`/`, default) and Spanish (`/es`) editions from `src/data/article/{es,en}.ts`; legacy `/en` redirects to `/`.
 - **Concept deep-dives:** ~10 contextual modal chips (kata, ADR, event sourcing, actor model, DDD, VPC, TCO…) in natural language.
 - **Decision map:** the curated three-pillar ADR digest with per-decision modals and GitHub links.
 - **Original artifacts:** 13 figures from the ArchColider repository (modularization, metamodel, concurrency, VPC, authentication, TCO, user journeys) with lightbox viewer.
@@ -82,8 +81,8 @@ katarch/
     ├── layouts/Layout.astro                           # Responsive layout, header, themes, progress bar
     ├── scripts/article-interactions.ts                # Modals, scroll lock, lightbox, TOC rail
     └── pages/
-        ├── index.astro                                # Spanish edition (/)
-        └── en.astro                                   # English edition (/en)
+        ├── index.astro                                # English edition (/) — default
+        └── es.astro                                   # Spanish edition (/es)
 ```
 
 ---
@@ -104,7 +103,7 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:4321` for the Spanish version or `http://localhost:4321/en` for the English version.
+Visit `http://localhost:4321` for the English version (default) or `http://localhost:4321/es` for the Spanish version.
 
 ### Building for Production
 

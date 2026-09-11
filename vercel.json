@@ -3,5 +3,17 @@
   "framework": "astro",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/en",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/en/",
+      "destination": "/",
+      "permanent": false
+    }
+  ]
 }
