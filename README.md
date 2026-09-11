@@ -64,11 +64,10 @@ katarch/
 ├── astro.config.mjs                                   # Astro platform configuration
 ├── tailwind.config.mjs                                # Tailwind CSS design system configuration
 ├── vercel.json                                        # Vercel deployment configuration
-├── fall-2020-farmacy-food/                            # Local Kata materials (git-ignored)
 ├── public/img/                                        # Original ArchColider figures and diagrams
 └── src/
     ├── components/article/
-    │   ├── Article.astro                              # Main renderer: shell, TOC rail, modals, lightbox
+    │   ├── Article.astro                              # Main renderer: shell, TOC rail, modals
     │   ├── BlockRenderer.astro                        # Typed content blocks (prose, cards, tables, figures…)
     │   ├── ContextDiagram.astro                       # HTML context diagram closing section 1
     │   ├── DecisionCard.astro                         # Inline decision card + map entry
@@ -86,56 +85,3 @@ katarch/
 ```
 
 ---
-
-## Getting Started
-
-### Prerequisites
-- Node.js 18+
-- npm 9+
-
-### Running Locally
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-Visit `http://localhost:4321` for the English version (default) or `http://localhost:4321/es` for the Spanish version.
-
-### Building for Production
-
-```bash
-# Build static production bundle
-npm run build
-```
-
-The built static assets will be output to `dist/`.
-
----
-
-## Deployment (Vercel)
-
-This repository is preconfigured for zero-friction Vercel deployment:
-- Framework: `astro`
-- Build Command: `npm run build`
-- Output Directory: `dist`
-- Install Command: `npm install`
-
-Deploy directly using the Vercel CLI:
-
-```bash
-vercel --prod
-```
-
-Or connect the GitHub repository [Felichz/katarch](https://github.com/Felichz/katarch) for automated preview and production deployments on git push.
-
----
-
-## Primary References
-- Official Kata Repository: [TheKataLog](https://github.com/TheKataLog)
-- ArchColider 1st Place Submission: [TheKataLog/ArchColider](https://github.com/TheKataLog/ArchColider/tree/master)
-- Theoretical Framework: *Fundamentals of Software Architecture* (Mark Richards & Neal Ford, O'Reilly)
-- Methodology: *Software Architecture and Design Explained* (Rozanski & Woods)
