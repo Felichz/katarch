@@ -57,15 +57,15 @@ const isEnglish = lang === 'en';
         <div class="flex items-center gap-3">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse"></span>
           <a href={isEnglish ? "/en" : "/"} class="font-bold text-slate-900 dark:text-slate-100 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-2">
-            <span class="font-mono text-emerald-700 dark:text-emerald-400 text-sm tracking-tight font-extrabold">TheKataLog</span>
-            <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-mono">
+            <span class="font-mono text-emerald-700 dark:text-emerald-400 text-base tracking-tight font-extrabold">TheKataLog</span>
+            <span class="text-base px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-mono">
               Fall 2020
             </span>
           </a>
         </div>
         
         <div class="flex items-center gap-2.5 font-mono">
-          <a href="https://github.com/TheKataLog" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors font-medium">
+          <a href="https://github.com/TheKataLog" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-1.5 text-base text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors font-medium">
             <span>{isEnglish ? "GitHub Repos" : "Repositorios GitHub"}</span>
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
@@ -75,7 +75,7 @@ const isEnglish = lang === 'en';
           <!-- Language Switcher Button -->
           <a 
             href={isEnglish ? "/" : "/en"} 
-            class="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-2xs flex items-center gap-1.5 text-xs font-mono font-medium"
+            class="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-2xs flex items-center gap-1.5 text-base font-mono font-medium"
             title={isEnglish ? "Cambiar a Español" : "Switch to English"}
             aria-label={isEnglish ? "Cambiar a Español" : "Switch to English"}
           >
@@ -104,7 +104,7 @@ const isEnglish = lang === 'en';
             <svg id="theme-icon-moon" class="w-4 h-4 hidden text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
             </svg>
-            <span id="theme-label" class="text-xs font-mono hidden md:inline" data-lang={lang}>{isEnglish ? "Dark" : "Oscuro"}</span>
+            <span id="theme-label" class="text-base font-mono hidden md:inline" data-lang={lang}>{isEnglish ? "Dark" : "Oscuro"}</span>
           </button>
         </div>
       </div>
@@ -116,7 +116,7 @@ const isEnglish = lang === 'en';
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-12 text-center text-xs text-slate-500 font-mono mt-20 transition-colors">
+    <footer class="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-12 text-center text-base text-slate-500 font-mono mt-20 transition-colors">
       <div class="max-w-6xl mx-auto px-4 space-y-2">
         <p class="font-medium text-slate-700 dark:text-slate-400">
           {isEnglish 

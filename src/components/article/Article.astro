@@ -238,7 +238,13 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     width: 3rem;
   }
   :root:not(.dark) .toc-card { background: rgb(255 255 255); box-shadow: 0 1px 2px rgb(15 23 42 / 0.05); }
-  .toc-card[data-expanded] { width: 15rem; align-items: stretch; padding: 0.75rem; }
+  .toc-card[data-expanded] {
+    width: 15rem;
+    align-items: stretch;
+    padding: 0.75rem;
+    max-height: calc(100vh - 7.5rem);
+    overflow-y: auto;
+  }
   .toc-expand {
     display: grid;
     place-items: center;
@@ -307,7 +313,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     border-radius: 0.45rem;
     background: #0f172a;
     color: rgb(241 245 249);
-    font-size: 0.7rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     white-space: nowrap;
     pointer-events: none;
@@ -320,7 +326,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   }
   :root:not(.dark) .toc-tooltip { background: #ffffff; color: rgb(15 23 42); }
   .toc-heading {
-    font-size: 0.7rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.12em;
@@ -332,7 +338,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     gap: 1px;
     padding: 0.45rem 0.6rem;
     border-radius: 0.5rem;
-    font-size: 0.78rem;
+    font-size: 1rem;
     line-height: 1.3;
     color: rgb(100 116 139);
     transition: color 0.15s, background-color 0.15s;
@@ -340,7 +346,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   .toc-item:hover { color: inherit; background: rgb(148 163 184 / 0.08); text-decoration: none; }
   .toc-item.active { color: rgb(16 185 129); background: rgb(16 185 129 / 0.06); }
   .toc-phase {
-    font-size: 0.62rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -355,7 +361,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   .hero { padding-bottom: 2.5rem; border-bottom: 1px solid rgb(51 65 85 / 0.5); margin-bottom: 2.5rem; }
   .hero-kicker {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
+    font-size: 1rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: rgb(16 185 129);
@@ -382,13 +388,13 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     margin-top: 2rem;
   }
   .hero-meta dt {
-    font-size: 0.65rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: rgb(100 116 139);
   }
-  .hero-meta dd { font-size: 0.85rem; font-weight: 600; margin-top: 2px; }
+  .hero-meta dd { font-size: 1rem; font-weight: 600; margin-top: 2px; }
 
   /* ── Sections: ONE shared container for every element ── */
   .article-section { min-width: 0; scroll-margin-top: 5.5rem; }
@@ -414,7 +420,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   :root:not(.dark) .phase-divider::before,
   :root:not(.dark) .phase-divider::after { background: rgb(203 213 225); }
   .phase-divider span {
-    font-size: 0.68rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.14em;
@@ -468,15 +474,15 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   :root:not(.dark) .block-card { background: rgb(255 255 255); border-color: rgb(226 232 240); box-shadow: 0 1px 2px rgb(15 23 42 / 0.05); }
   .block-card .tag {
     display: inline-block;
-    font-size: 0.62rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: rgb(16 185 129);
     margin-bottom: 0.4rem;
   }
-  .block-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.45rem; }
-  .block-card p { font-size: 0.85rem; line-height: 1.65; color: rgb(148 163 184); }
+  .block-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.45rem; }
+  .block-card p { font-size: 1rem; line-height: 1.65; color: rgb(148 163 184); }
   :root:not(.dark) .block-card p { color: rgb(71 85 105); }
 
   .block-stats {
@@ -499,7 +505,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     line-height: 1.1;
   }
   :root:not(.dark) .stat-value { color: rgb(4 120 87); }
-  .stat-label { font-size: 0.72rem; line-height: 1.45; color: rgb(148 163 184); margin-top: 0.35rem; }
+  .stat-label { font-size: 1rem; line-height: 1.45; color: rgb(148 163 184); margin-top: 0.35rem; }
   :root:not(.dark) .stat-label { color: rgb(71 85 105); }
 
   .block-callout {
@@ -508,11 +514,11 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     margin: 0.5rem 0;
   }
   .block-callout h4 {
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 700;
     margin-bottom: 0.45rem;
   }
-  .block-callout p { font-size: 0.92rem; line-height: 1.7; }
+  .block-callout p { font-size: 1rem; line-height: 1.7; }
   .block-callout[data-tone='emerald'] {
     background: rgb(16 185 129 / 0.07);
     border: 1px solid rgb(16 185 129 / 0.25);
@@ -533,11 +539,11 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   .block-table table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.88rem;
+    font-size: 1rem;
   }
   .block-table { border: 1px solid rgb(51 65 85 / 0.7); border-radius: 0.85rem; overflow: hidden; }
   .block-table .tbl-caption {
-    font-size: 0.68rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.12em;
@@ -551,7 +557,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     border-top: 1px solid rgb(51 65 85 / 0.45);
   }
   .block-table thead th {
-    font-size: 0.65rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -573,7 +579,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     display: block;
   }
   .block-figure figcaption {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: rgb(148 163 184);
     margin-top: 0.6rem;
     line-height: 1.55;
@@ -617,7 +623,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   }
   .decision-card--summary { padding: 1.1rem 1.3rem; }
   .decision-one-line {
-    font-size: 0.92rem;
+    font-size: 1rem;
     line-height: 1.6;
   }
   .decision-card h4 {
@@ -630,7 +636,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   :root:not(.dark) .decision-card h4 { color: rgb(15 23 42); }
   .decision-card dl { display: flex; flex-direction: column; gap: 0.7rem; }
   .decision-card dt {
-    font-size: 0.65rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -638,11 +644,11 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     margin-bottom: 2px;
   }
   :root:not(.dark) .decision-card dt { color: rgb(4 120 87); }
-  .decision-card dd { font-size: 0.9rem; line-height: 1.65; }
+  .decision-card dd { font-size: 1rem; line-height: 1.65; }
   .decision-card .decision-open {
     margin-top: 1rem;
     font: inherit;
-    font-size: 0.8rem;
+    font-size: 1rem;
     font-weight: 600;
     color: rgb(52 211 129);
     background: rgb(16 185 129 / 0.1);
@@ -663,7 +669,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     color: rgb(52 211 153);
   }
   :root:not(.dark) .pillar-head h3 { color: rgb(4 120 87); }
-  .pillar-head p { font-size: 0.82rem; color: rgb(148 163 184); line-height: 1.6; margin-top: 0.25rem; }
+  .pillar-head p { font-size: 1rem; color: rgb(148 163 184); line-height: 1.6; margin-top: 0.25rem; }
   :root:not(.dark) .pillar-head p { color: rgb(71 85 105); }
   .pillar-grid { display: flex; flex-direction: column; gap: 0.9rem; }
   .map-entry {
@@ -683,9 +689,9 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   }
   :root:not(.dark) .map-entry { background: rgb(255 255 255); border-color: rgb(226 232 240); }
   .map-entry:hover { border-color: rgb(16 185 129 / 0.5); }
-  .map-entry .entry-title { font-size: 0.92rem; font-weight: 600; line-height: 1.4; }
+  .map-entry .entry-title { font-size: 1rem; font-weight: 600; line-height: 1.4; }
   .map-entry .entry-adrs {
-    font-size: 0.68rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     color: rgb(100 116 139);
     white-space: nowrap;
@@ -701,7 +707,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   }
   :root:not(.dark) .context-diagram { background: rgb(255 255 255); }
   .cd-title {
-    font-size: 0.68rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.12em;
@@ -710,7 +716,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     text-align: center;
   }
   .cd-col-title {
-    font-size: 0.62rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -744,7 +750,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     padding: 0.55rem 0.8rem;
     border-radius: 0.6rem;
     border: 1px solid rgb(51 65 85);
-    font-size: 0.78rem;
+    font-size: 1rem;
     text-align: center;
     background: rgb(22 27 34);
   }
@@ -756,8 +762,8 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     background: rgb(16 185 129 / 0.08);
     text-align: center;
   }
-  .cd-central strong { font-size: 0.9rem; display: block; line-height: 1.35; }
-  .cd-central span { font-size: 0.68rem; color: rgb(148 163 184); display: block; margin-top: 0.3rem; }
+  .cd-central strong { font-size: 1rem; display: block; line-height: 1.35; }
+  .cd-central span { font-size: 1rem; color: rgb(148 163 184); display: block; margin-top: 0.3rem; }
   .cd-arrows { display: flex; flex-direction: column; gap: 0.4rem; align-items: center; color: rgb(16 185 129); }
 
   /* ── Closing ───────────────────────────────────────── */
@@ -765,7 +771,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     margin-top: 4rem;
     padding-top: 2rem;
     border-top: 1px solid rgb(51 65 85 / 0.5);
-    font-size: 0.85rem;
+    font-size: 1rem;
     color: rgb(148 163 184);
     line-height: 1.7;
   }
@@ -822,7 +828,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   :root:not(.dark) .modal-title { color: rgb(15 23 42); }
   .modal-sections { display: flex; flex-direction: column; gap: 0.95rem; }
   .modal-sections h4 {
-    font-size: 0.65rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -831,7 +837,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   }
   :root:not(.dark) .modal-sections h4 { color: rgb(4 120 87); }
   .modal-sections p, .modal-body p {
-    font-size: 0.9rem;
+    font-size: 1rem;
     line-height: 1.7;
     color: rgb(203 213 225);
   }
@@ -850,7 +856,7 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
     color: rgb(52 211 153);
