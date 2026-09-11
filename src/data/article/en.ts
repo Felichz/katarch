@@ -10,12 +10,6 @@ export const EN: ArticleContent = {
     'The case was <strong>Farmacy Food</strong>, a Detroit startup selling healthy meals through smart fridges. This article reconstructs, step by step, how the winning team <strong>ArchColider</strong> analyzed the problem and reached each decision — using the real numbers, diagrams and documents from their public repository, with the finalist solutions of <strong>Myagis-Forest</strong> and <strong>Jedis</strong> as counterpoint.',
     'No architecture background is required: every technical concept is explained exactly when it appears, and everything that needs context can be read without leaving the page.',
   ],
-  heroMeta: [
-    { label: 'Case', value: 'Farmacy Food (Detroit)' },
-    { label: 'Winner', value: 'ArchColider' },
-    { label: 'Reading', value: '~30 minutes' },
-    { label: 'Sources', value: "The teams' original repos" },
-  ],
   tocTitle: 'Contents',
   sections: [
     /* ───────────────────────── 1 ───────────────────────── */

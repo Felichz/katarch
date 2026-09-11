@@ -169,11 +169,6 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
       <div class="hero-prose set-prose">
         {content.heroParagraphs.map((p) => <p set:html={p} />)}
       </div>
-      <dl class="hero-meta">
-        {content.heroMeta.map((m) => (
-          <div><dt>{m.label}</dt><dd>{m.value}</dd></div>
-        ))}
-      </dl>
     </header>
 
     {content.sections.map((section, si) => {
@@ -379,22 +374,8 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
   :root:not(.dark) .hero-title { color: rgb(15 23 42); }
   .hero-title-b { display: block; color: rgb(52 211 153); }
   :root:not(.dark) .hero-title-b { color: rgb(4 120 87); }
-  .hero-prose { max-width: none; }
+  .hero-prose { max-width: none; margin-bottom: 0.5rem; }
   .hero-prose p + p { margin-top: 1rem; }
-  .hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    margin-top: 2rem;
-  }
-  .hero-meta dt {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: rgb(100 116 139);
-  }
-  .hero-meta dd { font-size: 1rem; font-weight: 600; margin-top: 2px; }
 
   /* ── Sections: ONE shared container for every element ── */
   .article-section { min-width: 0; scroll-margin-top: 5.5rem; }

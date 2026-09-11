@@ -25,7 +25,6 @@ export interface ArticleContent {
   heroTitleA: string;
   heroTitleB: string;
   heroParagraphs: string[];
-  heroMeta: { label: string; value: string }[];
   tocTitle: string;
   sections: Section[];
   closing: { title: string; paragraphs: string[] };
