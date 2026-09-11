@@ -10,6 +10,10 @@ interface Props {
 const { entry, lang, variant = 'inline' } = Astro.props;
 const isES = lang === 'es';
 
+// The decision field may carry rich HTML (e.g. an embedded figure) for the
+// modal; the inline summary shows only the leading prose.
+const oneLine = entry.decision[lang].split('<figure')[0].replace(/<[^>]*>/g, '').trim();
+
 const labels = {
   open: isES ? 'Leer la decisión completa' : 'Read the full decision',
 } as const;
@@ -17,7 +21,7 @@ const labels = {
 {variant === 'inline' ? (
   <div class="decision-card decision-card--summary">
     <h4>{entry.title[lang]}</h4>
-    <p class="decision-one-line">{entry.decision[lang]}</p>
+    <p class="decision-one-line">{oneLine}</p>
     <button class="decision-open" type="button" data-decision={entry.id}>
       {labels.open} →
     </button>

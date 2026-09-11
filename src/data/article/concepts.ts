@@ -134,4 +134,26 @@ export const CONCEPTS: Record<string, ConceptEntry> = {
 <p>Without telemetry, optimizing is guesswork. With it, every architecture debate is settled by data: "this module is the bottleneck, extract it; this one has headroom, don't touch it". The winning team made telemetry <em>mandatory</em> from day one precisely to know when (and when not) to split the monolith.</p>`,
     },
   },
+  acl: {
+    title: { es: 'La capa anticorrupción', en: 'The anti-corruption layer' },
+    body: {
+      es: `<p>Cuando el corazón de tu sistema tiene que hablar con sistemas ajenos (la API de las heladeras, el software de lealtad, los terminales de cobro), sus formatos y sus caprichos empiezan a colarse en tu modelo interno: campos con otros nombres, reglas ajenas, parches para acomodar datos mal formados. Eso es — literalmente — <strong>corrupción del modelo</strong>: tu diseño deja de reflejar tu negocio y empieza a reflejar los accidentes de los demás.</p>
+<p>La <strong>capa anticorrupción</strong> (término de Eric Evans, padre de DDD) es una frontera de traducción construida a propósito: todo lo que viene de afuera entra por ahí y sale convertido al lenguaje interno. Es la aduana de un país: la mercadería cruza, pero nada entra sin revisión ni sin traducirse a tus reglas.</p>
+<p>El costo es una capa más que escribir y mantener. El beneficio: podés cambiar de proveedor externo — o de sus versiones y formatos — sin tocar nunca el núcleo del dominio. En este caso, el catálogo central (lo más valioso del negocio) quedó blindado detrás de esa frontera.</p>`,
+      en: `<p>When the heart of your system must talk to other people's systems (the fridges' API, loyalty software, payment terminals), their formats and quirks start leaking into your internal model: fields with different names, foreign rules, patches to accommodate malformed data. That is — literally — <strong>model corruption</strong>: your design stops reflecting your business and starts reflecting everyone else's accidents.</p>
+<p>An <strong>anti-corruption layer</strong> (a term from Eric Evans, DDD's creator) is a deliberately built translation frontier: everything coming from the outside enters through it and leaves translated into your internal language. It is a country's customs office: goods may cross, but nothing gets in uninspected or untranslated.</p>
+<p>The cost is one more layer to write and maintain. The benefit: you can swap external providers — or their versions and formats — without ever touching the domain core. Here, the central catalog (the business's most valuable asset) sat shielded behind that frontier.</p>`,
+    },
+  },
+  cqrs: {
+    title: { es: 'Proyecciones y CQRS, en lenguaje llano', en: 'Projections and CQRS, in plain language' },
+    body: {
+      es: `<p>Un almacén de eventos es perfecto para auditar y pésimo para preguntar. "¿Qué comidas quedan en la heladera de este kiosco?" exigiría re-reproducir miles de eventos para calcular la respuesta. Consultar no puede ser tan caro como escribir.</p>
+<p>La solución es <strong>CQRS</strong> (<em>Command Query Responsibility Segregation</em>): separar el lado que <strong>escribe</strong> (comandos que generan eventos) del lado que <strong>lee</strong> (proyecciones). Una <em>proyección</em> es una copia pre-digerida de los datos, mantenida al día escuchando los eventos a medida que ocurren — como la pizarra de pedidos listos de un restaurante: nadie la consulta releyendo el cuaderno de cocina; alguien la actualiza a medida que la cocina avanza.</p>
+<p>En este sistema, el planificador de cocinas y el rastreador de pagos nunca tocan el almacén de eventos: leen proyecciones. Cada lectura es rápida, y la verdad única sigue siendo la historia de eventos.</p>`,
+      en: `<p>An event store is perfect for auditing and terrible for asking questions. "Which meals remain in this kiosk's fridge?" would require replaying thousands of events to compute the answer. Reading must not cost as much as writing.</p>
+<p>The solution is <strong>CQRS</strong> (<em>Command Query Responsibility Segregation</em>): separate the side that <strong>writes</strong> (commands that produce events) from the side that <strong>reads</strong> (projections). A <em>projection</em> is a pre-digested copy of the data, kept current by listening to events as they happen — like a restaurant's "orders ready" rail: nobody reads it by re-reading the kitchen's logbook; someone updates it as the kitchen advances.</p>
+<p>In this system, the kitchen scheduler and the payment tracker never touch the event store: they read projections. Every read is fast, and the single source of truth remains the event history.</p>`,
+    },
+  },
 };

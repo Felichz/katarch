@@ -37,7 +37,7 @@ export const PILLARS = {
     },
     {
       title: 'Operación, escala y presupuesto',
-      subtitle: 'Las decisiones que cuidan el bolsillo de la startup: cuándo escalar, qué monitorear y dónde validar usuarios.',
+      subtitle: 'Las decisiones que cuidan el bolsillo de la startup: cuándo escalar, qué monitorear, dónde validar usuarios y qué conviene comprar afuera.',
     },
   ],
   en: [
@@ -51,7 +51,7 @@ export const PILLARS = {
     },
     {
       title: 'Operations, scale and budget',
-      subtitle: 'The decisions that protect the startup\u2019s wallet: when to scale, what to monitor, and where to validate users.',
+      subtitle: 'The decisions that protect the startup\u2019s wallet: when to scale, what to monitor, where to validate users, and what to buy off the shelf.',
     },
   ],
 } as const;
@@ -113,8 +113,8 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'When the system decides to charge an order, the message to the payment gateway must not get lost (lost money) nor be processed twice (double charge).',
     },
     decision: {
-      es: 'Usar una cola de mensajes (RabbitMQ, en su versión administrada de AWS) con entrega "al menos una vez" y confirmación de recibo. Cada mensaje lleva un identificador único para que los reintentos repetidos se descarten sin efecto.',
-      en: 'Use a message queue (RabbitMQ, via its AWS-managed version) with at-least-once delivery and acknowledgements. Every message carries a unique identifier so duplicate retries are discarded harmlessly.',
+      es: 'Usar una cola de mensajes (RabbitMQ, en su versión administrada de AWS) con entrega "al menos una vez" y confirmación de recibo. Cada mensaje lleva un identificador único para que los reintentos repetidos se descarten sin efecto.<figure class="modal-figure"><img src="/img/IM_cancel_order_by_payment_system.png" alt="Diagrama de información: orden cancelada por el sistema de pagos" loading="lazy" /><figcaption>El lado B del mismo flujo: si el pago es rechazado o expira, el stock reservado se repone (MealStockCanceled) y el usuario recibe el aviso de rechazo (OrderPurchaseRefused), que además alimenta el reporting. (Documento original de ArchColider)</figcaption></figure>',
+      en: 'Use a message queue (RabbitMQ, via its AWS-managed version) with at-least-once delivery and acknowledgements. Every message carries a unique identifier so duplicate retries are discarded harmlessly.<figure class="modal-figure"><img src="/img/IM_cancel_order_by_payment_system.png" alt="Information model: order canceled by the payment system" loading="lazy" /><figcaption>Side B of the same flow: if the payment is refused or times out, the reserved stock is restocked (MealStockCanceled) and the user gets the refusal notice (OrderPurchaseRefused), which also feeds reporting. (Original ArchColider document)</figcaption></figure>',
     },
     tradeoff: {
       es: 'La cola agrega una pieza más que operar, y obliga a diseñar todos los receptores para tolerar duplicados. Es el precio estándar de no perder ni duplicar dinero.',
@@ -157,8 +157,8 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'Data about which meals remain in each fridge arrives late and unreliably. Showing "live stock" on every screen would make the app slow and a liar at the same time.',
     },
     decision: {
-      es: 'La app navega un catálogo guardado localmente (instantáneo y disponible sin señal), y la verificación del stock real se hace en el último paso posible: el momento de pagar. Se acepta mostrar datos posiblemente viejos durante la navegación, nunca durante el cobro.',
-      en: 'The app browses a locally cached catalog (instant and available offline), and real stock is verified at the last possible step: the moment of payment. Stale data is accepted while browsing, never while charging.',
+      es: 'La app navega un catálogo guardado localmente (instantáneo y disponible sin señal), y la verificación del stock real se hace en el último paso posible: el momento de pagar. Se acepta mostrar datos posiblemente viejos durante la navegación, nunca durante el cobro. Para que el catálogo local no envejezca, el backend difunde eventos a todos los dispositivos cada vez que algo cambia.<figure class="modal-figure"><img src="/img/IM_meal_stock_update.PNG" alt="Diagrama de información: eventos CatalogUpdated y MealStockUpdated difundidos a todos los usuarios" loading="lazy" /><figcaption>La sincronización: eventos CatalogUpdated y MealStockUpdated difundidos "para todos los usuarios" actualizan el catálogo local de cada dispositivo, que arranca con una descarga completa (Get Catalog). (Documento original de ArchColider)</figcaption></figure>',
+      en: 'The app browses a locally cached catalog (instant and available offline), and real stock is verified at the last possible step: the moment of payment. Stale data is accepted while browsing, never while charging. To keep that local catalog from aging, the backend broadcasts events to every device whenever something changes.<figure class="modal-figure"><img src="/img/IM_meal_stock_update.PNG" alt="Information model: CatalogUpdated and MealStockUpdated events broadcast to all users" loading="lazy" /><figcaption>The sync: CatalogUpdated and MealStockUpdated events broadcast "for all users" refresh each device\u2019s local catalog, which starts from one full download (Get Catalog). (Original ArchColider document)</figcaption></figure>',
     },
     tradeoff: {
       es: 'Un usuario puede enamorarse de una comida que ya no está. La compensación: el error aparece en el pago, con alternativas a mano, y no en la puerta de una heladera vacía.',
@@ -257,5 +257,27 @@ export const DECISIONS: DecisionEntry[] = [
     },
     adrs: [{ id: '006', label: 'ADR 006 · Zero trust architecture' }],
     githubBase: GH + '006%20Zero%20trust%20architecture.md',
+  },
+  {
+    id: 'payment',
+    pillar: 3,
+    title: {
+      es: 'Un proveedor de pagos ahora, una fachada propia para después',
+      en: 'A payment provider now, an in-house facade for later',
+    },
+    problem: {
+      es: 'Hablar directamente con Visa, Mastercard, AmEx o PayPal exige implementar y mantener un protocolo distinto por cada red — un trabajo enorme para un equipo chico que recién arranca. Pero depender para siempre de un único proveedor también encadena.',
+      en: 'Talking directly to Visa, Mastercard, AmEx or PayPal means implementing and maintaining a different protocol per network — enormous work for a small team just starting out. But depending forever on a single provider is its own lock-in.',
+    },
+    decision: {
+      es: 'Contratar un proveedor de pagos como única puerta de entrada (una sola API para todos los medios de pago). Detrás, mantener un servicio de pago interno propio, capaz de ir asumiendo la comunicación directa con las redes de tarjetas paso a paso, solo si la expansión del negocio lo exige.',
+      en: 'Contract a payment provider as the single gateway (one API for every payment method). Behind it, keep an in-house payment service capable of gradually taking over direct communication with the card networks, but only if the business\u2019s expansion demands it.',
+    },
+    tradeoff: {
+      es: 'Se paga la comisión del proveedor y se acepta su dependencia a cambio de salir rápido al mercado. La ruta de escape no es gratis: migrar hacia las redes de pago será trabajo propio, hecho de a poco.',
+      en: 'You pay the provider\u2019s commission and accept the dependency in exchange for time-to-market. The escape route is not free: migrating toward the card networks will be in-house work, done little by little.',
+    },
+    adrs: [{ id: '009', label: 'ADR 009 · Rely on payment service provider' }],
+    githubBase: GH + '009%20Rely%20on%20payment%20service%20provider.md',
   },
 ];

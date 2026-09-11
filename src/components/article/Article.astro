@@ -67,15 +67,15 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
       <div class="modal-sections">
         <div>
           <h4>{ui.problem}</h4>
-          <p>{d.problem[lang]}</p>
+          <div class="set-prose" set:html={d.problem[lang]} />
         </div>
         <div>
           <h4>{ui.decision}</h4>
-          <p>{d.decision[lang]}</p>
+          <div class="set-prose" set:html={d.decision[lang]} />
         </div>
         <div>
           <h4>{ui.tradeoff}</h4>
-          <p>{d.tradeoff[lang]}</p>
+          <div class="set-prose" set:html={d.tradeoff[lang]} />
         </div>
       </div>
       <div class="modal-adrs">
@@ -565,6 +565,23 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     margin-top: 0.6rem;
     line-height: 1.55;
     cursor: default;
+  }
+  /* Figures embedded inside modal prose (decision/concept modals) */
+  .modal-card .modal-figure {
+    margin: 0.9rem 0 0.25rem;
+  }
+  .modal-card .modal-figure img {
+    width: 100%;
+    border-radius: 0.7rem;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    background: rgb(255 255 255);
+    display: block;
+  }
+  .modal-card .modal-figure figcaption {
+    font-size: 1rem;
+    color: rgb(148 163 184);
+    margin-top: 0.5rem;
+    line-height: 1.55;
   }
 
   /* ── Concept chips & ADR refs ──────────────────────── */
