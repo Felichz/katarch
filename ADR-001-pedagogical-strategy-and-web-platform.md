@@ -45,7 +45,7 @@ We adopt **Option 4**, materialized as three layers of decisions.
 
 ### 3.1 Pedagogical and Narrative Structure
 
-- **ArchColider as the sole spine.** The article reconstructs how one team reasoned, in their own working order: business ground → podium context → decision principles → architecture style → domain split → physical-world engineering → cloud topology → annual cost. Other teams exist only in §2 ("The podium's dilemma") as three position cards (ArchColider / Myagis-Forest / Jedis) framing the same question from opposite answers.
+- **ArchColider as the sole spine.** The article reconstructs how one team reasoned, in their own working order: business ground → podium context → decision principles → architecture style → domain split → physical-world engineering → the subscriber's meal journey → cloud topology → annual cost. Other teams exist only in §2 ("The podium's dilemma") as three position cards (ArchColider / Myagis-Forest / Jedis) framing the same question from opposite answers.
 - **No spoilers.** A concept, diagram, or ADR may only appear when the problem that motivated it has appeared in the story. Enforced editorially in the content files.
 - **Everything contextualized in natural language.** Physical-world analogies over jargon; no frontend-bias; no library named without its role. The brief (users, systems, numbers, out-of-scope) lives entirely in the main thread, never behind a click.
 - **Reader participation.** "Pause and predict" callouts before key reveals (e.g. the offline PIN), and "transferable lesson" callouts after.

@@ -25,18 +25,19 @@ The article reconstructs the team's reasoning in its natural order — business 
 
 ## Article Structure
 
-Ten sections in five phases, identical in both languages:
+Eleven sections in five phases, identical in both languages:
 
 1. **The playing field** — the business, the three physical actors (ghost kitchens, smart fridges, staffed kiosks), the three user types, the pre-existing systems, and the real day-one numbers (2 locations, ~42 meals/day, ~0 requests/second).
 2. **The podium's dilemma** — the three opposing answers of the finalists, plus the judges' actual seven-criterion rubric quoted from their semifinal deck.
 3. **The rules of the game** — the team's real questions to the client, Rozanski & Woods, the four guiding principles, the ADR format (and the Second Law), and the business-goal → architectural-requirement traceability table.
 4. **The big decision** — the Entity Trap, the traffic arithmetic, the team's original whiteboard, and the modular monolith (ADR 002).
 5. **Splitting the system** — strategic DDD (core/supporting/generic), the anti-corruption layer around the Menu Catalog, the payment facade (ADR 009), and the knowledge/operational metamodel.
-6. **The physical world** — actor per fridge, the venue-aggregation problem, event sourcing, acknowledged queues (and the payment-refused flow), the 30-second inhibition window, offline PIN pickup, the subscriber meal journey (dispatch → fridge → pickup, and post-window refunds), the rainy-day journey, and the promotions-in-a-spreadsheet pragmatism.
-7. **Landing in the cloud** — VPC topology, authentication at the edge with identity federation (ALB + Cognito), vertical-first scaling with concrete thresholds, the concrete module-extraction case, synthetic health checks, and the curated risk list with per-risk mitigations.
-8. **The yearly bill** — message volumetry (including the 4 MB review photo), the three TCO scenarios, the raw spreadsheet's honest assumptions, and why paid monitoring beat self-hosted.
-9. **The decision map** — all ten structural decisions in three pillars, each opening a card linked to the original ADR.
-10. **Field guide** — the method in four transferable steps.
+6. **The physical world** — actor per fridge, the venue-aggregation problem, event sourcing, acknowledged queues (and the payment-refused flow), the 30-second inhibition window, offline PIN pickup, the rainy-day journey, and the promotions-in-a-spreadsheet pragmatism.
+7. **The subscriber's meal journey** — from the "IDEA!!!" whiteboard to OrderAvailableForPicking: kitchen vocabulary, inventory updates, the materialize-vs-generate trade-off, and post-window refunds.
+8. **Landing in the cloud** — VPC topology, authentication at the edge with identity federation (ALB + Cognito), vertical-first scaling with concrete thresholds, the concrete module-extraction case, synthetic health checks, and the curated risk list with per-risk mitigations.
+9. **The yearly bill** — message volumetry (including the 4 MB review photo), the three TCO scenarios, the raw spreadsheet's honest assumptions, and why paid monitoring beat self-hosted.
+10. **The decision map** — all ten structural decisions in three pillars, each opening a card linked to the original ADR.
+11. **Field guide** — the method in four transferable steps.
 
 ---
 

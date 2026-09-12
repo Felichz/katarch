@@ -263,7 +263,7 @@ export const EN: ArticleContent = {
       phase: 'The design',
       title: 'The physical world: fridges, money and flaky connections',
       blocks: [
-        { type: 'p', html: 'This is where the case stops being theoretical and becomes engineering of reality. Three concrete problems, three elegant solutions.' },
+        { type: 'p', html: 'Here the case stops being theoretical and becomes engineering of reality: two people buying the last meal at the same time, second thoughts with money attached, fridges losing signal. Each problem comes with the solution the team designed for it — and the repeating pattern at the end is the biggest lesson of the whole case.' },
         { type: 'h3', html: 'Problem 1: two people want the last meal' },
         { type: 'p', html: 'The temptation is to lock the database ("nobody touches stock while I buy"). The team did something better using a physical quirk of the business: <strong>a meal cannot jump from one fridge to another</strong>. So each fridge gets its own <a class="concept-chip" data-concept="actor-model" role="button" tabindex="0">actor</a>: a process that handles that fridge\u2019s purchases one at a time, in order. There are never two simultaneous writes to the same stock, so no locks are ever needed. Stock lives in memory, at processor speed.' },
         { type: 'figure', src: '/img/FF_concurency_order_processing.PNG', alt: 'Order processing diagram with actors', caption: 'Orders passing from actor to actor, each with a single responsibility. (ArchColider original document)' },
@@ -287,13 +287,6 @@ export const EN: ArticleContent = {
         { type: 'p', html: 'The same pragmatism shows up in the app: the catalog lives on the phone (instant, available offline) and real stock is verified only at the moment of payment.' },
         { type: 'decision', id: 'catalog-cache' },
         { type: 'p', html: 'That way of thinking reaches the smallest decisions too. Synchronize promotional campaigns between operators with distributed-consistency algorithms? Unnecessary: promotions rarely change, so they are managed <strong>in a spreadsheet</strong>, and the system only consumes the final result. And the whole data model rests on a physical-world observation: <strong>Detroit kitchens do not offer food in New York City</strong>. Data can be split by city — catalogs, stock, orders — with almost nothing replicated across regions, simplifying access, consistency and costs in one stroke.' },
-        { type: 'h3', html: 'The journey of a subscriber\u2019s meal' },
-        { type: 'p', html: 'One loose end remained: the subscriber, the ideal customer the business wanted above all, introduced in the first section and never seen again. How does their food physically arrive? The team worked it end to end, and the repository even preserves the genesis: a scribble titled "IDEA!!!" where the idea is born on the whiteboard — a user with an account, a fridge with available meals, and below it a row of prepaid day slots that also add loyalty points.' },
-        { type: 'figure', src: '/img/whiteboard-subscriber-idea.png', alt: '"IDEA!!!" whiteboard: the subscription concept being born', caption: 'The moment the subscription is invented on the whiteboard: a prepaid menu by day (1d, 2d, 3d…) with loyalty points. (Original ArchColider whiteboard)' },
-        { type: 'p', html: 'The final version is a small festival of chained events. Kitchens receive their <em>inventory updates</em> each morning — the list of what to produce, formed from the subscribers\u2019 menus — and answer with a four-word vocabulary: <strong>accepted, dispatched, can\u2019t do, delayed</strong>. When they dispatch, the <em>OrderDispatched</em> event is published and the catalog (it frees stock), reporting and the order itself all listen. When the meal physically enters the fridge, the fridge confirms <em>OrderPlacedInFridge</em>, and only then does the order become <em>available for pickup</em> and the user gets their notice with the PIN. The scheduling module never queries the event store directly: it reads <a class="concept-chip" data-concept="cqrs" role="button" tabindex="0">projections</a> — ready-made copies someone else keeps up to date. And a textbook trade-off stayed documented inside the scheduler: materialize all of a subscriber\u2019s future orders at once, or generate them day by day from the menu? Choosing the latter, changing or cancelling the menu never means hunting down and rewriting dozens of already-created orders — the only cost is marking which ones are prepaid.' },
-        { type: 'figure', src: '/img/IM_preparing_scheduled_orders.PNG', alt: 'Information model: preparing scheduled subscriber orders', caption: 'From calendar to fridge: PrepareOrders, OrderDispatched, OrderPlacedInFridge and OrderAvailableForPicking — a subscriber meal\u2019s full cycle. (ArchColider original document)' },
-        { type: 'p', html: 'What if the subscriber regrets it outside the 30-second window? Then it hurts: the kitchen already bought ingredients, maybe already cooked. The diagrammed flow makes the distinction: cancelling a scheduled order fires a <em>ClaimRefund</em> toward the payment provider, and the <em>RefundSuccessful</em> event confirms to the app that the money is back. Without events, "did we refund it or not?" is exactly the kind of question that keeps a support team up at night. The business fine print is written down too: cancelling a scheduled menu takes effect <em>from the next business day</em> — already-prepared meals are not cancelled, and instead of going to waste they can be released to the common stock.' },
-        { type: 'figure', src: '/img/IM_cancel_scheduled_order_by_user.PNG', alt: 'Information model: cancelling a scheduled order with refund', caption: 'Cancellation outside the window: ClaimRefund travels to the gateway and RefundSuccessful returns to the app. (ArchColider original document)' },
         { type: 'h3', html: 'The rainy day: when the meal gets stuck' },
         { type: 'p', html: 'Every diagram in this section shows the "sunny day": the user orders, pays, picks up, happy. The team also diagrammed the rainy day: the meal gets <strong>physically stuck</strong> inside the fridge, the user has already paid, and no software can push the tray. That journey exists end to end: the user takes a photo from the app and files the complaint, a human administrator reviews it, and the system issues compensation (a new meal or a coupon).' },
         { type: 'figure', src: '/img/user-journey-error.png', alt: 'User journey when a meal gets stuck in the fridge', caption: 'The error journey: the meal gets stuck, the user documents it with a photo, an admin compensates. Designing the rainy day is architecture too. (ArchColider original document)' },
@@ -303,6 +296,22 @@ export const EN: ArticleContent = {
     },
 
     /* ───────────────────────── 7 ───────────────────────── */
+    {
+      id: 'subscriber-journey',
+      phase: 'The design',
+      title: 'The journey of a subscriber\u2019s meal',
+      blocks: [
+        { type: 'p', html: 'One loose end remained: the subscriber, the ideal customer the business wanted above all, introduced in the first section and never seen again. How does their food physically arrive? The team worked it end to end, and the repository even preserves the genesis: a scribble titled "IDEA!!!" where the idea is born on the whiteboard — a user with an account, a fridge with available meals, and below it a row of prepaid day slots that also add loyalty points.' },
+        { type: 'figure', src: '/img/whiteboard-subscriber-idea.png', alt: '"IDEA!!!" whiteboard: the subscription concept being born', caption: 'The moment the subscription is invented on the whiteboard: a prepaid menu by day (1d, 2d, 3d…) with loyalty points. (Original ArchColider whiteboard)' },
+        { type: 'p', html: 'The final version is a small festival of chained events. Kitchens receive their <em>inventory updates</em> each morning — the list of what to produce, formed from the subscribers\u2019 menus — and answer with a four-word vocabulary: <strong>accepted, dispatched, can\u2019t do, delayed</strong>. When they dispatch, the <em>OrderDispatched</em> event is published and the catalog (it frees stock), reporting and the order itself all listen. When the meal physically enters the fridge, the fridge confirms <em>OrderPlacedInFridge</em>, and only then does the order become <em>available for pickup</em> and the user gets their notice with the PIN. The scheduling module never queries the event store directly: it reads <a class="concept-chip" data-concept="cqrs" role="button" tabindex="0">projections</a> — ready-made copies someone else keeps up to date. And a textbook trade-off stayed documented inside the scheduler: materialize all of a subscriber\u2019s future orders at once, or generate them day by day from the menu? Choosing the latter, changing or cancelling the menu never means hunting down and rewriting dozens of already-created orders — the only cost is marking which ones are prepaid.' },
+        { type: 'figure', src: '/img/IM_preparing_scheduled_orders.PNG', alt: 'Information model: preparing scheduled subscriber orders', caption: 'From calendar to fridge: PrepareOrders, OrderDispatched, OrderPlacedInFridge and OrderAvailableForPicking — a subscriber meal\u2019s full cycle. (ArchColider original document)' },
+        { type: 'p', html: 'What if the subscriber regrets it outside the 30-second window? Then it hurts: the kitchen already bought ingredients, maybe already cooked. The diagrammed flow makes the distinction: cancelling a scheduled order fires a <em>ClaimRefund</em> toward the payment provider, and the <em>RefundSuccessful</em> event confirms to the app that the money is back. Without events, "did we refund it or not?" is exactly the kind of question that keeps a support team up at night. The business fine print is written down too: cancelling a scheduled menu takes effect <em>from the next business day</em> — already-prepared meals are not cancelled, and instead of going to waste they can be released to the common stock.' },
+        { type: 'figure', src: '/img/IM_cancel_scheduled_order_by_user.PNG', alt: 'Information model: cancelling a scheduled order with refund', caption: 'Cancellation outside the window: ClaimRefund travels to the gateway and RefundSuccessful returns to the app. (ArchColider original document)' },
+        { type: 'p', html: 'Three events and a four-word vocabulary: even the business\u2019s most valuable customer is held together by the same simple pieces as the rest of the system.' },
+      ],
+    },
+
+    /* ───────────────────────── 8 ───────────────────────── */
     {
       id: 'infrastructure',
       phase: 'The design',
@@ -343,7 +352,7 @@ export const EN: ArticleContent = {
       ],
     },
 
-    /* ───────────────────────── 8 ───────────────────────── */
+    /* ───────────────────────── 9 ───────────────────────── */
     {
       id: 'costs',
       phase: 'Economic reality',
@@ -386,7 +395,7 @@ export const EN: ArticleContent = {
       ],
     },
 
-    /* ───────────────────────── 9 ───────────────────────── */
+    /* ───────────────────────── 10 ───────────────────────── */
     {
       id: 'map',
       phase: 'Economic reality',
@@ -397,7 +406,7 @@ export const EN: ArticleContent = {
       ],
     },
 
-    /* ───────────────────────── 10 ───────────────────────── */
+    /* ───────────────────────── 11 ───────────────────────── */
     {
       id: 'field-guide',
       phase: 'Takeaways',

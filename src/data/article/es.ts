@@ -263,7 +263,7 @@ export const ES: ArticleContent = {
       phase: 'El diseño',
       title: 'El mundo físico: heladeras, dinero y conexiones inestables',
       blocks: [
-        { type: 'p', html: 'Esta es la sección donde el caso deja de ser teórico y se vuelve ingeniería de la realidad. Tres problemas concretos, tres soluciones elegantes.' },
+        { type: 'p', html: 'Aquí el caso deja de ser teórico y se vuelve ingeniería de la realidad: dos personas comprando la última vianda al mismo tiempo, arrepentimientos con plata de por medio, heladeras sin señal. Cada problema viene con la solución que el equipo le diseñó — y el patrón que se repite al final es la lección más grande de todo el caso.' },
         { type: 'h3', html: 'Problema 1: dos personas quieren el último plato' },
         { type: 'p', html: 'La tentación es bloquear la base de datos ("nadie toca el stock mientras yo compro"). El equipo hizo algo mejor usando una peculiaridad física del negocio: <strong>una vianda no puede saltar de una heladera a otra</strong>. Entonces cada heladera tiene su propio <a class="concept-chip" data-concept="actor-model" role="button" tabindex="0">actor</a>: un proceso que procesa las compras de esa heladera de a una, en orden. Nunca hay dos escrituras simultáneas sobre el mismo stock, así que nunca hacen falta locks. El stock vive en memoria, a velocidad de procesador.' },
         { type: 'figure', src: '/img/FF_concurency_order_processing.PNG', alt: 'Diagrama de procesamiento de órdenes con actores', caption: 'Órdenes pasando de actor en actor, cada uno con una sola responsabilidad. (Documento original de ArchColider)' },
@@ -287,13 +287,6 @@ export const ES: ArticleContent = {
         { type: 'p', html: 'El mismo pragmatismo aparece en la app: el catálogo vive en el teléfono (instantáneo, disponible sin señal) y el stock real se verifica recién en el momento de pagar.' },
         { type: 'decision', id: 'catalog-cache' },
         { type: 'p', html: 'Esa manera de pensar llega hasta las decisiones más chicas. ¿Sincronizar campañas promocionales entre operadores con algoritmos de consistencia distribuida? Innecesario: las promociones cambian poco y las manejan <strong>en una hoja de cálculo</strong>, y el sistema solo consume el resultado final. Y todo el modelo de datos descansa sobre una observación del mundo físico: <strong>las cocinas de Detroit no ofrecen comida en Nueva York</strong>. Los datos se pueden partir por ciudad — catálogos, stock, órdenes — sin replicar casi nada entre regiones, lo que simplifica acceso, consistencia y costos de un plumazo.' },
-        { type: 'h3', html: 'El viaje de una vianda de suscriptor' },
-        { type: 'p', html: 'Quedaba un cabo: el suscriptor, el cliente ideal que el negocio quería above todo, presentado en la primera sección y nunca más visto. ¿Cómo llega físicamente su comida? El equipo lo trabajó de punta a punta, y el repositorio guarda hasta la génesis: un garabato titulado "IDEA!!!" donde la idea nace en la pizarra — un usuario con cuenta, una heladera con comidas disponibles, y abajo una fila de casilleros prepagados por día que además suman puntos de lealtad.' },
-        { type: 'figure', src: '/img/whiteboard-subscriber-idea.png', alt: 'Pizarra "IDEA!!!": el concepto de suscripción naciendo', caption: 'El momento en que la suscripción se inventa en la pizarra: menú prepagado por días (1d, 2d, 3d…) con puntos de lealtad. (Pizarra original de ArchColider)' },
-        { type: 'p', html: 'La versión final es un pequeño festival de eventos encadenados. La cocina recibe por las mañanas sus <em>inventory updates</em> — la lista de lo que debe producir, formada desde los menús de los suscriptores — y responde con un vocabulario mínimo de cuatro palabras: <strong>aceptado, despachado, no puedo, demorado</strong>. Cuando despacha, el evento <em>OrderDispatched</em> se publica y lo escuchan el catálogo (libera stock), el reporting y la propia orden. Cuando la comida entra físicamente a la heladera, esa confirma el evento <em>OrderPlacedInFridge</em>, y recién entonces la orden pasa a <em>disponible para retiro</em> y el usuario recibe su aviso con el PIN. El módulo de scheduling no consulta el event store directamente: lee <a class="concept-chip" data-concept="cqrs" role="button" tabindex="0">proyecciones</a> — copias listas para consultar que alguien más mantiene al día. Y dentro del planificador quedó documentado un trade-off de manual: ¿materializar de una vez todas las órdenes futuras del suscriptor, o generarlas cada día desde su menú? Eligiendo lo segundo, cambiar o cancelar el menú no obliga a cazar y reescribir decenas de órdenes ya creadas — el único costo es marcar cuáles van prepagadas.' },
-        { type: 'figure', src: '/img/IM_preparing_scheduled_orders.PNG', alt: 'Diagrama de información: preparación de órdenes programadas de suscriptores', caption: 'Del calendario a la heladera: PrepareOrders, OrderDispatched, OrderPlacedInFridge y OrderAvailableForPicking — el ciclo completo de una vianda de suscriptor. (Documento original de ArchColider)' },
-        { type: 'p', html: '¿Y si el suscriptor se arrepiente fuera de la ventana de los 30 segundos? Ahí sí hay dolor: la cocina ya compró ingredientes, quizá ya cocinó. El flujo diagramado distingue: la cancelación de una orden programada dispara un <em>ClaimRefund</em> hacia el proveedor de pagos, y el evento <em>RefundSuccessful</em> le confirma a la app que la plata volvió. Sin eventos, ese "¿ya se lo devolví o no?" es la clase de pregunta que estresa a un equipo de soporte. La letra chica de negocio también está escrita: la cancelación de un menú programado rige <em>desde el día siguiente</em> — la comida ya preparada no se cancela, y en vez de perderse puede liberarse al stock común.' },
-        { type: 'figure', src: '/img/IM_cancel_scheduled_order_by_user.PNG', alt: 'Diagrama de información: cancelación de orden programada con reembolso', caption: 'Cancelación fuera de la ventana: ClaimRefund viaja a la pasarela y RefundSuccessful vuelve a la app. (Documento original de ArchColider)' },
         { type: 'h3', html: 'El día nublado: cuando la comida se traba' },
         { type: 'p', html: 'Todos los diagramas de esta sección muestran el "día de sol": el usuario pide, paga, retira, feliz. El equipo también diagramó el día nublado: la vianda queda <strong>físicamente trabada</strong> dentro de la heladera, el usuario ya pagó, y no hay ningún software que empuje la bandeja. Ese journey existe de punta a punta: el usuario saca una foto desde la app y registra el reclamo, un administrador humano lo revisa, y el sistema emite la compensación (una comida nueva o un cupón).' },
         { type: 'figure', src: '/img/user-journey-error.png', alt: 'Journey del usuario cuando la comida queda trabada en la heladera', caption: 'El journey del error: la comida se traba, el usuario documenta con foto, un admin compensa. Diseñar el día nublado también es arquitectura. (Documento original de ArchColider)' },
@@ -303,6 +296,22 @@ export const ES: ArticleContent = {
     },
 
     /* ───────────────────────── 7 ───────────────────────── */
+    {
+      id: 'suscriptor',
+      phase: 'El diseño',
+      title: 'El viaje de una vianda de suscriptor',
+      blocks: [
+        { type: 'p', html: 'Quedaba un cabo: el suscriptor, el cliente ideal que el negocio quería sobre todo, presentado en la primera sección y nunca más visto. ¿Cómo llega físicamente su comida? El equipo lo trabajó de punta a punta, y el repositorio guarda hasta la génesis: un garabato titulado "IDEA!!!" donde la idea nace en la pizarra — un usuario con cuenta, una heladera con comidas disponibles, y abajo una fila de casilleros prepagados por día que además suman puntos de lealtad.' },
+        { type: 'figure', src: '/img/whiteboard-subscriber-idea.png', alt: 'Pizarra "IDEA!!!": el concepto de suscripción naciendo', caption: 'El momento en que la suscripción se inventa en la pizarra: menú prepagado por días (1d, 2d, 3d…) con puntos de lealtad. (Pizarra original de ArchColider)' },
+        { type: 'p', html: 'La versión final es un pequeño festival de eventos encadenados. La cocina recibe por las mañanas sus <em>inventory updates</em> — la lista de lo que debe producir, formada desde los menús de los suscriptores — y responde con un vocabulario mínimo de cuatro palabras: <strong>aceptado, despachado, no puedo, demorado</strong>. Cuando despacha, el evento <em>OrderDispatched</em> se publica y lo escuchan el catálogo (libera stock), el reporting y la propia orden. Cuando la comida entra físicamente a la heladera, esa confirma el evento <em>OrderPlacedInFridge</em>, y recién entonces la orden pasa a <em>disponible para retiro</em> y el usuario recibe su aviso con el PIN. El módulo de scheduling no consulta el event store directamente: lee <a class="concept-chip" data-concept="cqrs" role="button" tabindex="0">proyecciones</a> — copias listas para consultar que alguien más mantiene al día. Y dentro del planificador quedó documentado un trade-off de manual: ¿materializar de una vez todas las órdenes futuras del suscriptor, o generarlas cada día desde su menú? Eligiendo lo segundo, cambiar o cancelar el menú no obliga a cazar y reescribir decenas de órdenes ya creadas — el único costo es marcar cuáles van prepagadas.' },
+        { type: 'figure', src: '/img/IM_preparing_scheduled_orders.PNG', alt: 'Diagrama de información: preparación de órdenes programadas de suscriptores', caption: 'Del calendario a la heladera: PrepareOrders, OrderDispatched, OrderPlacedInFridge y OrderAvailableForPicking — el ciclo completo de una vianda de suscriptor. (Documento original de ArchColider)' },
+        { type: 'p', html: '¿Y si el suscriptor se arrepiente fuera de la ventana de los 30 segundos? Ahí sí hay dolor: la cocina ya compró ingredientes, quizá ya cocinó. El flujo diagramado distingue: la cancelación de una orden programada dispara un <em>ClaimRefund</em> hacia el proveedor de pagos, y el evento <em>RefundSuccessful</em> le confirma a la app que la plata volvió. Sin eventos, ese "¿ya se lo devolví o no?" es la clase de pregunta que estresa a un equipo de soporte. La letra chica de negocio también está escrita: la cancelación de un menú programado rige <em>desde el día siguiente</em> — la comida ya preparada no se cancela, y en vez de perderse puede liberarse al stock común.' },
+        { type: 'figure', src: '/img/IM_cancel_scheduled_order_by_user.PNG', alt: 'Diagrama de información: cancelación de orden programada con reembolso', caption: 'Cancelación fuera de la ventana: ClaimRefund viaja a la pasarela y RefundSuccessful vuelve a la app. (Documento original de ArchColider)' },
+        { type: 'p', html: 'Tres eventos y un vocabulario de cuatro palabras: hasta el cliente más valioso del negocio se sostiene con las mismas piezas simples que el resto del sistema.' },
+      ],
+    },
+
+    /* ───────────────────────── 8 ───────────────────────── */
     {
       id: 'infraestructura',
       phase: 'El diseño',
@@ -343,7 +352,7 @@ export const ES: ArticleContent = {
       ],
     },
 
-    /* ───────────────────────── 8 ───────────────────────── */
+    /* ───────────────────────── 9 ───────────────────────── */
     {
       id: 'costos',
       phase: 'La realidad económica',
@@ -386,7 +395,7 @@ export const ES: ArticleContent = {
       ],
     },
 
-    /* ───────────────────────── 9 ───────────────────────── */
+    /* ───────────────────────── 10 ───────────────────────── */
     {
       id: 'mapa',
       phase: 'La realidad económica',
@@ -397,7 +406,7 @@ export const ES: ArticleContent = {
       ],
     },
 
-    /* ───────────────────────── 10 ───────────────────────── */
+    /* ───────────────────────── 11 ───────────────────────── */
     {
       id: 'guia',
       phase: 'Para llevar',
