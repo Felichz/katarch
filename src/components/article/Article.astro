@@ -138,6 +138,7 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
       <div class="figure-guide-zoom" data-figure-zoom>
         <img class="figure-guide-img" src={f.src} alt={f.alt} />
         <div class="figure-lens" hidden></div>
+        <span class="figure-lens-hint" hidden>{lang === 'es' ? 'clic para ocultar/mostrar la lupa' : 'click to hide/show the lens'}</span>
       </div>
       <p class="figure-guide-caption">{f.caption}</p>
       <div class="modal-body set-prose" set:html={f.guide!.html} />
@@ -664,13 +665,27 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
   }
   .figure-lens {
     position: absolute;
-    border-radius: 9999px;
+    border-radius: 0.5rem;
     border: 2px solid rgb(52 211 153 / 0.95);
     box-shadow: 0 10px 34px rgb(2 6 23 / 0.55), inset 0 0 0 1px rgb(2 6 23 / 0.25);
     background-repeat: no-repeat;
     background-color: rgb(255 255 255);
     pointer-events: none;
     z-index: 5;
+  }
+  .figure-lens-hint {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: rgb(226 232 240);
+    background: rgb(2 6 23 / 0.85);
+    border: 1px solid rgb(51 65 85 / 0.9);
+    border-radius: 9999px;
+    padding: 0.2rem 0.7rem;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 6;
   }
   .figure-guide-kicker {
     font-size: 0.875rem;

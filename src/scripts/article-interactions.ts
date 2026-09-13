@@ -145,13 +145,15 @@ for (const dlg of document.querySelectorAll('dialog')) {
 // Lens magnifier on figure-guide diagrams: shows the image at 100% of its
 // original scale around the cursor. Skipped when the diagram already fits
 // at 1:1 (the lens would add nothing).
-const LENS_RADIUS = 130;
+const LENS_RADIUS = 170;
 for (const zoom of document.querySelectorAll<HTMLElement>('[data-figure-zoom]')) {
   const img = zoom.querySelector('img');
   const lens = zoom.querySelector<HTMLElement>('.figure-lens');
+  const hint = zoom.querySelector<HTMLElement>('.figure-lens-hint');
   if (!img || !lens) continue;
   lens.style.width = `${LENS_RADIUS * 2}px`;
   lens.style.height = `${LENS_RADIUS * 2}px`;
+  let lensOff = false;
 
   const move = (e: MouseEvent) => {
     const rect = img.getBoundingClientRect();
@@ -161,6 +163,16 @@ for (const zoom of document.querySelectorAll<HTMLElement>('[data-figure-zoom]'))
     if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
     const scale = img.naturalWidth / rect.width;
     if (!Number.isFinite(scale) || scale <= 1.05) {
+      lens.hidden = true;
+      if (hint) hint.hidden = true;
+      return;
+    }
+    if (hint) {
+      hint.style.left = `${e.clientX - zoomRect.left}px`;
+      hint.style.top = `${e.clientY - zoomRect.top + LENS_RADIUS + 10}px`;
+      hint.hidden = false;
+    }
+    if (lensOff) {
       lens.hidden = true;
       return;
     }
@@ -173,8 +185,13 @@ for (const zoom of document.querySelectorAll<HTMLElement>('[data-figure-zoom]'))
   };
   zoom.addEventListener('mouseenter', move);
   zoom.addEventListener('mousemove', move);
+  zoom.addEventListener('click', () => {
+    lensOff = !lensOff;
+    if (lensOff) lens.hidden = true;
+  });
   zoom.addEventListener('mouseleave', () => {
     lens.hidden = true;
+    if (hint) hint.hidden = true;
   });
 }
 
