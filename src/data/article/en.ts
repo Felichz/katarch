@@ -110,7 +110,7 @@ export const EN: ArticleContent = {
             {
               title: '🥇 ArchColider',
               tag: 'Modular monolith',
-              html: 'They concluded that standing up distributed infrastructure for that volume was throwing away money and time. They proposed a <strong>monolith divided into strictly bounded modules</strong> on a few AWS machines: cheap today, easy to split tomorrow if needed. The jury rewarded that pragmatism.',
+              html: 'They concluded that standing up distributed infrastructure for that volume was throwing away money and time. They proposed a <strong><a class="concept-chip" data-concept="monolito-modular" role="button" tabindex="0">monolith divided into strictly bounded modules</a></strong> on a few AWS machines: cheap today, easy to split tomorrow if needed. The jury rewarded that pragmatism.',
             },
             {
               title: '🥈 Myagis-Forest',
@@ -130,7 +130,7 @@ export const EN: ArticleContent = {
           items: [
             '<strong>Clarity of narrative, organization, and supporting documentation.</strong> A good architecture that cannot be told, cannot be defended.',
             '<strong>Understanding of the requirements and completeness of solution.</strong> Does it answer the problem posed, or a more comfortable one?',
-            '<strong>Identification of supporting architecture characteristics.</strong> Which quality attributes matter, and where?',
+            '<strong>Identification of supporting architecture characteristics.</strong> Which <a class="concept-chip" data-concept="quality-attributes" role="button" tabindex="0">quality attributes</a> matter, and where?',
             '<strong>Diagrams: types, level of detail, completeness.</strong> The judges quote Neal Ford here: "the goal of a diagram is to convey a clear and shared understanding of the architecture".',
             '<strong>Overall systems architecture.</strong>',
             '<strong>Integration architecture for the required third-party systems.</strong> The business already had fridges, kiosks and a gateway: connecting them well was part of the job.',

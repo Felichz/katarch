@@ -46,7 +46,7 @@ Eleven sections in five phases, identical in both languages:
 Built with **Astro** and **Tailwind CSS**, content-driven from typed data files — one renderer, two languages:
 
 - **Bilingual:** English (`/`, default) and Spanish (`/es`) editions from `src/data/article/{es,en}.ts`; legacy `/en` redirects to `/`.
-- **Concept deep-dives:** 14 contextual modal chips (kata, ADR, event sourcing, actor model, DDD, VPC, TCO, anti-corruption layer, CQRS projections…) in natural language.
+- **Concept deep-dives:** 15 contextual modal chips (kata, ADR, modular monolith vs. microservices, quality attributes, event sourcing, actor model, DDD, VPC, TCO, anti-corruption layer, CQRS projections…) in natural language.
 - **Decision map:** the curated three-pillar digest of ten ADR decisions with per-decision modals (figures embedded) and GitHub links.
 - **Original artifacts:** 27 images from the ArchColider repository — original diagrams, the 2020 whiteboards, the judges' semifinal deck material, proposal-deck-only diagrams (ACL, extraction case), subscriber lifecycle diagrams, forecasts and TCO charts — rendered full-width with source attribution.
 - **Collapsible TOC rail:** dot rail with tooltips by default, expandable to the full index, with active-section tracking.

@@ -35,6 +35,12 @@ for (const section of content.sections) {
       const htmls =
         block.type === 'p' ? [block.html] : (block as { items: string[] }).items;
       htmlSources.push(...htmls);
+    } else if (block.type === 'cards') {
+      htmlSources.push(...block.cards.map((c) => c.html));
+    } else if (block.type === 'callout') {
+      htmlSources.push(block.html);
+    } else if (block.type === 'table') {
+      htmlSources.push(...block.rows.flat());
     }
   }
 }

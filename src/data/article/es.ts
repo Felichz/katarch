@@ -110,7 +110,7 @@ export const ES: ArticleContent = {
             {
               title: '🥇 ArchColider',
               tag: 'Monolito modular',
-              html: 'Concluyó que montar infraestructura distribuida para ese volumen era tirar plata y tiempo. Propuso un <strong>monolito dividido en módulos con fronteras estrictas</strong> en pocas máquinas de AWS: barato hoy, fácil de partir mañana si hace falta. El jurado premió ese pragmatismo.',
+              html: 'Concluyó que montar infraestructura distribuida para ese volumen era tirar plata y tiempo. Propuso un <strong><a class="concept-chip" data-concept="monolito-modular" role="button" tabindex="0">monolito dividido en módulos con fronteras estrictas</a></strong> en pocas máquinas de AWS: barato hoy, fácil de partir mañana si hace falta. El jurado premió ese pragmatismo.',
             },
             {
               title: '🥈 Myagis-Forest',
@@ -130,7 +130,7 @@ export const ES: ArticleContent = {
           items: [
             '<strong>Claridad de narrativa, organización y documentación de apoyo.</strong> Una buena arquitectura que no se sabe contar, no defiende.',
             '<strong>Entendimiento de los requerimientos y completitud de la solución.</strong> ¿Responde al problema que se le planteó, o a uno más cómodo?',
-            '<strong>Identificación de las características arquitectónicas de soporte.</strong> ¿Qué atributos de calidad importan y dónde?',
+            '<strong>Identificación de las características arquitectónicas de soporte.</strong> ¿Qué <a class="concept-chip" data-concept="quality-attributes" role="button" tabindex="0">atributos de calidad</a> importan y dónde?',
             '<strong>Diagramas: tipos, nivel de detalle y completitud.</strong> Los jueces citan aquí a Neal Ford: "el objetivo de un diagrama es transmitir una comprensión clara y compartida de la arquitectura".',
             '<strong>Arquitectura general del sistema.</strong>',
             '<strong>Arquitectura de integración con los sistemas de terceros requeridos.</strong> El negocio ya tenía heladeras, kioscos y pasarela: había que conectarlos bien.',

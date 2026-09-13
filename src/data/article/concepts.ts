@@ -54,6 +54,17 @@ export const CONCEPTS: Record<string, ConceptEntry> = {
 <p>A <strong>modular monolith</strong> takes the best of both: it deploys as one piece (cheap and simple), but its interior is divided into modules with strict boundaries, like the compartments of a toolbox. If one day a module needs to grow on its own, it is extracted without dismantling the rest.</p>`,
     },
   },
+  'quality-attributes': {
+    title: { es: 'Los atributos de calidad, en lenguaje llano', en: 'Quality attributes, in plain language' },
+    body: {
+      es: `<p>Cualquier sistema se puede describir por lo que <strong>hace</strong> (sus funciones: vender comidas, cobrar, avisar) y por <strong>qué tan bien lo hace</strong>: ¿está disponible siempre? ¿responde rápido? ¿se puede cambiar sin romper todo? ¿es seguro? Esas propiedades — disponibilidad, performance, modificabilidad, seguridad, usabilidad — son los <strong>atributos de calidad</strong>. En el libro canónico se llaman "características arquitectónicas", y casi todas terminan en "-idad": los <em>ilities</em> en inglés.</p>
+<p>La analogía del auto: las funciones son "te lleva de A a B"; los atributos de calidad son el consumo, la seguridad, la comodidad y la confiabilidad. Y como en el auto, <strong>no se puede maximizar todo a la vez</strong>: blindarlo lo hace pesado y torpe. Cada atributo cuesta dinero y complejidad, y varios se pisan entre sí.</p>
+<p>Por eso son el verdadero moldeador de una arquitectura: las funciones cambian el <em>código</em>; los atributos de calidad cambian la <em>forma estructural</em> del sistema. El primer trabajo de un arquitecto es preguntar cuáles importan de verdad en este negocio — y descartar el resto sin culpa. Es exactamente lo que el jurado de este kata evaluaba cuando miraba "la identificación de las características de soporte".</p>`,
+      en: `<p>Any system can be described by what it <strong>does</strong> (its features: sell meals, charge, notify) and by <strong>how well it does it</strong>: is it always available? Does it respond fast? Can it change without breaking everything? Is it secure? Those properties — availability, performance, modifiability, security, usability — are the <strong>quality attributes</strong>. The canonical book calls them "architecture characteristics", and almost all of them end in "-ity": the <em>ilities</em>.</p>
+<p>The car analogy: features are "it takes you from A to B"; quality attributes are fuel economy, safety, comfort and reliability. And as with a car, <strong>you cannot maximize them all at once</strong>: armoring a car makes it heavy and sluggish. Every attribute costs money and complexity, and several step on each other.</p>
+<p>That is why they are the true shaper of an architecture: features change the <em>code</em>; quality attributes change the system's <em>structural shape</em>. An architect's first job is asking which ones truly matter for this business — and discarding the rest without guilt. That is exactly what this kata's jury was evaluating with "identification of supporting architecture characteristics".</p>`,
+    },
+  },
   'entity-trap': {
     title: { es: 'La "Entity Trap"', en: 'The "Entity Trap"' },
     body: {
