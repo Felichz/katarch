@@ -135,7 +135,10 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
       </button>
       <p class="figure-guide-kicker">{uiGuide}</p>
       <h3 class="modal-title" id={`figure-guide-title`}>{f.guide!.title}</h3>
-      <img class="figure-guide-img" src={f.src} alt={f.alt} />
+      <div class="figure-guide-zoom" data-figure-zoom>
+        <img class="figure-guide-img" src={f.src} alt={f.alt} />
+        <div class="figure-lens" hidden></div>
+      </div>
       <p class="figure-guide-caption">{f.caption}</p>
       <div class="modal-body set-prose" set:html={f.guide!.html} />
     </div>
@@ -638,16 +641,36 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     margin-top: 0.5rem;
     line-height: 1.55;
   }
-  /* Figure reading-guide modals: wider card to breathe */
-  .modal-card.modal-card--figure {
-    max-width: min(64rem, calc(100vw - 2rem));
+  /* Figure reading-guide modals: wider shell + card so diagrams breathe */
+  dialog[data-figure-dialog] {
+    max-width: min(76rem, calc(100vw - 1.5rem));
   }
+  .modal-card.modal-card--figure {
+    max-width: min(76rem, calc(100vw - 1.5rem));
+    padding: 1.25rem 1.35rem;
+  }
+  .figure-guide-zoom {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.7rem;
+  }
+  .figure-guide-zoom:hover { cursor: crosshair; }
   .figure-guide-img {
     width: 100%;
     border-radius: 0.7rem;
     border: 1px solid rgb(51 65 85 / 0.7);
     background: rgb(255 255 255);
     display: block;
+  }
+  .figure-lens {
+    position: absolute;
+    border-radius: 9999px;
+    border: 2px solid rgb(52 211 153 / 0.95);
+    box-shadow: 0 10px 34px rgb(2 6 23 / 0.55), inset 0 0 0 1px rgb(2 6 23 / 0.25);
+    background-repeat: no-repeat;
+    background-color: rgb(255 255 255);
+    pointer-events: none;
+    z-index: 5;
   }
   .figure-guide-kicker {
     font-size: 0.875rem;

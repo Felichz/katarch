@@ -142,6 +142,42 @@ for (const dlg of document.querySelectorAll('dialog')) {
   dialogObserver.observe(dlg, { attributes: true, attributeFilter: ['open'] });
 }
 
+// Lens magnifier on figure-guide diagrams: shows the image at 100% of its
+// original scale around the cursor. Skipped when the diagram already fits
+// at 1:1 (the lens would add nothing).
+const LENS_RADIUS = 130;
+for (const zoom of document.querySelectorAll<HTMLElement>('[data-figure-zoom]')) {
+  const img = zoom.querySelector('img');
+  const lens = zoom.querySelector<HTMLElement>('.figure-lens');
+  if (!img || !lens) continue;
+  lens.style.width = `${LENS_RADIUS * 2}px`;
+  lens.style.height = `${LENS_RADIUS * 2}px`;
+
+  const move = (e: MouseEvent) => {
+    const rect = img.getBoundingClientRect();
+    const zoomRect = zoom.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+    const scale = img.naturalWidth / rect.width;
+    if (!Number.isFinite(scale) || scale <= 1.05) {
+      lens.hidden = true;
+      return;
+    }
+    lens.hidden = false;
+    lens.style.left = `${e.clientX - zoomRect.left - LENS_RADIUS}px`;
+    lens.style.top = `${e.clientY - zoomRect.top - LENS_RADIUS}px`;
+    lens.style.backgroundImage = `url("${img.currentSrc || img.src}")`;
+    lens.style.backgroundSize = `${img.naturalWidth}px ${img.naturalHeight}px`;
+    lens.style.backgroundPosition = `${LENS_RADIUS - x * scale}px ${LENS_RADIUS - y * scale}px`;
+  };
+  zoom.addEventListener('mouseenter', move);
+  zoom.addEventListener('mousemove', move);
+  zoom.addEventListener('mouseleave', () => {
+    lens.hidden = true;
+  });
+}
+
 // TOC rail: expand/collapse (persisted), dot tooltips, active section
 const tocCard = document.querySelector<HTMLElement>('[data-toc-card]');
 const tocFull = document.querySelector<HTMLElement>('[data-toc-full]');
