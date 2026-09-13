@@ -3,7 +3,7 @@ export type Block =
   | { type: 'h3'; html: string }
   | { type: 'list'; items: string[] }
   | { type: 'cards'; cols?: 2 | 3; cards: { title: string; tag?: string; html: string }[] }
-  | { type: 'figure'; src: string; alt: string; caption: string }
+  | { type: 'figure'; src: string; alt: string; caption: string; guide?: { title: string; html: string } }
   | { type: 'stats'; items: { value: string; label: string }[] }
   | { type: 'callout'; tone: 'emerald' | 'amber' | 'slate'; title: string; html: string }
   | { type: 'contextDiagram' }

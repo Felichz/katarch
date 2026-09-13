@@ -50,6 +50,18 @@ for (const h of htmlSources) {
 const modalConcepts = conceptEntries.filter(([id]) => usedConcepts.has(id));
 const adrToDecision: Record<string, string> = {};
 for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.id;
+
+const guidedFigures: Extract<Block, { type: 'figure' } & { guide: NonNullable<unknown> }>[] = [];
+const seenGuideSrcs = new Set<string>();
+for (const section of content.sections) {
+  for (const block of section.blocks) {
+    if (block.type === 'figure' && block.guide && !seenGuideSrcs.has(block.src)) {
+      seenGuideSrcs.add(block.src);
+      guidedFigures.push(block as (typeof guidedFigures)[number]);
+    }
+  }
+}
+const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
 ---
 
 <!-- Decision/ADR modal shells -->
@@ -110,6 +122,22 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
       </button>
       <h3 id={`concept-${id}-title`} class="modal-title">{c.title[lang]}</h3>
       <div class="modal-body set-prose" set:html={c.body[lang]} />
+    </div>
+  </dialog>
+))}
+
+<!-- Figure reading-guide modal shells (one per unique guided figure) -->
+{guidedFigures.map((f) => (
+  <dialog class="modal-shell" data-figure-dialog={f.src} aria-labelledby={`figure-guide-title`}>
+    <div class="modal-card modal-card--figure">
+      <button class="modal-close" data-close-modal type="button" aria-label={ui.close}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <p class="figure-guide-kicker">{uiGuide}</p>
+      <h3 class="modal-title" id={`figure-guide-title`}>{f.guide!.title}</h3>
+      <img class="figure-guide-img" src={f.src} alt={f.alt} />
+      <p class="figure-guide-caption">{f.caption}</p>
+      <div class="modal-body set-prose" set:html={f.guide!.html} />
     </div>
   </dialog>
 ))}
@@ -572,6 +600,27 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     line-height: 1.55;
     cursor: default;
   }
+  .block-figure--guided .figure-open {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+    font: inherit;
+  }
+  .block-figure--guided .figure-open:focus-visible {
+    outline: 2px solid rgb(52 211 153);
+    outline-offset: 4px;
+    border-radius: 0.85rem;
+  }
+  .figure-hint {
+    color: rgb(52 211 153);
+    font-weight: 600;
+  }
+  :root:not(.dark) .figure-hint {
+    color: rgb(4 120 87);
+  }
   /* Figures embedded inside modal prose (decision/concept modals) */
   .modal-card .modal-figure {
     margin: 0.9rem 0 0.25rem;
@@ -587,6 +636,34 @@ for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.i
     font-size: 1rem;
     color: rgb(148 163 184);
     margin-top: 0.5rem;
+    line-height: 1.55;
+  }
+  /* Figure reading-guide modals: wider card to breathe */
+  .modal-card.modal-card--figure {
+    max-width: min(64rem, calc(100vw - 2rem));
+  }
+  .figure-guide-img {
+    width: 100%;
+    border-radius: 0.7rem;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    background: rgb(255 255 255);
+    display: block;
+  }
+  .figure-guide-kicker {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    color: rgb(52 211 153);
+    margin-bottom: 0.25rem;
+  }
+  :root:not(.dark) .figure-guide-kicker {
+    color: rgb(4 120 87);
+  }
+  .figure-guide-caption {
+    font-size: 1rem;
+    color: rgb(148 163 184);
+    margin: 0.6rem 0 0.9rem;
     line-height: 1.55;
   }
 

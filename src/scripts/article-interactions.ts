@@ -79,6 +79,20 @@ document.addEventListener('click', (e) => {
     return;
   }
 
+  // Figure reading guides (keyed by image src)
+  const fig = target.closest<HTMLElement>('[data-figure-guide]');
+  if (fig?.dataset.figureGuide) {
+    const dlg = document.querySelector(
+      `dialog[data-figure-dialog="${fig.dataset.figureGuide}"]`,
+    ) as HTMLDialogElement | null;
+    if (dlg) {
+      openTrigger = fig;
+      lockScroll();
+      dlg.showModal();
+    }
+    return;
+  }
+
   // ADR references -> mapped decision modal
   const adr = target.closest<HTMLElement>('.adr-ref');
   if (adr?.dataset.adr) {
