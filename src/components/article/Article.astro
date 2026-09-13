@@ -898,6 +898,7 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
   .modal-card {
     position: relative;
     background: #161b22;
+    color: rgb(203 213 225);
     border: 1px solid rgb(51 65 85);
     border-radius: 1rem;
     padding: 1.75rem 1.9rem;
@@ -905,7 +906,7 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     overflow-y: auto;
     max-height: calc(100dvh - 3rem);
   }
-  :root:not(.dark) .modal-card { background: #ffffff; box-shadow: 0 24px 60px rgb(15 23 42 / 0.18); }
+  :root:not(.dark) .modal-card { background: #ffffff; color: rgb(51 65 85); box-shadow: 0 24px 60px rgb(15 23 42 / 0.18); }
   .modal-close {
     position: absolute;
     top: 0.9rem;
@@ -940,14 +941,19 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     margin-bottom: 0.25rem;
   }
   :root:not(.dark) .modal-sections h4 { color: rgb(4 120 87); }
-  .modal-sections p, .modal-body p {
+  .modal-sections p, .modal-body p,
+  .modal-sections li, .modal-body li {
     font-size: 1rem;
     line-height: 1.7;
     color: rgb(203 213 225);
   }
   :root:not(.dark) .modal-sections p,
-  :root:not(.dark) .modal-body p { color: rgb(51 65 85); }
+  :root:not(.dark) .modal-body p,
+  :root:not(.dark) .modal-sections li,
+  :root:not(.dark) .modal-body li { color: rgb(51 65 85); }
   .modal-body p + p { margin-top: 0.8rem; }
+  .modal-body ul { margin: 0.5rem 0; padding-left: 1.25rem; list-style: disc; }
+  .modal-body li + li { margin-top: 0.45rem; }
   .modal-adrs {
     display: flex;
     flex-wrap: wrap;
