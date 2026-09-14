@@ -49,6 +49,7 @@ Built with **Astro** and **Tailwind CSS**, content-driven from typed data files 
 - **Concept deep-dives:** 15 contextual modal chips (kata, ADR, modular monolith vs. microservices, quality attributes, event sourcing, actor model, DDD, VPC, TCO, anti-corruption layer, CQRS projections…) in natural language.
 - **Decision map:** the curated three-pillar digest of ten ADR decisions with per-decision modals (figures embedded) and GitHub links.
 - **Original artifacts:** 27 images from the ArchColider repository — original diagrams, the 2020 whiteboards, the judges' semifinal deck material, proposal-deck-only diagrams (ACL, extraction case), subscriber lifecycle diagrams, forecasts and TCO charts — rendered full-width with source attribution.
+- **Original-document viewer:** 23 markdown docs from the ArchColider repository (business drivers, constraints, system approach, information models, infrastructure, ADR-adjacent docs, even Questions.md and the final presentation script) rendered at build time into wide reading modals, each with a link to the original GitHub file. In-article mentions are clickable `doc original` chips.
 - **Collapsible TOC rail:** dot rail with tooltips by default, expandable to the full index, with active-section tracking.
 - **Accessible modals:** native `<dialog>` with scroll lock, focus restore and ESC/backdrop close.
 - **Full-width fluid layout:** one normalized container for every element, body type scaling with the viewport, dark/light themes.

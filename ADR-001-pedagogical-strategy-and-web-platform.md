@@ -67,7 +67,8 @@ We adopt **Option 4**, materialized as three layers of decisions.
 - **Layout contract:** the shell uses the **full viewport width** with fixed paddings only (`px-5 sm:px-8 lg:px-10`); one normalized content width for every block; the **TOC is a collapsible rail pinned to the left edge** — a dot rail with tooltips by default, expandable to the full index (state persisted in `localStorage` under `katarch-toc-expanded`), with active-section tracking via `IntersectionObserver`.
 - **Typography floor:** all reading text ≥ 1rem; only mono uppercase decorative labels are 0.875rem. Figure captions are dimmed but full-size.
 - **Modals and scroll lock:** native `<dialog>` elements. Because some embedded WebViews never fire the dialog `close` event, scroll unlock is driven by a `MutationObserver` on the `open` attribute of every dialog (`src/scripts/article-interactions.ts`). Modal body text renders raw HTML so decision modals can embed figures.
-- **Interaction script:** a single delegated script handles modal open/close, concept chips (keyboard included), and TOC behavior. The hero has no meta block (case/winner/reading-time/sources row removed by editorial decision).
+- **Original-document viewer:** the repository's markdown docs are rendered to HTML at build time (`micromark` + GFM via `.tmp-gen-docs.mjs`, relative images/links rewritten to the TheKataLog GitHub raw URLs) and exposed as wide native-dialog modals. In-prose `data-doc` chips (17 unique docs per edition) open them; each modal links to the original GitHub file. Spanish edition prose avoids em-dashes (editorial rule).
+- **Interaction script:** a single delegated script handles modal open/close, concept chips, document chips (keyboard included), and TOC behavior. The hero has no meta block (case/winner/reading-time/sources row removed by editorial decision).
 
 ---
 
@@ -105,4 +106,5 @@ We adopt **Option 4**, materialized as three layers of decisions.
 ---
 
 ## 7. Amendment History
+- **2026-09-14 — Original-document viewer.** Added build-time markdown rendering of the 23 ArchColider docs into wide dialog modals with per-doc GitHub links, clickable doc chips at every prose mention, and a full em-dash sweep of the Spanish edition (Spanish punctuation instead of anglicized rayas).
 - **2026-09-10 — Full revision.** Original ADR described the pre-rebuild platform in `web/` (Mermaid diagrams, 32 matrix modals, a 16-ADR explorer, Spanish at `/`), which no longer exists. This revision documents the shipped architecture: data-driven bilingual content, curated decision map, concept chips, English-default routing, full-width layout with TOC dot rail, native-dialog modals with observer-based scroll lock, and the 2026-09-09/10 integration of the repo's artifacts (judges' rubric and jury, whiteboards, payment facade, anti-corruption layer, subscriber lifecycle, volumetry extras).

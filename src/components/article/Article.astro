@@ -9,6 +9,7 @@
 import type { ArticleContent, Block } from '../../data/article/types';
 import { CONCEPTS } from '../../data/article/concepts';
 import { DECISIONS } from '../../data/article/decision-map';
+import { ORIGINAL_DOCS } from '../../data/article/original-docs';
 import BlockRenderer from './BlockRenderer.astro';
 
 interface Props {
@@ -48,6 +49,15 @@ for (const h of htmlSources) {
   for (const m of h.matchAll(/data-concept="([^"]+)"/g)) usedConcepts.add(m[1]);
 }
 const modalConcepts = conceptEntries.filter(([id]) => usedConcepts.has(id));
+
+// Original-doc modals: only for docs actually referenced via data-doc in prose
+const usedDocIds = new Set<string>();
+for (const h of htmlSources) {
+  for (const m of h.matchAll(/data-doc="([^"]+)"/g)) usedDocIds.add(m[1]);
+}
+const usedDocs = ORIGINAL_DOCS.filter((d) => usedDocIds.has(d.id));
+const uiDocKicker = isES ? 'Documento original · ArchColider' : 'Original document · ArchColider';
+const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Open the original file in the ArchColider repo';
 const adrToDecision: Record<string, string> = {};
 for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.id;
 
@@ -142,6 +152,29 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
       </div>
       <p class="figure-guide-caption">{f.caption}</p>
       <div class="modal-body set-prose" set:html={f.guide!.html} />
+    </div>
+  </dialog>
+))}
+
+<!-- Original-doc modal shells (only those actually referenced in the article) -->
+{usedDocs.map((d) => (
+  <dialog class="modal-shell" data-doc-dialog={d.id} aria-labelledby={`doc-${d.id}-title`}>
+    <div class="modal-card modal-card--doc">
+      <button class="modal-close" data-close-modal type="button" aria-label={ui.close}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <p class="figure-guide-kicker">{uiDocKicker}</p>
+      <h3 class="modal-title" id={`doc-${d.id}-title`}>{isES ? d.titleEs : d.titleEn}</h3>
+      <div class="doc-prose" set:html={d.html} />
+      <a
+        class="doc-original-link"
+        href={`https://github.com/TheKataLog/ArchColider/blob/master/${encodeURI(d.file)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {uiDocOpen}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+      </a>
     </div>
   </dialog>
 ))}
@@ -643,7 +676,8 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     line-height: 1.55;
   }
   /* Figure reading-guide modals: wider shell + card so diagrams breathe */
-  dialog[data-figure-dialog] {
+  dialog[data-figure-dialog],
+  dialog[data-doc-dialog] {
     max-width: min(76rem, calc(100vw - 1.5rem));
   }
   .modal-card.modal-card--figure {
@@ -704,6 +738,116 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     margin: 0.6rem 0 0.9rem;
     line-height: 1.55;
   }
+
+  /* ── Original-doc viewer ───────────────────────────── */
+  .doc-ref {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font: inherit;
+    font-size: 0.92em;
+    font-weight: 600;
+    color: rgb(52 211 153);
+    background: rgb(16 185 129 / 0.1);
+    border: 1px solid rgb(16 185 129 / 0.35);
+    border-radius: 0.45rem;
+    padding: 0.05rem 0.5rem;
+    cursor: pointer;
+    vertical-align: baseline;
+    white-space: nowrap;
+  }
+  .doc-ref:hover, .doc-ref:focus-visible { background: rgb(16 185 129 / 0.2); outline: none; }
+  :root:not(.dark) .doc-ref { color: rgb(4 120 87); background: rgb(16 185 129 / 0.12); }
+  .modal-card.modal-card--doc {
+    max-width: min(76rem, calc(100vw - 1.5rem));
+    padding: 1.5rem 1.7rem;
+  }
+  .doc-prose {
+    color: rgb(203 213 225);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  :root:not(.dark) .doc-prose { color: rgb(51 65 85); }
+  .doc-prose h1, .doc-prose h2, .doc-prose h3, .doc-prose h4 {
+    color: rgb(241 245 249);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 1.6rem 0 0.6rem;
+    line-height: 1.3;
+  }
+  :root:not(.dark) .doc-prose h1, :root:not(.dark) .doc-prose h2,
+  :root:not(.dark) .doc-prose h3, :root:not(.dark) .doc-prose h4 { color: rgb(15 23 42); }
+  .doc-prose h1 { font-size: 1.35rem; }
+  .doc-prose h2 { font-size: 1.18rem; }
+  .doc-prose h3, .doc-prose h4 { font-size: 1.05rem; }
+  .doc-prose h1:first-child, .doc-prose h2:first-child, .doc-prose > p:first-child { margin-top: 0; }
+  .doc-prose p { margin: 0.7rem 0; }
+  .doc-prose ul, .doc-prose ol { margin: 0.7rem 0; padding-left: 1.5rem; }
+  .doc-prose ul { list-style: disc; }
+  .doc-prose ol { list-style: decimal; }
+  .doc-prose li { margin: 0.35rem 0; }
+  .doc-prose li > ul, .doc-prose li > ol { margin: 0.35rem 0; }
+  .doc-prose a { color: rgb(52 211 153); text-decoration: underline; text-underline-offset: 3px; }
+  :root:not(.dark) .doc-prose a { color: rgb(4 120 87); }
+  .doc-prose strong { color: inherit; font-weight: 700; }
+  .doc-prose em { font-style: italic; }
+  .doc-prose blockquote {
+    border-left: 3px solid rgb(16 185 129 / 0.5);
+    padding-left: 1rem;
+    margin: 0.9rem 0;
+    color: rgb(148 163 184);
+  }
+  :root:not(.dark) .doc-prose blockquote { color: rgb(100 116 139); }
+  .doc-prose code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+    color: rgb(52 211 153);
+    background: rgb(16 185 129 / 0.08);
+    border: 1px solid rgb(51 65 85 / 0.6);
+    border-radius: 0.35rem;
+    padding: 0.08rem 0.35rem;
+  }
+  :root:not(.dark) .doc-prose code { color: rgb(4 120 87); background: rgb(16 185 129 / 0.1); border-color: rgb(203 213 225); }
+  .doc-prose table {
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+    display: block;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+  .doc-prose th, .doc-prose td {
+    border: 1px solid rgb(51 65 85 / 0.7);
+    padding: 0.45rem 0.7rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  :root:not(.dark) .doc-prose th, :root:not(.dark) .doc-prose td { border-color: rgb(203 213 225); }
+  .doc-prose th { background: rgb(16 185 129 / 0.08); font-weight: 700; color: rgb(241 245 249); }
+  :root:not(.dark) .doc-prose th { color: rgb(15 23 42); }
+  .doc-prose img {
+    max-width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid rgb(51 65 85 / 0.7);
+    background: #ffffff;
+    margin: 0.8rem 0;
+  }
+  .doc-prose hr { border: none; border-top: 1px solid rgb(51 65 85 / 0.6); margin: 1.4rem 0; }
+  :root:not(.dark) .doc-prose hr { border-top-color: rgb(226 232 240); }
+  .doc-original-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1.4rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid rgb(51 65 85 / 0.6);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: rgb(52 211 153);
+    text-decoration: none;
+  }
+  .doc-original-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+  :root:not(.dark) .doc-original-link { border-top-color: rgb(226 232 240); color: rgb(4 120 87); }
 
   /* ── Concept chips & ADR refs ──────────────────────── */
   .concept-chip {

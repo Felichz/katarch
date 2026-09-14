@@ -109,6 +109,20 @@ document.addEventListener('click', (e) => {
     return;
   }
 
+  // Original-doc references -> doc viewer modal
+  const docRef = target.closest<HTMLElement>('.doc-ref');
+  if (docRef?.dataset.doc) {
+    const dlg = document.querySelector(
+      `dialog[data-doc-dialog="${docRef.dataset.doc}"]`,
+    ) as HTMLDialogElement | null;
+    if (dlg) {
+      openTrigger = docRef;
+      lockScroll();
+      dlg.showModal();
+    }
+    return;
+  }
+
   // Decision openers (inline cards + map entries)
   const opener = target.closest<HTMLElement>('[data-decision]');
   if (opener?.dataset.decision) {
@@ -122,7 +136,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const el = document.activeElement as HTMLElement | null;
   if (!el) return;
-  if (el.classList.contains('concept-chip')) {
+  if (el.classList.contains('concept-chip') || el.classList.contains('doc-ref')) {
     e.preventDefault();
     el.click();
   }
