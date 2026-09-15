@@ -177,8 +177,9 @@ const dialogObserver = new MutationObserver(() => {
 // ── Lens magnifier on inline diagrams ──
 // Disabled by default: hovering shows a hint, the first click enables the
 // lens (fetching the lazy image if needed), the next click disables it.
-// The lens shows the image at 100% of its original scale around the cursor.
-const LENS_RADIUS = 170;
+// The lens shows the image at 100% of its original scale around the cursor
+// and spans at least half the diagram's displayed width.
+const LENS_MIN_WIDTH = 340; // px floor, so narrow-viewport diagrams keep a usable lens
 
 function bindLens() {
   const isES = document.documentElement.lang !== 'en';
@@ -190,8 +191,6 @@ function bindLens() {
     const lens = zoom.querySelector<HTMLElement>('.figure-lens');
     const hint = zoom.querySelector<HTMLElement>('.figure-lens-hint');
     if (!img || !lens) continue;
-    lens.style.width = `${LENS_RADIUS * 2}px`;
-    lens.style.height = `${LENS_RADIUS * 2}px`;
     let lensOn = false;
     let lastEvent: MouseEvent | null = null;
 
@@ -199,13 +198,16 @@ function bindLens() {
       lastEvent = e;
       const rect = img.getBoundingClientRect();
       const zoomRect = zoom.getBoundingClientRect();
+      const radius = Math.max(LENS_MIN_WIDTH, rect.width * 0.5) / 2;
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+      lens.style.width = `${radius * 2}px`;
+      lens.style.height = `${radius * 2}px`;
       if (hint) {
         hint.textContent = lensOn ? HINT_ON : HINT_OFF;
         hint.style.left = `${e.clientX - zoomRect.left}px`;
-        hint.style.top = `${e.clientY - zoomRect.top + LENS_RADIUS + 10}px`;
+        hint.style.top = `${e.clientY - zoomRect.top + radius + 10}px`;
         hint.hidden = false;
       }
       // The lens needs the real pixels: a lazy image that has not been
@@ -216,11 +218,11 @@ function bindLens() {
       }
       const scale = img.naturalWidth / rect.width;
       lens.hidden = false;
-      lens.style.left = `${e.clientX - zoomRect.left - LENS_RADIUS}px`;
-      lens.style.top = `${e.clientY - zoomRect.top - LENS_RADIUS}px`;
+      lens.style.left = `${e.clientX - zoomRect.left - radius}px`;
+      lens.style.top = `${e.clientY - zoomRect.top - radius}px`;
       lens.style.backgroundImage = `url("${img.currentSrc || img.src}")`;
       lens.style.backgroundSize = `${img.naturalWidth}px ${img.naturalHeight}px`;
-      lens.style.backgroundPosition = `${LENS_RADIUS - x * scale}px ${LENS_RADIUS - y * scale}px`;
+      lens.style.backgroundPosition = `${radius - x * scale}px ${radius - y * scale}px`;
     };
 
     zoom.addEventListener('mouseenter', () => {
