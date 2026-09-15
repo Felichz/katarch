@@ -56,7 +56,10 @@ cómo se decide qué no construir, y cómo se documenta cada "no" para que algui
    de fondo. Y vale para los calificativos: "instructivo", "aburrido", "elegante",
    "el más X" solo si el repo los respalda (un chiste escrito, una cita, un hecho).
    El elogio sin base es narrativa vacía: se muestra el hecho que lo justifica o
-   se corta el adjetivo.
+   se corta el adjetivo. Lo mismo vale para afirmaciones sobre poblaciones
+   ("casi nadie publica", "la mayoría omite", "pocas entregas"): o se verifican
+   contra los repos (así se fundamentó "única entrega con análisis de costos",
+   chequeado sobre los diez finalistas) o se enuncian los hechos sin la población.
 3. **Sin emociones prestadas.** Cuando algo impresiona, se muestra el hecho que
    impresiona (un post-it fechado, un "no hay mitigación técnica" por escrito);
    el narrador no declara sentimientos propios. La voz es funcional, no biográfica.
