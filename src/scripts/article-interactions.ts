@@ -198,16 +198,19 @@ function bindLens() {
       lastEvent = e;
       const rect = img.getBoundingClientRect();
       const zoomRect = zoom.getBoundingClientRect();
-      const radius = Math.max(LENS_MIN_WIDTH, rect.width * 0.5) / 2;
+      const lensW = Math.max(LENS_MIN_WIDTH, rect.width * 0.5); // width: >= 50% of the diagram
+      const lensH = LENS_MIN_WIDTH; // height stays fixed
+      const halfW = lensW / 2;
+      const halfH = lensH / 2;
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
-      lens.style.width = `${radius * 2}px`;
-      lens.style.height = `${radius * 2}px`;
+      lens.style.width = `${lensW}px`;
+      lens.style.height = `${lensH}px`;
       if (hint) {
         hint.textContent = lensOn ? HINT_ON : HINT_OFF;
         hint.style.left = `${e.clientX - zoomRect.left}px`;
-        hint.style.top = `${e.clientY - zoomRect.top + radius + 10}px`;
+        hint.style.top = `${e.clientY - zoomRect.top + halfH + 10}px`;
         hint.hidden = false;
       }
       // The lens needs the real pixels: a lazy image that has not been
@@ -218,11 +221,11 @@ function bindLens() {
       }
       const scale = img.naturalWidth / rect.width;
       lens.hidden = false;
-      lens.style.left = `${e.clientX - zoomRect.left - radius}px`;
-      lens.style.top = `${e.clientY - zoomRect.top - radius}px`;
+      lens.style.left = `${e.clientX - zoomRect.left - halfW}px`;
+      lens.style.top = `${e.clientY - zoomRect.top - halfH}px`;
       lens.style.backgroundImage = `url("${img.currentSrc || img.src}")`;
       lens.style.backgroundSize = `${img.naturalWidth}px ${img.naturalHeight}px`;
-      lens.style.backgroundPosition = `${radius - x * scale}px ${radius - y * scale}px`;
+      lens.style.backgroundPosition = `${halfW - x * scale}px ${halfH - y * scale}px`;
     };
 
     zoom.addEventListener('mouseenter', () => {
