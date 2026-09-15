@@ -174,12 +174,17 @@ const dialogObserver = new MutationObserver(() => {
   }
 });
 
-// ── Lens magnifier on inline diagrams: shows the image at 100% of its ──
-// original scale around the cursor. Skipped when the diagram already fits
-// at 1:1 (the lens would add nothing).
+// ── Lens magnifier on inline diagrams ──
+// Disabled by default: hovering shows a hint, the first click enables the
+// lens (fetching the lazy image if needed), the next click disables it.
+// The lens shows the image at 100% of its original scale around the cursor.
 const LENS_RADIUS = 170;
 
 function bindLens() {
+  const isES = document.documentElement.lang !== 'en';
+  const HINT_OFF = isES ? 'clic para activar la lupa' : 'click to enable the lens';
+  const HINT_ON = isES ? 'clic para desactivar la lupa' : 'click to disable the lens';
+
   for (const zoom of document.querySelectorAll<HTMLElement>('[data-figure-zoom]')) {
     const img = zoom.querySelector('img');
     const lens = zoom.querySelector<HTMLElement>('.figure-lens');
@@ -187,29 +192,29 @@ function bindLens() {
     if (!img || !lens) continue;
     lens.style.width = `${LENS_RADIUS * 2}px`;
     lens.style.height = `${LENS_RADIUS * 2}px`;
-    let lensOff = false;
+    let lensOn = false;
+    let lastEvent: MouseEvent | null = null;
 
-    const move = (e: MouseEvent) => {
+    const paint = (e: MouseEvent) => {
+      lastEvent = e;
       const rect = img.getBoundingClientRect();
       const zoomRect = zoom.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
-      const scale = img.naturalWidth / rect.width;
-      if (!Number.isFinite(scale) || scale <= 1.05) {
-        lens.hidden = true;
-        if (hint) hint.hidden = true;
-        return;
-      }
       if (hint) {
+        hint.textContent = lensOn ? HINT_ON : HINT_OFF;
         hint.style.left = `${e.clientX - zoomRect.left}px`;
         hint.style.top = `${e.clientY - zoomRect.top + LENS_RADIUS + 10}px`;
         hint.hidden = false;
       }
-      if (lensOff) {
+      // The lens needs the real pixels: a lazy image that has not been
+      // fetched yet simply shows no lens until the click triggers decode().
+      if (!lensOn || !img.complete || !img.naturalWidth) {
         lens.hidden = true;
         return;
       }
+      const scale = img.naturalWidth / rect.width;
       lens.hidden = false;
       lens.style.left = `${e.clientX - zoomRect.left - LENS_RADIUS}px`;
       lens.style.top = `${e.clientY - zoomRect.top - LENS_RADIUS}px`;
@@ -217,15 +222,21 @@ function bindLens() {
       lens.style.backgroundSize = `${img.naturalWidth}px ${img.naturalHeight}px`;
       lens.style.backgroundPosition = `${LENS_RADIUS - x * scale}px ${LENS_RADIUS - y * scale}px`;
     };
-    zoom.addEventListener('mouseenter', move);
-    zoom.addEventListener('mousemove', move);
-    zoom.addEventListener('click', () => {
-      lensOff = !lensOff;
-      if (lensOff) lens.hidden = true;
+
+    zoom.addEventListener('mouseenter', () => {
+      // Warm up lazy images: by the time the reader clicks, pixels are ready.
+      if (!img.complete) img.decode().catch(() => {});
     });
+    zoom.addEventListener('mousemove', paint);
     zoom.addEventListener('mouseleave', () => {
       lens.hidden = true;
       if (hint) hint.hidden = true;
+    });
+    zoom.addEventListener('click', () => {
+      lensOn = !lensOn;
+      if (!img.complete) img.decode().catch(() => {});
+      if (lastEvent) paint(lastEvent);
+      else if (!lensOn) lens.hidden = true;
     });
   }
 }
