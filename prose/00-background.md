@@ -76,7 +76,9 @@ cómo se decide qué no construir, y cómo se documenta cada "no" para que algui
    nunca resumidas a una línea con el resto escondido en un modal. Los botones
    "doc original" son la capa de verificación, no lectura obligatoria: abren el
    documento íntegro como fuente, y su contenido no esconde nada que el hilo
-   necesite. Cada mención de un ADR es enlace directo al archivo original.
+   necesite. Cada mención de un ADR abre su ficha (el documento completo,
+   traducido), y el enlace al archivo original vive dentro de la ficha: ningún
+   botón sale de la página por sí mismo.
 
 ## Regla de auditoría
 

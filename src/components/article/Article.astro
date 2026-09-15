@@ -8,6 +8,7 @@
  */
 import type { ArticleContent } from '../../data/article/types';
 import { CONCEPTS } from '../../data/article/concepts';
+import { DECISIONS } from '../../data/article/decision-map';
 import { ORIGINAL_DOCS } from '../../data/article/original-docs';
 import BlockRenderer from './BlockRenderer.astro';
 
@@ -47,10 +48,12 @@ for (const h of htmlSources) {
 const modalConcepts = conceptEntries.filter(([id]) => usedConcepts.has(id));
 
 // Original-doc modals: only for docs actually referenced via data-doc in prose
+// or from the decision cards (their ADR chips open adr-XXX doc modals)
 const usedDocIds = new Set<string>();
 for (const h of htmlSources) {
   for (const m of h.matchAll(/data-doc="([^"]+)"/g)) usedDocIds.add(m[1]);
 }
+for (const d of DECISIONS) for (const ref of d.adrs) usedDocIds.add(`adr-${ref.id}`);
 const usedDocs = ORIGINAL_DOCS.filter((d) => usedDocIds.has(d.id));
 const uiDocKicker = isES ? 'Documento original · ArchColider' : 'Original document · ArchColider';
 const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Open the original file in the ArchColider repo';
@@ -847,18 +850,6 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   }
   :root:not(.dark) .concept-chip { color: rgb(4 120 87); background: rgb(16 185 129 / 0.12); }
   .concept-chip:hover, .concept-chip:focus-visible { background: rgb(16 185 129 / 0.2); outline: none; }
-  .adr-ref {
-    font: inherit;
-    font-weight: 600;
-    color: rgb(52 211 153);
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    border-bottom: 1px dotted rgb(16 185 129 / 0.6);
-  }
-  :root:not(.dark) .adr-ref { color: rgb(4 120 87); }
-  .adr-ref:hover { border-bottom-style: solid; }
 
   /* ── Decision card (inline, full) ──────────────────── */
   .decision-card {
@@ -1079,19 +1070,4 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     border-top: 1px solid rgb(51 65 85 / 0.6);
   }
   :root:not(.dark) .decision-adrs { border-top-color: rgb(226 232 240); }
-  .adr-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 1rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 600;
-    color: rgb(52 211 153);
-    border: 1px solid rgb(16 185 129 / 0.35);
-    border-radius: 0.5rem;
-    padding: 0.4rem 0.7rem;
-    text-decoration: none;
-  }
-  :root:not(.dark) .adr-link { color: rgb(4 120 87); }
-  .adr-link:hover { background: rgb(16 185 129 / 0.1); }
 </style>

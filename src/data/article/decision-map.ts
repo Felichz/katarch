@@ -22,36 +22,6 @@ export interface DecisionEntry {
   adrs: DecisionRef[];
 }
 
-const GH = 'https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/';
-
-/**
- * Single source of truth for ADR file names in the original repo. The double
- * space in 013 and the "Sytem" typo in 003 are the team's own.
- */
-export const ADR_FILES: Record<string, string> = {
-  '001': '001 We are using ADR (template).md',
-  '002': '002 System approach.md',
-  '003': '003 Tracing and Monitoring Sytem.md',
-  '004': '004 Health check endpoints.md',
-  '005': '005 Service readiness checks.md',
-  '006': '006 Zero trust architecture.md',
-  '007': '007 Event sourcing usage.md',
-  '008': '008 At least once delivery for ready to pay order.md',
-  '009': '009 Rely on payment service provider.md',
-  '010': '010 Feedback System separation.md',
-  '011': '011 Every meal delivery has pick up pin code.md',
-  '012': '012 Stale data from fridges.md',
-  '013': '013  Cache the meal catalogue.md',
-  '014': '014 Deployment Strategy.md',
-  '015': '015 Integration with Map Providers.md',
-  '016': '016 Use of Infrastructure as Code.md',
-};
-
-export function adrHref(id: string): string {
-  const file = ADR_FILES[id];
-  return file ? GH + encodeURIComponent(file) : GH;
-}
-
 export const PILLARS = {
   es: [
     {

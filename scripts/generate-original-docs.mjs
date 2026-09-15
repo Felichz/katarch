@@ -36,6 +36,23 @@ const DOCS = [
   ['Questions.md', 'questions', 'Preguntas al cliente', 'Questions to the client'],
   ['Glossary.md', 'glossary', 'Glosario', 'Glossary'],
   ['The Script.md', 'script', 'Guion de la presentación final', 'Final presentation script'],
+  // ADRs (note: the double space in 013 and the "Sytem" typo in 003 are the team's own)
+  ['4.ADRs/001 We are using ADR (template).md', 'adr-001', 'ADR 001 · Usamos ADR (plantilla)', 'ADR 001 · We are using ADR (template)'],
+  ['4.ADRs/002 System approach.md', 'adr-002', 'ADR 002 · Enfoque del sistema', 'ADR 002 · System approach'],
+  ['4.ADRs/003 Tracing and Monitoring Sytem.md', 'adr-003', 'ADR 003 · Sistema de trazado y monitoreo', 'ADR 003 · Tracing and Monitoring Sytem'],
+  ['4.ADRs/004 Health check endpoints.md', 'adr-004', 'ADR 004 · Endpoints de health-check por servicio', 'ADR 004 · Health check endpoints'],
+  ['4.ADRs/005 Service readiness checks.md', 'adr-005', 'ADR 005 · Chequeos de preparación de servicios', 'ADR 005 · Service readiness checks'],
+  ['4.ADRs/006 Zero trust architecture.md', 'adr-006', 'ADR 006 · Arquitectura zero trust', 'ADR 006 · Zero trust architecture'],
+  ['4.ADRs/007 Event sourcing usage.md', 'adr-007', 'ADR 007 · Uso de event sourcing', 'ADR 007 · Event sourcing usage'],
+  ['4.ADRs/008 At least once delivery for ready to pay order.md', 'adr-008', 'ADR 008 · Entrega al menos una vez para la orden lista a pagar', 'ADR 008 · At least once delivery for ready to pay order'],
+  ['4.ADRs/009 Rely on payment service provider.md', 'adr-009', 'ADR 009 · Delegar en un proveedor de pagos', 'ADR 009 · Rely on payment service provider'],
+  ['4.ADRs/010 Feedback System separation.md', 'adr-010', 'ADR 010 · Separación del sistema de feedback', 'ADR 010 · Feedback System separation'],
+  ['4.ADRs/011 Every meal delivery has pick up pin code.md', 'adr-011', 'ADR 011 · Cada entrega lleva un código PIN de retiro', 'ADR 011 · Every meal delivery has pick up pin code'],
+  ['4.ADRs/012 Stale data from fridges.md', 'adr-012', 'ADR 012 · Datos desactualizados de las heladeras', 'ADR 012 · Stale data from fridges'],
+  ['4.ADRs/013  Cache the meal catalogue.md', 'adr-013', 'ADR 013 · Cachear el catálogo de comidas', 'ADR 013 · Cache the meal catalogue'],
+  ['4.ADRs/014 Deployment Strategy.md', 'adr-014', 'ADR 014 · Estrategia de despliegue', 'ADR 014 · Deployment Strategy'],
+  ['4.ADRs/015 Integration with Map Providers.md', 'adr-015', 'ADR 015 · Integración con proveedores de mapas', 'ADR 015 · Integration with Map Providers'],
+  ['4.ADRs/016 Use of Infrastructure as Code.md', 'adr-016', 'ADR 016 · Uso de infraestructura como código', 'ADR 016 · Use of Infrastructure as Code'],
 ];
 
 function encodePath(p) {

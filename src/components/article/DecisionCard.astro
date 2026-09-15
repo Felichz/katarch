@@ -1,6 +1,5 @@
 ---
 import type { DecisionEntry } from '../../data/article/decision-map';
-import { adrHref } from '../../data/article/decision-map';
 
 interface Props {
   entry: DecisionEntry;
@@ -48,15 +47,10 @@ const decisionHtml = withLens(entry.decision[lang]);
     </dl>
     <div class="decision-adrs">
       {entry.adrs.map((ref) => (
-        <a
-          href={adrHref(ref.id)}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="adr-link"
-        >
+        <button class="doc-ref" data-doc={`adr-${ref.id}`} type="button">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
           {ref.label}
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
-        </a>
+        </button>
       ))}
     </div>
   </div>
