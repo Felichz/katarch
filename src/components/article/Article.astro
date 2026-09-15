@@ -168,14 +168,6 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
         <span data-doc-title-es hidden={!isES}>{d.titleEs}</span>
         <span data-doc-title-en hidden={isES}>{d.titleEn}</span>
       </h3>
-      {d.htmlEs ? (
-        <>
-          <div class="doc-prose" data-doc-content-es hidden={!isES} set:html={d.htmlEs} />
-          <div class="doc-prose" data-doc-content-en hidden={isES} set:html={d.html} />
-        </>
-      ) : (
-        <div class="doc-prose" set:html={d.html} />
-      )}
       <div class="doc-footer">
         {d.htmlEs && (
           <span class="doc-lang-note" data-doc-note hidden={!isES}>
@@ -201,6 +193,14 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
           </a>
         </div>
       </div>
+      {d.htmlEs ? (
+        <>
+          <div class="doc-prose" data-doc-content-es hidden={!isES} set:html={d.htmlEs} />
+          <div class="doc-prose" data-doc-content-en hidden={isES} set:html={d.html} />
+        </>
+      ) : (
+        <div class="doc-prose" set:html={d.html} />
+      )}
     </div>
   </dialog>
 ))}
@@ -866,9 +866,9 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     align-items: center;
     flex-wrap: wrap;
     gap: 0.6rem 1rem;
-    margin-top: 1.4rem;
-    padding-top: 1.1rem;
-    border-top: 1px solid rgb(51 65 85 / 0.6);
+    margin: 0.2rem 0 1.2rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid rgb(51 65 85 / 0.6);
   }
   :root:not(.dark) .doc-footer { border-top-color: rgb(226 232 240); }
   .doc-lang-note {
@@ -908,7 +908,7 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     text-decoration: none;
   }
   .doc-original-link:hover { text-decoration: underline; text-underline-offset: 3px; }
-  :root:not(.dark) .doc-original-link { border-top-color: rgb(226 232 240); color: rgb(4 120 87); }
+  :root:not(.dark) .doc-original-link { color: rgb(4 120 87); }
 
   /* ── Concept chips & ADR refs ──────────────────────── */
   .concept-chip {
