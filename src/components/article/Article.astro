@@ -93,9 +93,11 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
           </span>
         )}
         <div class="doc-footer-actions">
-          {d.htmlEs && (
+          {/* The toggle is a Spanish-reader affordance: the English edition
+              always shows the original document, with no switch. */}
+          {isES && d.htmlEs && (
             <button class="doc-lang-toggle" data-doc-lang-toggle type="button">
-              {isES ? 'Ver original en inglés' : 'Ver en español'}
+              Ver original en inglés
             </button>
           )}
           <a

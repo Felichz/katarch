@@ -19,9 +19,10 @@ let savedScrollY = 0;
 // same narrative point sits at a different absolute offset in each.
 let savedAnchor: { id: string; offset: number } | null = null;
 
-// ── Original-doc language state: one shared state for every doc modal ──
-// Persisted in a cookie (katarch-doc-lang=es|en, 1 year). Default follows the
-// page edition until the reader toggles.
+// ── Original-doc language state ──
+// The English edition always shows the original document: no cookie, no
+// toggle. The Spanish edition defaults to the translation and the reader's
+// choice (cookie katarch-doc-lang, 1 year) is shared across every doc modal.
 type DocLang = 'es' | 'en';
 const DOC_LANG_COOKIE = 'katarch-doc-lang';
 
@@ -39,9 +40,10 @@ function writeCookie(name: string, value: string) {
 }
 
 function getDocLang(): DocLang {
-  const c = readCookie(DOC_LANG_COOKIE);
-  if (c === 'es' || c === 'en') return c;
-  return document.documentElement.lang === 'es' ? 'es' : 'en';
+  // English article: modals are English, period. Spanish article: the
+  // reader's toggle choice (cookie) applies, defaulting to the translation.
+  if (document.documentElement.lang !== 'es') return 'en';
+  return readCookie(DOC_LANG_COOKIE) === 'en' ? 'en' : 'es';
 }
 
 function applyDocLang(lang: DocLang) {
