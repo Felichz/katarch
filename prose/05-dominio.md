@@ -14,13 +14,17 @@ la capa anticorrupción y el metamodelo — protegen ese corte en el tiempo.
   la Entity Trap. Vio el presupuesto de calidad por subsistema.
 - Pregunta: "¿qué pasa cuando dos personas pisan la misma vianda?" → S6.
 
-## 3. Postura del narrador
-- El narrador traduce DDD sin adoctrinar: no pide "aprendan DDD", muestra las dos
-  preguntas operativas que el equipo usó y deja que la tabla haga el resto.
-- Le tiene cariño al metamodelo (lo llama la joya menos obvia) pero lo justifica
+## 3. Postura del narrador (derivada de 00-background)
+
+- Traductor sin adoctrinamiento: tres renuncias estructuran la sección — alquilar
+  lo genérico, prohibir que formatos ajenos toquen el dominio (ACL), no mezclar
+  reglas con hechos (metamodelo). Los términos técnicos van con chips; la prosa no
+  re-teoriza.
+- Las inconsistencias del repo (OpenStreetMap dibujado vs Here Maps elegido) se
+  muestran sin cinismo: son parte de la honestidad del material y se presentan como
+  dato, no como chisme.
+- Le da espacio al metamodelo porque es la renuncia menos obvia, pero lo justifica
   con un caso de cambio (promociones) antes de dejar que el lector lo admire.
-- Señala las inconsistencias del repo (OpenStreetMap vs Here Maps) sin cynismo:
-  es evidencia de que los documentos reales se desincronizan; eso también se aprende.
 
 ## 4. Hechos duros
 - Clasificación estratégica (mapa SolutionOverview): Core = Meal Catalog, Ordering,

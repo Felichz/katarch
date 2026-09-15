@@ -13,15 +13,16 @@ método no es reconstrucción limpia posterior.
   para la extracción futura estuvo en la pizarra desde antes de cualquier diagrama.
 - Pregunta: "¿y cómo se parte internamente ese monolito?" → S5.
 
-## 3. Postura del narrador
-- El narrador asume que el lector viene de charlas de microservicios y desactiva
-  esa trampa con respeto (él mismo venía de ahí): no caricaturiza a quien amaría
-  partir todo.
-- Se permite una sola dosis de emoción genuina: el post-it de la pizarra. Ahí sí
-  dice "miren el post-it" porque es el hallazgo del repo que a él le cambió la
-  lectura del caso.
-- Las citas textuales de los descartes (monolito puro, microservicios día uno)
-  hacen el trabajo de opinión: el narrador no agrega la suya.
+## 3. Postura del narrador (derivada de 00-background)
+
+- Muestra la decisión madre como una doble renuncia con cuenta: no microservicios
+  ("el esfuerzo se pierde y el usuario no lo ve"), no monolito puro ("simplificación
+  de más"). Las citas del repo opinan; el narrador no agrega la suya.
+- Asume que el lector viene de charlas de microservicios y desactiva la Entity Trap
+  con respeto (es el error clásico del kata según los jueces, no una torpeza ajena).
+- Se permite subrayar el post-it del 29/10 porque es un hecho fechado (la renuncia
+  a las llamadas directas escrita antes de cualquier diagrama), no un sentimiento:
+  se muestra, no se declara.
 
 ## 4. Hechos duros
 - Entity Trap (slides oficiales Richards & Ford): anotar sustantivos y crear un

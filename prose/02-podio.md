@@ -13,13 +13,14 @@ fue la calidad del razonamiento, y esa calidad es auditable (rúbrica de los jue
   criterios con los que los jueces midieron.
 - Pregunta: "¿qué postura agarro yo?" → se responde en S4, no acá.
 
-## 3. Postura del narrador
-- Árbitro, no hincha: presenta las tres con su mejor versión y su costo real.
-  No da vuelta el carita del bronce.
-- La primera ley (Richards & Ford) la cita como herramienta de trabajo, no como
-  adorno: "todo es una compensación" es el lente de la sección entera.
-- No revela aún por qué ganó el monolito modular; esa pelea es S4. Acá solo se
-  abre el tablero.
+## 3. Postura del narrador (derivada de 00-background)
+
+- Árbitro de compensaciones: las tres posturas finalistas son tres renuncias
+  distintas sobre qué no pagar hoy, y las tres pagaron un precio real. El narrador
+  no elige ganador (eso ocurre en S4 con números) y no da vuelta el carita del bronce.
+- La rúbrica se muestra como lo que es: la evidencia de que "calidad del razonamiento"
+  fue auditable, no impresión. Citar las dos leyes una vez cada una, como herramientas.
+- Tono neutral; el contraste entre tarjetas hace el trabajo argumental.
 
 ## 4. Hechos duros
 - 10 equipos; finalistas: ArchColider (monolito modular, AWS, barato hoy, partible

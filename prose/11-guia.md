@@ -11,13 +11,13 @@ material primario a mano (los repos). Es la despedida: debe durar dos minutos.
   el libro de referencia).
 - Estado final: "puedo intentar esto en mi próximo proyecto".
 
-## 3. Postura del narrador
-- El narrador se despide sin sentimentalismo: el mejor cierre es entregar el método
-  y las fuentes, no un epílogo emocional.
-- Los cuatro pasos son el espejo invertido del artículo (el orden de lectura ES el
-  método); se enuncian en imperativo breve, sin volver a argumentar (cada argumento
-  ya ocurrió en su sección).
-- La última nota es práctica: todo es público y comparable.
+## 3. Postura del narrador (derivada de 00-background)
+
+- Despedida funcional, sin sentimentalismo: el método se entrega en 4 pasos que son
+  el espejo del recorrido, en imperativo breve, sin re-argumentar (cada argumento ya
+  ocurrió en su sección).
+- La renuncia final del artículo es la propia despedida: entregar las fuentes y
+  cortar. Sin recapitulación, sin quinto paso "porque quedó lindo".
 
 ## 4. Hechos duros
 - Método en 4 pasos (orden = parte del método):

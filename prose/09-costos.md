@@ -14,13 +14,15 @@ horas de mantenimiento.
   ganaron a lo "gratis", y aprendió a leer los supuestos de una planilla.
 - Pregunta: "¿qué decisiones sostienen todo esto?" → S10 (mapa).
 
-## 3. Postura del narrador
-- El narrador trata la planilla como documento primario: cita supuestos crudos
-  (tráfico uniforme, sin compresión, 1 TB fijos) como fortaleza, no como defecto.
-- El dato del review de 4 MB lo usa como giro narrativo UNA vez (el mayor consumidor
-  de tráfico es un usuario quejándose); no lo repite en cada figura.
-- No defiende a DataDog/Tableau por marca: el argumento es horas de desarrollador
-  vs suscripción.
+## 3. Postura del narrador (derivada de 00-background)
+
+- Trata la planilla como documento primario: los supuestos crudos (tráfico uniforme,
+  sin compresión, 1 TB fijos) se muestran como fortaleza auditable, no como defecto
+  a disimular.
+- La renuncia económica central se enuncia seca: no montar herramientas propias,
+  porque horas de desarrollador > suscripción. El giro del review de 4 MB se cuenta
+  UNA vez, sin anuncio previo ("ojo, esto sorprende" prohibido).
+- Sin clase de finanzas: el TCO va con chip; la prosa usa el concepto y sigue.
 
 ## 4. Hechos duros
 - Volumetría: mensajes con peso y frecuencia (confirmar orden 0,2 kb 1–3/día;

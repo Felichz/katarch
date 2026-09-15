@@ -5,16 +5,26 @@ artículo: qué trabaja la sección, desde qué postura habla el narrador, qué 
 duros tiene a mano, qué decisiones de enseñanza toma, qué hilos planta y qué
 metáforas tiene permitidas.
 
+**El background:** [00-background.md](./00-background.md) es la tesis holística de
+la que deriva todo — "el caso es una cadena de renuncias justificadas". El campo 3
+(postura) de cada artifact se deduce de esa tesis aplicada a la sección; no hay
+voces individuales por sección. Si una postura no se puede deducir de la tesis,
+es una voz prestada y se corrige acá, no en la prosa.
+
 **El contrato:** los párrafos de `src/data/article/es.ts` no se escriben directo.
 Se derivan de acá. Si un párrafo no se puede rastrear hasta un campo del artifact,
-o el párrafo sobra, o al artifact le falta un campo. Si la prosa "suena rara" o
-"artificial", el bug casi siempre está en el artifact (postura difusa, propósito
-doble, metáfora no elegida), no en la redacción.
+o el párrafo sobra, o al artifact le falta un campo. Y todo pasa por la tesis:
+un párrafo o narra una renuncia con su justificación, o prepara la siguiente
+(auditación en 00-background). Si la prosa "suena rara" o "artificial", el bug
+casi siempre está en el artifact (postura difusa, propósito doble, metáfora no
+elegida), no en la redacción.
 
 **Por qué existe:** la primera versión del artículo produjo una prosa que *simulaba*
 tener perspectiva (gesticulación: apelaciones al lector, metáforas apiladas, suspenso)
-sin un proceso mental previo del que emergiera. Estos artifacts son ese proceso,
-escrito. Hacen el background explícito y auditable.
+sin un proceso mental previo del que emergiera. La resolución no fue inyectar
+biografía: fue encontrar el patrón holístico del material (la cadena de renuncias,
+ver 00-background) y hacerlo la única fuente de postura. Estos artifacts son ese
+proceso, escrito. Hacen el background explícito y auditable.
 
 ## Esquema (los 9 campos)
 
@@ -22,7 +32,7 @@ escrito. Hacen el background explícito y auditable.
 |---|---|
 | **1. Trabajo de la sección** | ¿Qué ÚNICA cosa cambia en el lector? (si son dos, son dos secciones) |
 | **2. Estado mental** | Qué sabe/crece el lector antes → después. Qué pregunta se lleva. |
-| **3. Postura del narrador** | Desde dónde habla: qué piensa, qué siente, qué NO hace acá. |
+| **3. Postura del narrador** | La tesis de [00-background.md](./00-background.md) aplicada a esta sección. Funcional, verificable, sin biografía. |
 | **4. Hechos duros** | El inventario verificable (con fuente en el repo). Nada de prosa sin esto. |
 | **5. Decisiones de enseñanza** | Orden, formato, qué se omite y por qué. |
 | **6. Conexiones** | Hilos que planta o cobra (hacia qué sección/ADR va cada uno). |

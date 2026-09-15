@@ -13,14 +13,17 @@ se repite: diseñar para el mundo como es.
   también se diseñan. Vio el vocabulario de comandos y eventos con colores.
 - Pregunta: "¿y el suscriptor, que pedía para toda la semana?" → S7.
 
-## 3. Postura del narrador
-- El narrador plantea cada problema ANTES de la solución y, en uno (heladera sin
-  señal), frena de verdad: le cede la pregunta al lector con un callout antes de
-  revelar. Es el único freno interactivo del artículo y va acá porque acá la
-  respuesta es contra-intuitiva.
-- Habla de dinero con seriedad (es la sección del dinero) pero sin dramatizar:
-  la seriedad está en los hechos (doble cobro, reclamos, reembolsos), no en adjetivos.
-- Al final nombra el patrón que se repitió UNA vez, en callout, y se va.
+## 3. Postura del narrador (derivada de 00-background)
+
+- Plantea cada problema completo antes de su solución, y la solución se narra como
+  renuncia visible: no locks (se elimina la contención), no invocar al pago dentro
+  de la ventana, no depender de la nube para validar el PIN, no consenso distribuido
+  para promociones.
+- El único freno interactivo del artículo (heladera sin señal) va acá porque la
+  respuesta es una renuncia contra-intuitiva: se le cede la pregunta al lector.
+- Seriedad con el dinero sin dramatizar: los hechos (doble cobro, reclamos,
+  reembolsos) cargan el peso; los adjetivos no. La lección agregada se dice UNA vez,
+  en callout, y el cuerpo no repite el eslogan.
 
 ## 4. Hechos duros
 - Problema 1 (dos compran la última vianda): actor por heladera; stock en memoria;

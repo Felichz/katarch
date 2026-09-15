@@ -11,12 +11,13 @@ al ADR original. Es el "volver a consultar" del artículo, no una sección de le
   ADR original. Sabe que hubo 16 ADRs y que la curaduría filtró a 10.
 - Pregunta: "¿cómo llevo esto a mi proyecto?" → S11.
 
-## 3. Postura del narrador
-- El narrador se posiciona como curador y dice el criterio: no todos los ADRs pesan
-  lo mismo (estructural / higiene operativa / trámite documental). Es una postura
-  editorial asumida, no una verdad del repo.
-- Cero prosa nueva sobre las decisiones: cada ficha ya existió en su sección; el
-  mapa no vuelve a argumentar.
+## 3. Postura del narrador (derivada de 00-background)
+
+- Curador explícito y funcional: 16 ADRs → 10 decisiones es en sí una sustracción
+  declarada, y el criterio (estructural / higiene / trámite) se enuncia como postura
+  editorial asumida, no como verdad del repo.
+- Sin prosa nueva sobre las decisiones: cada ficha ya argumentó en su sección. El
+  mapa entrega acceso y calla. Cero apelaciones al lector.
 
 ## 4. Hechos duros
 - 16 ADRs entregados; curaduría a 10 decisiones en 3 pilares:

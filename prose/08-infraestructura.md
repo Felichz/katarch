@@ -15,14 +15,16 @@ Incluye la lista de riesgos con mitigación: el día nublado operacional.
   y termina con una lista de riesgos reales con mitigación.
 - Pregunta: "¿y esto cuánto plata es?" → S9.
 
-## 3. Postura del narrador
-- Es la sección más técnica y el narrador lo asume sin pedir permiso, pero traduce
-  cada concepto de red a su función (el gateway es "la única salida a internet",
-  no una lección de networking).
-- El Kleppmann y el anti-patrón espagueti se citan una vez y se usan: no hay
-  digresión de teoría de sistemas distribuidos.
-- La lista de riesgos se presenta con respeto por la honestidad del equipo
-  (incluye los "decisión pendiente del negocio" sin disimularlos).
+## 3. Postura del narrador (derivada de 00-background)
+
+- La sección más técnica, asumida sin pedir permiso: cada término de red se traduce
+  a su función (el gateway es la única salida a internet; no hay clase de networking).
+- Tres renuncias operativas ordenan la voz: no telaraña de llamadas (log stream),
+  no clickear a mano (IaC), no escalar horizontal antes de tiempo (con su peligro
+  inverso anotado).
+- La lista de riesgos se muestra completa, incluidos los "decisión pendiente del
+  negocio": la honestidad del repo es contenido, no tono. Kleppmann y el anti-patrón
+  se citan una vez y se usan; cero digresión de teoría distribuida.
 
 ## 4. Hechos duros
 - AWS por restricción del pliego + región us-east (más cercana a Detroit).

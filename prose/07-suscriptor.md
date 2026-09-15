@@ -13,13 +13,15 @@ reembolso si hace falta) con el mismo alfabeto de comandos y eventos de S6.
   y que se resuelve con las mismas piezas simples.
 - Pregunta: "¿todo esto dónde corre y cuánto cuesta?" → S8/S9.
 
-## 3. Postura del narrador
-- El narrador abre con la génesis (el garabato "IDEA!!!") porque le gusta mostrar
-  que hasta el cliente ideal nació en pizarra; lo hace corto y sin mística.
-- No repite el alfabeto: asume lo aprendido en S6 y lo usa (señal de respeto por
-  el progreso del lector).
-- La letra chica de negocio (cancelación rige desde el día siguiente) se da sin
-  rodeo legal: es un hecho del dominio que el diseño respeta.
+## 3. Postura del narrador (derivada de 00-background)
+
+- Sección corta por diseño: el alfabeto comando/evento ya se aprendió en S6 y el
+  narrador no lo re-explica (respeto por el progreso del lector, regla 3 del background).
+- La renuncia acá es temporal: no materializar todas las órdenes futuras (se generan
+  día a día desde el menú) y no cancelar lo ya cocinado (regla de negocio, con su
+  letra chica mostrada sin rodeo legal).
+- La génesis en pizarra ("IDEA!!!") se muestra corta y sin mística: un hecho de
+  proceso, no un mito de origen.
 
 ## 4. Hechos duros
 - Génesis: whiteboard "IDEA!!!" (cuenta +1 punto, heladera, casilleros 1d/2d/3d,

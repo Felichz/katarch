@@ -13,13 +13,17 @@ después se decide con ese número.
 - Pregunta que se lleva: "¿qué tiene que ver este número con elegir arquitectura?"
   (la respuesta no es acá; es S2/S4).
 
-## 3. Postura del narrador
-- Habla como quien ya recorrió el caso entero y sabe que el número es la clave,
-  pero lo contiene: acá solo describe el mundo, no saca conclusiones de estilo.
-- No menciona ninguna solución, ninguna comparación, ningún "equipo ganador hizo X".
-- Confía en que los hechos interesan solos; no los adorna con etiquetas de
-  curiosidad ("interesante", "lo delicioso" prohibidos acá).
-- Rioplatense, cercano, pero en modo descriptivo: este es un mapa, no un sermón.
+## 3. Postura del narrador (derivada de 00-background)
+
+- Abre la cadena de renuncias: el pliego mismo arranca delimitando lo que NO es
+  problema del arquitecto (camionetas, firmware, movimiento no-compra). Presentar
+  esa delimitación con la misma seriedad que los requerimientos es el trabajo de voz.
+- Modo inventario: mundo físico, actores, números. Sin conclusiones de estilo ni
+  emociones prestadas; la única evaluación permitida es la que hace el propio
+  material (los stakeholders extra que el equipo listó).
+- El número final se entrega en silencio (stat block + callout aritmético): es la
+  renuncia a pelear contra un volumen diminuto, y todavía no se explica. El narrador
+  no adelanta la explicación (regla 5 del background: no spoilers).
 
 ## 4. Hechos duros
 - Misión: comida saludable y accesible en Detroit; lema "que la comida sea tu

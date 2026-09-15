@@ -13,14 +13,17 @@ instalada la herramienta central del oficio: la trazabilidad negocio → requeri
   ADR y puede seguir una fila de la tabla de trazabilidad.
 - Pregunta: "¿cómo se ve esto aplicado a una decisión real?" → S4/S5.
 
-## 3. Postura del narrador
-- Docente de oficio, no de teoría: cada pieza metodológica se presenta por el
-  problema que resuelve, no por su definición de libro.
-- El narrador confiesa su propio sesgo de desarrollador: la tabla aburrida de
-  drivers es la más instructiva del repo; ese choque de expectativa le pasó a él
-  también. (Es el único lugar de la sección con confesión personal.)
-- No juzga a quien arranca por los diagramas: presenta el orden como observación
-  del repo, no como sermoncito.
+## 3. Postura del narrador (derivada de 00-background)
+
+- Docente de oficio, sin sermón ni confesiones personales: el orden de la sección
+  ES el argumento (leer el negocio → fijar criterios → recién diseñar). La sorpresa
+  ("¿una semana sin diagramas?") la provocan los hechos del repo, no adjetivos.
+- La renuncia central acá es metodológica: cuestionar el requerimiento #1, preguntar
+  en vez de inventar respuestas, ADRs con desventajas en vez de propaganda. Cada una
+  se muestra con material primario (citas textuales de Questions.md).
+- La tabla de trazabilidad se presenta como la renuncia más instructiva del repo
+  (una tabla aburrida que lo decide todo); el narrador la marca y pasa, sin
+  sentimentalismo.
 
 ## 4. Hechos duros
 - Primera semana del repo: solo docs de negocio (objetivos, restricciones,
