@@ -47,28 +47,20 @@ const decisionFor = (id: string) => DECISIONS.find((d) => d.id === id);
   </div>
 )}
 {block.type === 'figure' && (
-  <figure class:list={['block-figure', { 'block-figure--guided': !!block.guide }]}>
-    {block.guide ? (
-      <button
-        type="button"
-        class="figure-open"
-        data-figure-guide={block.src}
-        aria-haspopup="dialog"
-        aria-label={block.guide.title}
-      >
-        <img src={block.src} alt={block.alt} loading="lazy" />
-      </button>
-    ) : (
+  <figure class="block-figure">
+    <div class="figure-zoom" data-figure-zoom>
       <img src={block.src} alt={block.alt} loading="lazy" />
+      <div class="figure-lens" hidden></div>
+      <span class="figure-lens-hint" hidden>{lang === 'es' ? 'clic para ocultar/mostrar la lupa' : 'click to hide/show the lens'}</span>
+    </div>
+    <figcaption>{block.caption}</figcaption>
+    {block.guide && (
+      <aside class="figure-guide">
+        <p class="figure-guide-kicker">{lang === 'es' ? 'Guía de lectura' : 'Reading guide'}</p>
+        <h4 class="figure-guide-title">{block.guide.title}</h4>
+        <div class="set-prose" set:html={block.guide.html} />
+      </aside>
     )}
-    <figcaption>
-      {block.caption}
-      {block.guide && (
-        <span class="figure-hint">
-          {'. '}{lang === 'es' ? 'Hacé clic en el diagrama para abrir su guía de lectura' : 'Click the diagram to open its reading guide'}
-        </span>
-      )}
-    </figcaption>
   </figure>
 )}
 {block.type === 'table' && (

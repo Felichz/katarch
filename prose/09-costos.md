@@ -22,6 +22,10 @@ horas de mantenimiento.
 - La renuncia económica central se enuncia seca: no montar herramientas propias,
   porque horas de desarrollador > suscripción. El giro del review de 4 MB se cuenta
   UNA vez, sin anuncio previo ("ojo, esto sorprende" prohibido).
+- La sección cierra con el contrapunto buy-vs-build: monitoreo se alquila (ADR 003),
+  encuestas NO se delegan aunque existan listas (los perfiles de salud no salen de
+  la plataforma, ADR 010 enlazado al hilo). La vara es la misma; el resultado,
+  opuesto.
 - Sin clase de finanzas: el TCO va con chip; la prosa usa el concepto y sigue.
 
 ## 4. Hechos duros
@@ -45,9 +49,10 @@ horas de mantenimiento.
 
 ## 5. Decisiones de enseñanza
 - Orden: volumetría (método) → forecasts (resultados) → supuestos (honestidad) →
-  totales (stats) → el giro DataDog/Tableau → lección de presupuesto (callout).
-- Las dos figuras de forecast sin guía profunda (compactas): son gráficos simples;
-  la profundidad va en la tabla de volumetría.
+  totales (stats) → el giro DataDog/Tableau → contrapunto privacy → lección de
+  presupuesto (callout).
+- Las dos figuras de forecast llevan guía compacta: son gráficos simples; la
+  profundidad vive en la tabla de volumetría.
 - La tabla de volumetría ES el corazón: los forecasts son su consecuencia.
 
 ## 6. Conexiones

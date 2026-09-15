@@ -69,6 +69,14 @@ cómo se decide qué no construir, y cómo se documenta cada "no" para que algui
    equipo; ningún concepto se adelanta a su momento (no spoilers).
 6. **Una metáfora por sección, solo si comprime.** (TDAH: la metáfora es una
    herramienta de carga cognitiva, no decoración.)
+7. **El hilo principal es auto-suficiente.** El artículo se lee de arriba a abajo
+   sin abrir nada: el contexto de cada diagrama se introduce ANTES de mostrarlo y
+   la explicación detallada (guía de lectura) va DEBAJO, a la vista. Las
+   decisiones se cuentan enteras en el hilo (problema, decisión, compensación),
+   nunca resumidas a una línea con el resto escondido en un modal. Los botones
+   "doc original" son la capa de verificación, no lectura obligatoria: abren el
+   documento íntegro como fuente, y su contenido no esconde nada que el hilo
+   necesite. Cada mención de un ADR es enlace directo al archivo original.
 
 ## Regla de auditoría
 

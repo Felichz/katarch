@@ -20,10 +20,37 @@ export interface DecisionEntry {
   decision: { es: string; en: string };
   tradeoff: { es: string; en: string };
   adrs: DecisionRef[];
-  githubBase: string;
 }
 
 const GH = 'https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/';
+
+/**
+ * Single source of truth for ADR file names in the original repo. The double
+ * space in 013 and the "Sytem" typo in 003 are the team's own.
+ */
+export const ADR_FILES: Record<string, string> = {
+  '001': '001 We are using ADR (template).md',
+  '002': '002 System approach.md',
+  '003': '003 Tracing and Monitoring Sytem.md',
+  '004': '004 Health check endpoints.md',
+  '005': '005 Service readiness checks.md',
+  '006': '006 Zero trust architecture.md',
+  '007': '007 Event sourcing usage.md',
+  '008': '008 At least once delivery for ready to pay order.md',
+  '009': '009 Rely on payment service provider.md',
+  '010': '010 Feedback System separation.md',
+  '011': '011 Every meal delivery has pick up pin code.md',
+  '012': '012 Stale data from fridges.md',
+  '013': '013  Cache the meal catalogue.md',
+  '014': '014 Deployment Strategy.md',
+  '015': '015 Integration with Map Providers.md',
+  '016': '016 Use of Infrastructure as Code.md',
+};
+
+export function adrHref(id: string): string {
+  const file = ADR_FILES[id];
+  return file ? GH + encodeURIComponent(file) : GH;
+}
 
 export const PILLARS = {
   es: [
@@ -77,7 +104,6 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'The accepted risk is that modular discipline erodes and the code decays into a ball of mud. The counterweights: internal contracts, mandatory per-module telemetry and constant review.',
     },
     adrs: [{ id: '002', label: 'ADR 002 · System approach' }],
-    githubBase: GH + '002%20System%20approach.md',
   },
   {
     id: 'event-sourcing',
@@ -99,7 +125,6 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'It is more mental work than a traditional table: events must be projected into readable views. In exchange: full auditability, debugging by replay, and rebuildable data migrations.',
     },
     adrs: [{ id: '007', label: 'ADR 007 · Event sourcing usage' }],
-    githubBase: GH + '007%20Event%20sourcing%20usage.md',
   },
   {
     id: 'rabbitmq',
@@ -121,7 +146,6 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'The queue adds one more moving part to operate, and forces every consumer to tolerate duplicates. That is the standard price of losing or doubling no money.',
     },
     adrs: [{ id: '008', label: 'ADR 008 · At least once delivery' }],
-    githubBase: GH + '008%20At%20least%20once%20delivery%20for%20ready%20to%20pay%20order.md',
   },
   {
     id: 'pin-offline',
@@ -143,7 +167,6 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'Codes must be generated, delivered and expired securely; a small risk window exists if a PIN leaks. Far cheaper than demanding perfect connectivity at every point of sale.',
     },
     adrs: [{ id: '011', label: 'ADR 011 · Every meal delivery has pick up pin code' }],
-    githubBase: GH + '011%20Every%20meal%20delivery%20has%20pick%20up%20pin%20code.md',
   },
   {
     id: 'catalog-cache',
@@ -168,7 +191,6 @@ export const DECISIONS: DecisionEntry[] = [
       { id: '012', label: 'ADR 012 · Stale data from fridges' },
       { id: '013', label: 'ADR 013 · Cache the meal catalogue' },
     ],
-    githubBase: GH + '012%20Stale%20data%20from%20fridges.md',
   },
   {
     id: 'privacy',
@@ -190,7 +212,6 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'More in-house code to maintain, in exchange for eliminating a leak of personal health data to third-party servers, with the legal and reputational risk that implied.',
     },
     adrs: [{ id: '010', label: 'ADR 010 · Feedback System separation' }],
-    githubBase: GH + '010%20Feedback%20System%20separation.md',
   },
   {
     id: 'scale-up',
@@ -212,7 +233,6 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'One big machine is a single point of failure until duplicated. At this business\u2019s real traffic (under one request per second), that risk was infinitely cheaper than the permanent complexity of a cluster.',
     },
     adrs: [{ id: '014', label: 'ADR 014 · Deployment Strategy' }],
-    githubBase: GH + '014%20Deployment%20Strategy.md',
   },
   {
     id: 'datadog',
@@ -234,7 +254,6 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'It was the most expensive line of the yearly budget (more than all machines combined). The team defended it with simple math: running the home-grown stack cost half a developer salary per month.',
     },
     adrs: [{ id: '003', label: 'ADR 003 · Tracing and Monitoring System' }],
-    githubBase: GH + '003%20Tracing%20and%20Monitoring%20Sytem.md',
   },
   {
     id: 'edge-auth',
@@ -256,7 +275,6 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'Dependence on AWS managed services and an extra check between modules that might seem redundant in a small monolith. It guarantees that the day modules are split apart, security is already in place.',
     },
     adrs: [{ id: '006', label: 'ADR 006 · Zero trust architecture' }],
-    githubBase: GH + '006%20Zero%20trust%20architecture.md',
   },
   {
     id: 'payment',
@@ -278,6 +296,5 @@ export const DECISIONS: DecisionEntry[] = [
       en: 'You pay the provider\u2019s commission and accept the dependency in exchange for time-to-market. The escape route is not free: migrating toward the card networks will be in-house work, done little by little.',
     },
     adrs: [{ id: '009', label: 'ADR 009 · Rely on payment service provider' }],
-    githubBase: GH + '009%20Rely%20on%20payment%20service%20provider.md',
   },
 ];

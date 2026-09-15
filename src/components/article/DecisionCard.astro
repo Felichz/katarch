@@ -1,5 +1,6 @@
 ---
 import type { DecisionEntry } from '../../data/article/decision-map';
+import { adrHref } from '../../data/article/decision-map';
 
 interface Props {
   entry: DecisionEntry;
@@ -10,25 +11,58 @@ interface Props {
 const { entry, lang, variant = 'inline' } = Astro.props;
 const isES = lang === 'es';
 
-// The decision field may carry rich HTML (e.g. an embedded figure) for the
-// modal; the inline summary shows only the leading prose.
-const oneLine = entry.decision[lang].split('<figure')[0].replace(/<[^>]*>/g, '').trim();
-
 const labels = {
-  open: isES ? 'Leer la decisión completa' : 'Read the full decision',
+  problem: isES ? 'El problema' : 'The problem',
+  decision: isES ? 'La decisión' : 'The decision',
+  tradeoff: isES ? 'La compensación' : 'The trade-off',
+  lensHint: isES ? 'clic para ocultar/mostrar la lupa' : 'click to hide/show the lens',
 } as const;
+
+// Embedded figures inside the decision prose get the inline lens treatment:
+// the zoom wrapper is the figure itself, lens + hint injected after the img.
+const withLens = (html: string) =>
+  html.replace(
+    /(<figure class="modal-figure">.*?<img[^>]*>)/s,
+    `$1<div class="figure-lens" hidden></div><span class="figure-lens-hint" hidden>${labels.lensHint}</span>`,
+  ).replace('<figure class="modal-figure">', '<figure class="modal-figure" data-figure-zoom>');
+
+const decisionHtml = withLens(entry.decision[lang]);
 ---
+
 {variant === 'inline' ? (
-  <div class="decision-card decision-card--summary">
+  <div class="decision-card" id={`decision-${entry.id}`} data-decision-card={entry.id}>
     <h4>{entry.title[lang]}</h4>
-    <p class="decision-one-line">{oneLine}</p>
-    <button class="decision-open" type="button" data-decision={entry.id}>
-      {labels.open} →
-    </button>
+    <dl>
+      <div>
+        <dt>{labels.problem}</dt>
+        <dd set:html={entry.problem[lang]} />
+      </div>
+      <div>
+        <dt>{labels.decision}</dt>
+        <dd set:html={decisionHtml} />
+      </div>
+      <div>
+        <dt>{labels.tradeoff}</dt>
+        <dd set:html={entry.tradeoff[lang]} />
+      </div>
+    </dl>
+    <div class="decision-adrs">
+      {entry.adrs.map((ref) => (
+        <a
+          href={adrHref(ref.id)}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="adr-link"
+        >
+          {ref.label}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+        </a>
+      ))}
+    </div>
   </div>
 ) : (
-  <button class="map-entry" type="button" data-decision={entry.id}>
+  <a class="map-entry" href={`#decision-${entry.id}`}>
     <span class="entry-title">{entry.title[lang]}</span>
     <span class="entry-adrs">{entry.adrs.map((a) => a.label.split('·')[0].trim()).join(' · ')}</span>
-  </button>
+  </a>
 )}

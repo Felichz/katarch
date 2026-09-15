@@ -6,9 +6,8 @@
  * concepts and ADRs open contextual modals (never spoilers of later
  * sections), and every modal locks page scroll.
  */
-import type { ArticleContent, Block } from '../../data/article/types';
+import type { ArticleContent } from '../../data/article/types';
 import { CONCEPTS } from '../../data/article/concepts';
-import { DECISIONS } from '../../data/article/decision-map';
 import { ORIGINAL_DOCS } from '../../data/article/original-docs';
 import BlockRenderer from './BlockRenderer.astro';
 
@@ -22,9 +21,6 @@ const isES = lang === 'es';
 
 const ui = {
   close: isES ? 'Cerrar' : 'Close',
-  problem: isES ? 'El problema' : 'The problem',
-  decision: isES ? 'La decisión' : 'The decision',
-  tradeoff: isES ? 'La compensación' : 'The trade-off',
 } as const;
 
 const conceptEntries = Object.entries(CONCEPTS);
@@ -58,70 +54,7 @@ for (const h of htmlSources) {
 const usedDocs = ORIGINAL_DOCS.filter((d) => usedDocIds.has(d.id));
 const uiDocKicker = isES ? 'Documento original · ArchColider' : 'Original document · ArchColider';
 const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Open the original file in the ArchColider repo';
-const adrToDecision: Record<string, string> = {};
-for (const d of DECISIONS) for (const ref of d.adrs) adrToDecision[ref.id] = d.id;
-
-const guidedFigures: Extract<Block, { type: 'figure' } & { guide: NonNullable<unknown> }>[] = [];
-const seenGuideSrcs = new Set<string>();
-for (const section of content.sections) {
-  for (const block of section.blocks) {
-    if (block.type === 'figure' && block.guide && !seenGuideSrcs.has(block.src)) {
-      seenGuideSrcs.add(block.src);
-      guidedFigures.push(block as (typeof guidedFigures)[number]);
-    }
-  }
-}
-const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
 ---
-
-<!-- Decision/ADR modal shells -->
-{DECISIONS.map((d) => (
-  <dialog
-    id={`decision-${d.id}`}
-    class="modal-shell"
-    data-decision-modal={d.id}
-    aria-labelledby={`decision-${d.id}-title`}
-  >
-    <div class="modal-card">
-      <button
-        class="modal-close"
-        data-close-modal
-        type="button"
-        aria-label={ui.close}
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-      <h3 id={`decision-${d.id}-title`} class="modal-title">{d.title[lang]}</h3>
-      <div class="modal-sections">
-        <div>
-          <h4>{ui.problem}</h4>
-          <div class="set-prose" set:html={d.problem[lang]} />
-        </div>
-        <div>
-          <h4>{ui.decision}</h4>
-          <div class="set-prose" set:html={d.decision[lang]} />
-        </div>
-        <div>
-          <h4>{ui.tradeoff}</h4>
-          <div class="set-prose" set:html={d.tradeoff[lang]} />
-        </div>
-      </div>
-      <div class="modal-adrs">
-        {d.adrs.map((ref) => (
-          <a
-            href={d.githubBase}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="adr-link"
-          >
-            {ref.label}
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
-          </a>
-        ))}
-      </div>
-    </div>
-  </dialog>
-))}
 
 <!-- Concept modal shells (only those actually referenced in the article) -->
 {modalConcepts.map(([id, c]) => (
@@ -132,26 +65,6 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
       </button>
       <h3 id={`concept-${id}-title`} class="modal-title">{c.title[lang]}</h3>
       <div class="modal-body set-prose" set:html={c.body[lang]} />
-    </div>
-  </dialog>
-))}
-
-<!-- Figure reading-guide modal shells (one per unique guided figure) -->
-{guidedFigures.map((f) => (
-  <dialog class="modal-shell" data-figure-dialog={f.src} aria-labelledby={`figure-guide-title`}>
-    <div class="modal-card modal-card--figure">
-      <button class="modal-close" data-close-modal type="button" aria-label={ui.close}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-      </button>
-      <p class="figure-guide-kicker">{uiGuide}</p>
-      <h3 class="modal-title" id={`figure-guide-title`}>{f.guide!.title}</h3>
-      <div class="figure-guide-zoom" data-figure-zoom>
-        <img class="figure-guide-img" src={f.src} alt={f.alt} />
-        <div class="figure-lens" hidden></div>
-        <span class="figure-lens-hint" hidden>{lang === 'es' ? 'clic para ocultar/mostrar la lupa' : 'click to hide/show the lens'}</span>
-      </div>
-      <p class="figure-guide-caption">{f.caption}</p>
-      <div class="modal-body set-prose" set:html={f.guide!.html} />
     </div>
   </dialog>
 ))}
@@ -300,6 +213,9 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
 </script>
 
 <style is:global>
+  /* Anchor jumps (decision map -> inline cards) glide instead of teleporting */
+  html { scroll-behavior: smooth; }
+
   /* ── Shell: full viewport width, fixed paddings only ── */
   .article-shell {
     display: flex;
@@ -663,65 +579,35 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     line-height: 1.55;
     cursor: default;
   }
-  .block-figure--guided .figure-open {
-    display: block;
-    width: 100%;
-    padding: 0;
-    border: 0;
-    background: none;
-    cursor: zoom-in;
-    font: inherit;
+  /* Inline figure with lens magnifier: the diagram lives in the main thread */
+  .figure-zoom {
+    position: relative;
+    cursor: crosshair;
   }
-  .block-figure--guided .figure-open:focus-visible {
+  .figure-zoom:focus-visible {
     outline: 2px solid rgb(52 211 153);
     outline-offset: 4px;
     border-radius: 0.85rem;
   }
-  .figure-hint {
-    color: rgb(52 211 153);
-    font-weight: 600;
-  }
-  :root:not(.dark) .figure-hint {
-    color: rgb(4 120 87);
-  }
-  /* Figures embedded inside modal prose (decision/concept modals) */
-  .modal-card .modal-figure {
+  /* Figures embedded in prose (decision cards, guides) */
+  .modal-figure {
     margin: 0.9rem 0 0.25rem;
   }
-  .modal-card .modal-figure img {
+  .modal-figure img {
     width: 100%;
     border-radius: 0.7rem;
     border: 1px solid rgb(51 65 85 / 0.7);
     background: rgb(255 255 255);
     display: block;
   }
-  .modal-card .modal-figure figcaption {
+  .modal-figure figcaption {
     font-size: 1rem;
     color: rgb(148 163 184);
     margin-top: 0.5rem;
     line-height: 1.55;
   }
-  /* Figure reading-guide modals: wider shell + card so diagrams breathe */
-  dialog[data-figure-dialog],
   dialog[data-doc-dialog] {
     max-width: min(76rem, calc(100vw - 1.5rem));
-  }
-  .modal-card.modal-card--figure {
-    max-width: min(76rem, calc(100vw - 1.5rem));
-    padding: 1.25rem 1.35rem;
-  }
-  .figure-guide-zoom {
-    position: relative;
-    overflow: hidden;
-    border-radius: 0.7rem;
-  }
-  .figure-guide-zoom:hover { cursor: crosshair; }
-  .figure-guide-img {
-    width: 100%;
-    border-radius: 0.7rem;
-    border: 1px solid rgb(51 65 85 / 0.7);
-    background: rgb(255 255 255);
-    display: block;
   }
   .figure-lens {
     position: absolute;
@@ -758,12 +644,40 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
   :root:not(.dark) .figure-guide-kicker {
     color: rgb(4 120 87);
   }
-  .figure-guide-caption {
-    font-size: 1rem;
-    color: rgb(148 163 184);
-    margin: 0.6rem 0 0.9rem;
-    line-height: 1.55;
+  /* Reading guide rendered inline, right below the diagram it explains */
+  .figure-guide {
+    margin-top: 1rem;
+    padding: 1.1rem 1.3rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgb(51 65 85 / 0.6);
+    border-left: 3px solid rgb(16 185 129 / 0.6);
+    background: rgb(30 41 59 / 0.3);
   }
+  :root:not(.dark) .figure-guide {
+    border-color: rgb(226 232 240);
+    border-left-color: rgb(16 185 129 / 0.55);
+    background: rgb(248 250 252);
+  }
+  .figure-guide-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: rgb(241 245 249);
+    margin-bottom: 0.6rem;
+  }
+  :root:not(.dark) .figure-guide-title { color: rgb(15 23 42); }
+  .figure-guide .set-prose p {
+    font-size: 0.97rem;
+    line-height: 1.65;
+    color: rgb(203 213 225);
+  }
+  .figure-guide .set-prose li {
+    font-size: 0.97rem;
+    line-height: 1.65;
+    color: rgb(203 213 225);
+  }
+  :root:not(.dark) .figure-guide .set-prose p,
+  :root:not(.dark) .figure-guide .set-prose li { color: rgb(51 65 85); }
 
   /* ── Original-doc viewer ───────────────────────────── */
   .doc-ref {
@@ -937,18 +851,14 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
   :root:not(.dark) .adr-ref { color: rgb(4 120 87); }
   .adr-ref:hover { border-bottom-style: solid; }
 
-  /* ── Decision card (inline + map) ──────────────────── */
+  /* ── Decision card (inline, full) ──────────────────── */
   .decision-card {
     padding: 1.35rem 1.45rem;
     border-radius: 0.9rem;
     border: 1px solid rgb(16 185 129 / 0.3);
     background: linear-gradient(180deg, rgb(16 185 129 / 0.05), rgb(16 185 129 / 0.02));
     margin: 0.75rem 0;
-  }
-  .decision-card--summary { padding: 1.1rem 1.3rem; }
-  .decision-one-line {
-    font-size: 1rem;
-    line-height: 1.6;
+    scroll-margin-top: 2rem;
   }
   .decision-card h4 {
     font-size: 1.02rem;
@@ -969,19 +879,6 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
   }
   :root:not(.dark) .decision-card dt { color: rgb(4 120 87); }
   .decision-card dd { font-size: 1rem; line-height: 1.65; }
-  .decision-card .decision-open {
-    margin-top: 1rem;
-    font: inherit;
-    font-size: 1rem;
-    font-weight: 600;
-    color: rgb(52 211 129);
-    background: rgb(16 185 129 / 0.1);
-    border: 1px solid rgb(16 185 129 / 0.3);
-    border-radius: 0.55rem;
-    padding: 0.45rem 0.85rem;
-    cursor: pointer;
-  }
-  .decision-card .decision-open:hover { background: rgb(16 185 129 / 0.18); }
 
   /* ── Decision map (section 9) ──────────────────────── */
   .decision-map { display: flex; flex-direction: column; gap: 2.25rem; }
@@ -1010,6 +907,7 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     text-align: left;
     font: inherit;
     color: inherit;
+    text-decoration: none;
   }
   :root:not(.dark) .map-entry { background: rgb(255 255 255); border-color: rgb(226 232 240); }
   .map-entry:hover { border-color: rgb(16 185 129 / 0.5); }
@@ -1151,30 +1049,19 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     color: rgb(241 245 249);
   }
   :root:not(.dark) .modal-title { color: rgb(15 23 42); }
-  .modal-sections { display: flex; flex-direction: column; gap: 0.95rem; }
-  .modal-sections h4 {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: rgb(16 185 129);
-    margin-bottom: 0.25rem;
-  }
-  :root:not(.dark) .modal-sections h4 { color: rgb(4 120 87); }
-  .modal-sections p, .modal-body p,
-  .modal-sections li, .modal-body li {
+  .modal-body p,
+  .modal-body li {
     font-size: 1rem;
     line-height: 1.7;
     color: rgb(203 213 225);
   }
-  :root:not(.dark) .modal-sections p,
   :root:not(.dark) .modal-body p,
-  :root:not(.dark) .modal-sections li,
   :root:not(.dark) .modal-body li { color: rgb(51 65 85); }
   .modal-body p + p { margin-top: 0.8rem; }
   .modal-body ul { margin: 0.5rem 0; padding-left: 1.25rem; list-style: disc; }
   .modal-body li + li { margin-top: 0.45rem; }
-  .modal-adrs {
+  /* ADR reference links under each inline decision card */
+  .decision-adrs {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
@@ -1182,6 +1069,7 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
     padding-top: 1.1rem;
     border-top: 1px solid rgb(51 65 85 / 0.6);
   }
+  :root:not(.dark) .decision-adrs { border-top-color: rgb(226 232 240); }
   .adr-link {
     display: inline-flex;
     align-items: center;

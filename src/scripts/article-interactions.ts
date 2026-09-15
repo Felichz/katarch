@@ -1,22 +1,14 @@
 /**
  * Shared article interactions — used identically by the ES and EN editions.
  *
- * - Concept chips, inline decision cards, map entries and ADR references
- *   open native <dialog> modals (ESC + backdrop close for free).
+ * - Concept chips and original-doc references open native <dialog> modals
+ *   (ESC + backdrop close for free). Figures and decisions are inline: the
+ *   lens magnifier attaches to every [data-figure-zoom] container, and the
+ *   decision map links scroll to the inline decision cards.
  * - Every open modal locks page scroll (the bug the author reported).
  * - Focus is trapped inside the dialog by the browser, restored on close.
  * - TOC highlights the section currently in view.
  */
-
-const ADR_TO_DECISION: Record<string, string> = {};
-// Build adr -> decision id map from the modal shells themselves
-for (const dlg of document.querySelectorAll<HTMLElement>('[data-decision-modal]')) {
-  const id = dlg.dataset.decisionModal!;
-  for (const link of dlg.querySelectorAll<HTMLAnchorElement>('.adr-link')) {
-    const m = link.textContent?.match(/ADR\s*(\d+)/i);
-    if (m) ADR_TO_DECISION[m[1].padStart(3, '0')] = id;
-  }
-}
 
 let openTrigger: HTMLElement | null = null;
 
@@ -127,35 +119,9 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // Figure reading guides (keyed by image src)
-  const fig = target.closest<HTMLElement>('[data-figure-guide]');
-  if (fig?.dataset.figureGuide) {
-    const dlg = document.querySelector(
-      `dialog[data-figure-dialog="${fig.dataset.figureGuide}"]`,
-    ) as HTMLDialogElement | null;
-    if (dlg) {
-      openTrigger = fig;
-      lockScroll();
-      dlg.showModal();
-    }
-    return;
-  }
-
-  // ADR references -> mapped decision modal
-  const adr = target.closest<HTMLElement>('.adr-ref');
-  if (adr?.dataset.adr) {
-    const decisionId = ADR_TO_DECISION[adr.dataset.adr];
-    if (decisionId) {
-      openDialog(`decision-${decisionId}`, adr);
-    } else {
-      window.open(
-        `https://github.com/TheKataLog/ArchColider/blob/master/4.ADRs/${adr.dataset.adr}%20`,
-        '_blank',
-        'noopener',
-      );
-    }
-    return;
-  }
+  // Figure reading guides and ADR references are plain links/inline content
+  // now (guides render under each figure; ADR mentions link to GitHub), so
+  // no interception is needed for them.
 
   // Original-doc references -> doc viewer modal
   const docRef = target.closest<HTMLElement>('.doc-ref');
@@ -177,13 +143,6 @@ document.addEventListener('click', (e) => {
     const next: DocLang = getDocLang() === 'es' ? 'en' : 'es';
     writeCookie(DOC_LANG_COOKIE, next);
     applyDocLang(next);
-    return;
-  }
-
-  // Decision openers (inline cards + map entries)
-  const opener = target.closest<HTMLElement>('[data-decision]');
-  if (opener?.dataset.decision) {
-    openDialog(`decision-${opener.dataset.decision}`, opener);
     return;
   }
 });
