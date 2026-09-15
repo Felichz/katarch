@@ -1,11 +1,13 @@
 // Build-time generator: renders the original ArchColider markdown docs to HTML
-// and writes src/data/article/original-docs.ts
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative, dirname, posix } from 'node:path';
+// and writes src/data/article/original-docs.ts. Spanish translations live in
+// prose/docs-es/<id>.md and are compiled to htmlEs when present.
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { join, posix } from 'node:path';
 import { micromark } from 'micromark';
 import { gfm, gfmHtml } from 'micromark-extension-gfm';
 
 const ROOT = 'fall-2020-farmacy-food/ArchColider';
+const ES_DIR = 'prose/docs-es';
 const GH_BLOB = 'https://github.com/TheKataLog/ArchColider/blob/master/';
 const GH_RAW = 'https://raw.githubusercontent.com/TheKataLog/ArchColider/master/';
 
@@ -76,13 +78,25 @@ const entries = DOCS.map(([file, id, titleEs, titleEn]) => {
   html = rewriteLinks(html, docDir);
   // Strip the leading H1 (the modal shows its own title) to avoid duplication
   html = html.replace(/^\s*<h1[^>]*>[\s\S]*?<\/h1>/, '');
-  return { id, file, titleEs, titleEn, html };
+  let htmlEs = null;
+  const esPath = join(ES_DIR, `${id}.md`);
+  if (existsSync(esPath)) {
+    const mdEs = readFileSync(esPath, 'utf8');
+    let es = micromark(mdEs, { extensions: [gfm()], htmlExtensions: [gfmHtml()] });
+    es = rewriteLinks(es, docDir);
+    es = es.replace(/^\s*<h1[^>]*>[\s\S]*?<\/h1>/, '');
+    htmlEs = es;
+  } else {
+    console.warn(`  ! no Spanish translation for ${id} (${esPath})`);
+  }
+  return { id, file, titleEs, titleEn, html, htmlEs };
 });
 
 const ts = `/**
  * Original ArchColider docs, rendered to HTML at build time from
  * fall-2020-farmacy-food/ArchColider via scripts/generate-original-docs.mjs (micromark + GFM).
  * Relative images/links are rewritten to the TheKataLog GitHub repo.
+ * htmlEs is our (unofficial) Spanish translation, from prose/docs-es/<id>.md.
  *
  * GENERATED FILE — regenerate with: node scripts/generate-original-docs.mjs
  */
@@ -93,6 +107,7 @@ export interface OriginalDoc {
   titleEs: string;
   titleEn: string;
   html: string;
+  htmlEs: string | null;
 }
 
 export const GH_BLOB_BASE = '${GH_BLOB}';
@@ -102,5 +117,5 @@ export const ORIGINAL_DOCS: OriginalDoc[] = ${JSON.stringify(entries, null, 2)};
 writeFileSync('src/data/article/original-docs.ts', ts);
 console.log(`Wrote ${entries.length} docs`);
 for (const e of entries) {
-  console.log(`  ${e.id}: ${e.html.length} chars`);
+  console.log(`  ${e.id}: ${e.html.length} chars${e.htmlEs ? ` (es: ${e.htmlEs.length})` : ' (NO ES)'}`);
 }

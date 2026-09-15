@@ -164,17 +164,43 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
       <p class="figure-guide-kicker">{uiDocKicker}</p>
-      <h3 class="modal-title" id={`doc-${d.id}-title`}>{isES ? d.titleEs : d.titleEn}</h3>
-      <div class="doc-prose" set:html={d.html} />
-      <a
-        class="doc-original-link"
-        href={`https://github.com/TheKataLog/ArchColider/blob/master/${encodeURI(d.file)}`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {uiDocOpen}
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
-      </a>
+      <h3 class="modal-title" id={`doc-${d.id}-title`}>
+        <span data-doc-title-es hidden={!isES}>{d.titleEs}</span>
+        <span data-doc-title-en hidden={isES}>{d.titleEn}</span>
+      </h3>
+      {d.htmlEs ? (
+        <>
+          <div class="doc-prose" data-doc-content-es hidden={!isES} set:html={d.htmlEs} />
+          <div class="doc-prose" data-doc-content-en hidden={isES} set:html={d.html} />
+        </>
+      ) : (
+        <div class="doc-prose" set:html={d.html} />
+      )}
+      <div class="doc-footer">
+        {d.htmlEs && (
+          <span class="doc-lang-note" data-doc-note hidden={!isES}>
+            {isES
+              ? 'Traducción del artículo; el original en inglés es el documento de referencia.'
+              : 'Translation by this project; the English original is the reference document.'}
+          </span>
+        )}
+        <div class="doc-footer-actions">
+          {d.htmlEs && (
+            <button class="doc-lang-toggle" data-doc-lang-toggle type="button">
+              {isES ? 'Ver original en inglés' : 'Ver en español'}
+            </button>
+          )}
+          <a
+            class="doc-original-link"
+            href={`https://github.com/TheKataLog/ArchColider/blob/master/${encodeURI(d.file)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {uiDocOpen}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
+        </div>
+      </div>
     </div>
   </dialog>
 ))}
@@ -834,13 +860,48 @@ const uiGuide = isES ? 'Guía de lectura' : 'Reading guide';
   }
   .doc-prose hr { border: none; border-top: 1px solid rgb(51 65 85 / 0.6); margin: 1.4rem 0; }
   :root:not(.dark) .doc-prose hr { border-top-color: rgb(226 232 240); }
+  .doc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    margin-top: 1.4rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid rgb(51 65 85 / 0.6);
+  }
+  :root:not(.dark) .doc-footer { border-top-color: rgb(226 232 240); }
+  .doc-lang-note {
+    font-size: 0.82rem;
+    color: rgb(148 163 184);
+    line-height: 1.5;
+  }
+  :root:not(.dark) .doc-lang-note { color: rgb(100 116 139); }
+  .doc-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-left: auto;
+  }
+  .doc-lang-toggle {
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: rgb(52 211 153);
+    background: rgb(16 185 129 / 0.1);
+    border: 1px solid rgb(16 185 129 / 0.4);
+    border-radius: 9999px;
+    padding: 0.35rem 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .doc-lang-toggle:hover, .doc-lang-toggle:focus-visible { background: rgb(16 185 129 / 0.2); outline: none; }
+  :root:not(.dark) .doc-lang-toggle { color: rgb(4 120 87); background: rgb(16 185 129 / 0.12); }
   .doc-original-link {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    margin-top: 1.4rem;
-    padding-top: 1.1rem;
-    border-top: 1px solid rgb(51 65 85 / 0.6);
     font-size: 0.92rem;
     font-weight: 600;
     color: rgb(52 211 153);

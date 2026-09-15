@@ -20,6 +20,54 @@ for (const dlg of document.querySelectorAll<HTMLElement>('[data-decision-modal]'
 
 let openTrigger: HTMLElement | null = null;
 
+// ── Original-doc language state: one shared state for every doc modal ──
+// Persisted in a cookie (katarch-doc-lang=es|en, 1 year). Default follows the
+// page edition until the reader toggles.
+type DocLang = 'es' | 'en';
+const DOC_LANG_COOKIE = 'katarch-doc-lang';
+
+function readCookie(name: string): string | null {
+  const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function writeCookie(name: string, value: string) {
+  try {
+    document.cookie = `${name}=${value}; path=/; max-age=31536000; SameSite=Lax`;
+  } catch {
+    /* cookies unavailable: state stays per-page */
+  }
+}
+
+function getDocLang(): DocLang {
+  const c = readCookie(DOC_LANG_COOKIE);
+  if (c === 'es' || c === 'en') return c;
+  return document.documentElement.lang === 'es' ? 'es' : 'en';
+}
+
+function applyDocLang(lang: DocLang) {
+  document.querySelectorAll<HTMLDivElement>('[data-doc-content-es]').forEach((el) => {
+    el.hidden = lang !== 'es';
+  });
+  document.querySelectorAll<HTMLDivElement>('[data-doc-content-en]').forEach((el) => {
+    el.hidden = lang !== 'en';
+  });
+  document.querySelectorAll<HTMLElement>('[data-doc-title-es]').forEach((el) => {
+    el.hidden = lang !== 'es';
+  });
+  document.querySelectorAll<HTMLElement>('[data-doc-title-en]').forEach((el) => {
+    el.hidden = lang !== 'en';
+  });
+  document.querySelectorAll<HTMLElement>('[data-doc-note]').forEach((el) => {
+    el.hidden = lang !== 'es';
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-doc-lang-toggle]').forEach((b) => {
+    b.textContent = lang === 'es' ? 'Ver original en inglés' : 'Ver en español';
+  });
+}
+
+applyDocLang(getDocLang());
+
 function lockScroll() {
   const sb = document.body.style.getPropertyValue('scrollbar-gutter');
   if (!sb) document.body.style.setProperty('scrollbar-gutter', 'stable');
@@ -120,6 +168,15 @@ document.addEventListener('click', (e) => {
       lockScroll();
       dlg.showModal();
     }
+    return;
+  }
+
+  // Doc language toggle: shared state across ALL doc modals, persisted in a cookie
+  const langToggle = target.closest<HTMLElement>('[data-doc-lang-toggle]');
+  if (langToggle) {
+    const next: DocLang = getDocLang() === 'es' ? 'en' : 'es';
+    writeCookie(DOC_LANG_COOKIE, next);
+    applyDocLang(next);
     return;
   }
 
