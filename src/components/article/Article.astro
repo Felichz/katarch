@@ -647,7 +647,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   /* Reading guide rendered inline, right below the diagram it explains */
   .figure-guide {
     margin-top: 1rem;
-    padding: 1.1rem 1.3rem;
+    padding: 1.3rem 1.5rem;
     border-radius: 0.9rem;
     border: 1px solid rgb(51 65 85 / 0.6);
     border-left: 3px solid rgb(16 185 129 / 0.6);
@@ -667,17 +667,26 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   }
   :root:not(.dark) .figure-guide-title { color: rgb(15 23 42); }
   .figure-guide .set-prose p {
-    font-size: 0.97rem;
-    line-height: 1.65;
+    font-size: 1rem;
+    line-height: 1.75;
     color: rgb(203 213 225);
   }
+  .figure-guide .set-prose p + p { margin-top: 0.7rem; }
   .figure-guide .set-prose li {
-    font-size: 0.97rem;
-    line-height: 1.65;
+    font-size: 1rem;
+    line-height: 1.75;
     color: rgb(203 213 225);
   }
+  .figure-guide .set-prose ul {
+    margin: 0.55rem 0;
+    padding-left: 1.3rem;
+    list-style: disc;
+  }
+  .figure-guide .set-prose li + li { margin-top: 0.45rem; }
+  .figure-guide .set-prose strong { color: rgb(241 245 249); }
   :root:not(.dark) .figure-guide .set-prose p,
   :root:not(.dark) .figure-guide .set-prose li { color: rgb(51 65 85); }
+  :root:not(.dark) .figure-guide .set-prose strong { color: rgb(15 23 42); }
 
   /* ── Original-doc viewer ───────────────────────────── */
   .doc-ref {
