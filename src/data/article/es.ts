@@ -18,8 +18,8 @@ export const ES: ArticleContent = {
       phase: 'El problema',
       title: 'El terreno de juego',
       blocks: [
-        { type: 'p', html: 'Farmacy Food nació con una misión directa: llevar alimentación saludable y personalizada a precios accesibles a comunidades urbanas de Detroit, donde conseguir comida fresca suele ser difícil. Su lema, tomado en serio, es "que la comida sea tu medicina": arman viandas alrededor de necesidades nutricionales concretas (diabetes, celiaquía, dietas médicas) y las venden a precio de comida rápida.' },
-        { type: 'p', html: 'Para hacerlo sin abrir restaurantes (lo más caro del rubro), la empresa monta un modelo de tres piezas que ya estaba operando cuando empezó el kata. El <a class="concept-chip" data-concept="rfp" role="button" tabindex="0">pliego del cliente</a> describía estas tres piezas del mundo físico:' },
+        { type: 'p', html: 'Farmacy Food vende comida saludable y personalizada a precio accesible en comunidades de Detroit, donde conseguir comida fresca es difícil. Su lema, tomado al pie de la letra, es "que la comida sea tu medicina": viandas armadas alrededor de necesidades médicas concretas (diabetes, celiaquía, dietas prescriptas) y vendidas a precio de comida rápida.' },
+        { type: 'p', html: 'Para no pagar el rubro más caro del negocio (los restaurantes), la empresa opera con tres piezas físicas que ya funcionaban cuando empezó el kata. El <a class="concept-chip" data-concept="rfp" role="button" tabindex="0">pliego del cliente</a> las describía así:' },
         {
           type: 'cards',
           cols: 3,
@@ -27,22 +27,22 @@ export const ES: ArticleContent = {
             {
               title: 'Las ghost kitchens',
               tag: 'Producción',
-              html: 'Cocinas comerciales que cocinan únicamente para despacho y retiro, sin salón ni comensales. Ya usaban un software especializado, <strong>ChefTec</strong>, para costear recetas y controlar insumos. No cocinan las 24 horas: producen por lotes, con uno o dos ciclos de cocina por día.',
+              html: 'Cocinas que cocinan únicamente para despacho y retiro, sin salón. Ya usaban un software especializado, <strong>ChefTec</strong>, para costear recetas y controlar insumos. No cocinan las 24 horas: producen por lotes, con uno o dos ciclos de cocina por día.',
             },
             {
               title: 'Las heladeras inteligentes',
               tag: 'Venta autónoma',
-              html: 'Heladeras de autoservicio provistas por <strong>Byte Technology</strong>: el cliente desliza su tarjeta en el frente, la puerta se destraba, retira los platos que quiere y, al cerrar la puerta, antenas internas leen etiquetas <strong>RFID</strong> (chips pegados a cada vianda que se leen por radio) para cobrar automáticamente lo consumido.',
+              html: 'Heladeras de autoservicio provistas por <strong>Byte Technology</strong>: el cliente desliza su tarjeta, la puerta se destraba, retira los platos y, al cerrarse la puerta, antenas internas leen las etiquetas <strong>RFID</strong> (chips pegados a cada vianda, leídos por radio) y el consumo se cobra automáticamente.',
             },
             {
               title: 'Los kioscos con cajero',
               tag: 'Venta asistida',
-              html: 'Heladeras comunes en espacios subalquilados (gimnasios, clínicas, cafeterías aliadas). A diferencia de las autónomas, aquí una persona atiende al público y cobra con terminales comerciales <strong>Toast POS</strong>, que ya tenían su propia API.',
+              html: 'Heladeras comunes en espacios subalquilados (gimnasios, clínicas, cafeterías aliadas). Acá hay una persona detrás del mostrador, cobrando con terminales comerciales <strong>Toast POS</strong>, que ya tenían API propia.',
             },
           ],
         },
         { type: 'h3', html: 'Quién compra: los tres tipos de usuario' },
-        { type: 'p', html: 'El pliego también definía con precisión quién entra al negocio. No es un detalle de marketing: como vas a ver, <strong>la forma de pagar de cada usuario genera problemas técnicos distintos</strong>.' },
+        { type: 'p', html: 'El pliego también define quién compra. No es un dato de marketing: <strong>la forma de pagar de cada usuario genera problemas técnicos distintos</strong>, y eso va a aparecer más de una vez.' },
         {
           type: 'cards',
           cols: 3,
@@ -50,23 +50,23 @@ export const ES: ArticleContent = {
             {
               title: 'Ocasional',
               tag: 'Efectivo, sin cuenta',
-              html: 'Entra sin registro, elige una vianda mirándola y paga en efectivo en la caja del kiosco. El negocio quiere convertirlo en conocido. <strong>Dato clave para después:</strong> su compra en efectivo no le dice nada al sistema central en tiempo real.',
+              html: 'Entra sin registro, elige mirando la vitrina y paga en efectivo en la caja del kiosco. El negocio quiere convertirlo en conocido. <strong>Dato clave para después:</strong> su compra en efectivo no le dice nada al sistema central en tiempo real.',
             },
             {
               title: 'Conocido',
               tag: 'Cuenta + tarjeta',
-              html: 'Tiene cuenta y tarjeta asociada, pero sin suscripción. Navega el catálogo, reserva y paga por la app. La heladera lo reconoce por su tarjeta.',
+              html: 'Tiene cuenta y tarjeta asociada, sin suscripción. Navega el catálogo, reserva y paga desde la app. La heladera lo reconoce por la tarjeta.',
             },
             {
               title: 'Suscriptor',
               tag: 'Menú semanal prepagado',
-              html: 'El cliente ideal: arma su menú de la semana por adelantado, lo prepagó, y retira cada día. Carga predecible para las cocinas; el reto es gestionar cancelaciones y reembolsos.',
+              html: 'El cliente ideal: arma su menú semanal por adelantado, lo prepaga y retira cada día. Carga predecible para las cocinas; a cambio, cancelaciones y reembolsos que gestionar.',
             },
           ],
         },
-        { type: 'p', html: 'Los une una cuarta figura que a menudo se olvida: el <strong>cajero del kiosco</strong>, que atiende a los ocasionales y registra sus ventas en el Toast POS. Y el análisis del equipo ganador iba más lejos aún: listó como stakeholders <button class="doc-ref" data-doc="stakeholders" type="button"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>doc original</button> a los <strong>nutricionistas</strong> (que necesitan buscar comidas por componente nutricional) y a los <strong>proveedores de ingredientes</strong> (que quieren prever cuánto comprar). Un arquitecto pregunta siempre: ¿a quién más le importa este sistema, además de a los usuarios?' },
+        { type: 'p', html: 'Hay una cuarta figura que se olvida con facilidad: el <strong>cajero del kiosco</strong>, que atiende a los ocasionales y registra sus ventas en el Toast POS. El análisis del equipo fue más lejos y sumó como stakeholders a los <strong>nutricionistas</strong> (buscan comidas por componente nutricional) y a los <strong>proveedores de ingredientes</strong> (quieren prever cuánto comprar) <button class="doc-ref" data-doc="stakeholders" type="button"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>doc original</button>. Es una pregunta clásica de arquitecto: ¿a quién más le importa este sistema, además de a los usuarios?' },
         { type: 'h3', html: 'Lo que ya existía y no se podía cambiar' },
-        { type: 'p', html: 'La tarea no era inventar un ecosistema desde cero, sino construir la <strong>Plataforma Central de Órdenes</strong>: el puente entre los usuarios (por web o móvil) y las herramientas que la empresa ya tenía contratadas. Un arquitecto no elige esas piezas: las recibe como restricciones.' },
+        { type: 'p', html: 'El trabajo era acotado: construir la <strong>Plataforma Central de Órdenes</strong>, el puente entre los usuarios (web y móvil) y las herramientas que la empresa ya tenía contratadas. El arquitecto no elige esas piezas: las recibe.' },
         {
           type: 'list',
           items: [
@@ -77,9 +77,9 @@ export const ES: ArticleContent = {
             '<strong>QuickBooks</strong>: la contabilidad oficial de la empresa.',
           ],
         },
-        { type: 'p', html: 'El pliego también era explícito sobre lo que <strong>no</strong> era problema del arquitecto: la logística de camionetas que reponen las heladeras, el firmware interno de las heladeras (propiedad de Byte) y cualquier movimiento de comida que no fuera una compra de cliente. Preguntarse "¿qué NO tengo que resolver?" es la primera herramienta de un arquitecto.' },
+        { type: 'p', html: 'El pliego también era explícito sobre lo que no era problema del arquitecto: la logística de camionetas que reponen las heladeras, el firmware interno de las heladeras (propiedad de Byte) y cualquier movimiento de comida que no sea una compra de cliente. Definir qué no hay que resolver es la primera decisión de un arquitecto.' },
         { type: 'h3', html: 'Los números reales: el dato que lo cambia todo' },
-        { type: 'p', html: 'Aquí está la información que separa una solución seria de una fantasiosa. El pliego declaraba el volumen actual y las metas del negocio:' },
+        { type: 'p', html: 'Lo que sigue separa una solución seria de una fantasiosa. El pliego declara el volumen actual y las metas del negocio:' },
         {
           type: 'stats',
           items: [
@@ -89,9 +89,9 @@ export const ES: ArticleContent = {
             { value: '~0', label: 'peticiones por segundo: menos de una por minuto en hora pico' },
           ],
         },
-        { type: 'callout', tone: 'amber', title: 'Hacé la cuenta antes de elegir herramientas', html: '42 comidas al día entre dos puntos de venta significa, en el peor caso, una venta cada pocos minutos, y el tráfico web equivalente: <strong>prácticamente cero</strong>. Incluso en la meta anual (1.500–2.000 comidas semanales), el sistema completo maneja menos de una petición por segundo. Guardá este número: explica casi todas las decisiones que vienen.' },
-        { type: 'p', html: 'El pliego guardaba además dos números intermedios que casi nadie mira: el crecimiento inmediato (de 2 a <strong>8 locaciones durante 2021</strong>) y el consumo estimado de un suscriptor: <strong>~10 comidas por semana</strong>. Esa matemática silenciosa es la que dimensiona el futuro: 1.000 suscriptores son unas 10.000 comidas semanales, exactamente el escenario de crecimiento rápido de la planilla de costos que vas a ver al final.' },
-        { type: 'p', html: 'Con el negocio, los actores físicos y los números sobre la mesa, todo lo visto hasta ahora se puede resumir en un solo dibujo, y ahora sí cada caja y flecha debería resultarte conocida:' },
+        { type: 'callout', tone: 'amber', title: 'Hacé la cuenta antes de elegir herramientas', html: '42 comidas al día entre dos puntos de venta es, en el peor caso, una venta cada pocos minutos, con el tráfico web equivalente: <strong>prácticamente cero</strong>. Incluso la meta anual (1.500 a 2.000 comidas semanales) queda por debajo de una petición por segundo. Este número explica casi todas las decisiones que vienen.' },
+        { type: 'p', html: 'El pliego guardaba dos números intermedios que casi nadie mira: el crecimiento inmediato (de 2 a <strong>8 locaciones durante 2021</strong>) y el consumo estimado de un suscriptor, <strong>~10 comidas por semana</strong>. Con esa matemática, 1.000 suscriptores son unas 10.000 comidas semanales: exactamente el escenario de crecimiento rápido de la planilla de costos que vas a ver al final.' },
+        { type: 'p', html: 'Con el negocio, los actores y los números sobre la mesa, todo lo anterior entra en un dibujo. Recién ahora cada caja y flecha debería resultarte conocida:' },
         { type: 'contextDiagram' },
       ],
     },
