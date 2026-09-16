@@ -60,6 +60,10 @@ cómo se decide qué no construir, y cómo se documenta cada "no" para que algui
    ("casi nadie publica", "la mayoría omite", "pocas entregas"): o se verifican
    contra los repos (así se fundamentó "única entrega con análisis de costos",
    chequeado sobre los diez finalistas) o se enuncian los hechos sin la población.
+   El contrapunto con los otros finalistas sigue la misma regla: cada comparación
+   cita sus repos directamente (Myagis-Forest: ADR 001 del estilo, ADR 004 del
+   patrón Wrapper; Jedis: Fridge Capability de la purchase session), nunca de
+   memoria ni de impresiones.
 3. **Sin emociones prestadas.** Cuando algo impresiona, se muestra el hecho que
    impresiona (un post-it fechado, un "no hay mitigación técnica" por escrito);
    el narrador no declara sentimientos propios. La voz es funcional, no biográfica.
