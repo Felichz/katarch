@@ -573,10 +573,11 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     padding: 1.15rem 1.35rem;
     border-radius: 2px;
     margin: 0.5rem 0;
-    max-width: 46rem;
     border: 1px solid var(--rule);
     background: var(--paper-raised);
   }
+  /* Errata boxes are apparatus: their text fills the box, not the 46rem column */
+  .block-callout .set-prose { max-width: none; }
   .block-callout h4 {
     font-family: 'Courier Prime', monospace;
     font-size: 0.74rem;
@@ -720,6 +721,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     color: var(--ink);
     margin-bottom: 0.6rem;
   }
+  .figure-guide .set-prose { max-width: none; }
   .figure-guide .set-prose p { font-size: 0.98rem; line-height: 1.75; color: var(--ink-2); }
   .figure-guide .set-prose p + p { margin-top: 0.7rem; }
   .figure-guide .set-prose li { font-size: 0.98rem; line-height: 1.75; color: var(--ink-2); }
