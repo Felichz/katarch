@@ -176,7 +176,11 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   <article class="article">
     <!-- Hero -->
     <header class="hero">
-      <p class="hero-kicker">{content.heroKicker}</p>
+      <div class="memo-masthead">
+        <p class="mast-row"><span class="mast-key">{isES ? 'Documento' : 'Document'}</span><span class="mast-val">KatArch · {isES ? 'reconstrucción de un caso real' : 'a real case, reconstructed'}</span></p>
+        <p class="mast-row"><span class="mast-key">{isES ? 'Serie' : 'Series'}</span><span class="mast-val">KATA/2020-FALL · Farmacy Food · O&#8217;Reilly Software Architecture Kata</span></p>
+        <p class="mast-row"><span class="mast-key">{isES ? 'Estado' : 'Status'}</span><span class="mast-val">{isES ? 'Aceptado · fuentes: repos públicos de los equipos' : 'Accepted · sources: the teams public repos'}</span></p>
+      </div>
       <h1 class="hero-title">
         {content.heroTitleA}
         <span class="hero-title-b">{content.heroTitleB}</span>
@@ -221,41 +225,44 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   /* Anchor jumps (decision map -> inline cards) glide instead of teleporting */
   html { scroll-behavior: smooth; }
 
-  /* ── Shell: full viewport width, fixed paddings only ── */
+  /* ══ THE MEMO WORLD ═══════════════════════════════════════
+     Light: a specification on laid paper. Dark: the same memo
+     under a desk lamp. Courier Prime carries the document
+     apparatus; Source Serif 4 carries the reading; one reference
+     blue; hairline rules; paragraphs numbered in the gutter like
+     the lines of a memo. */
+
+  /* ── Shell ─────────────────────────────────────────── */
   .article-shell {
     display: flex;
-    gap: 2rem;
+    gap: 2.25rem;
     align-items: flex-start;
     width: 100%;
+    max-width: 82rem;
+    margin: 0 auto;
     min-width: 0;
   }
-  .article { flex: 1; min-width: 0; }
+  .article { flex: 1; min-width: 0; counter-reset: ksec kpara kfig; }
 
-  /* ── TOC rail (collapsed by default) ───────────────── */
-  .toc-rail {
-    position: sticky;
-    top: 5.5rem;
-    flex: 0 0 auto;
-    z-index: 30;
-  }
+  /* ── TOC rail: the memo's index ────────────────────── */
+  .toc-rail { position: sticky; top: 5rem; flex: 0 0 auto; z-index: 30; }
   .toc-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-radius: 0.85rem;
-    border: 1px solid rgb(51 65 85 / 0.7);
-    background: rgb(30 41 59 / 0.4);
+    border-radius: 2px;
+    border: 1px solid var(--rule);
+    background: var(--paper-raised);
     padding: 0.4rem;
     overflow: hidden;
     transition: width 0.25s ease;
     width: 3rem;
   }
-  :root:not(.dark) .toc-card { background: rgb(255 255 255); box-shadow: 0 1px 2px rgb(15 23 42 / 0.05); }
   .toc-card[data-expanded] {
-    width: 15rem;
+    width: 16rem;
     align-items: stretch;
     padding: 0.75rem;
-    max-height: calc(100vh - 7.5rem);
+    max-height: calc(100vh - 7rem);
     overflow-y: auto;
   }
   .toc-expand {
@@ -263,11 +270,13 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     place-items: center;
     width: 2.2rem;
     height: 2.2rem;
-    border-radius: 0.55rem;
-    color: rgb(148 163 184);
+    border-radius: 2px;
+    color: var(--ink-3);
     cursor: pointer;
+    background: none;
+    border: 1px solid transparent;
   }
-  .toc-expand:hover { color: rgb(52 211 153); background: rgb(16 185 129 / 0.1); }
+  .toc-expand:hover { color: var(--accent); border-color: var(--rule); }
   .toc-card[data-expanded] .toc-expand { display: none; }
   .toc-dots {
     display: flex;
@@ -283,20 +292,20 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     place-items: center;
     width: 1.9rem;
     height: 1.9rem;
-    border-radius: 0.5rem;
+    border-radius: 2px;
   }
-  .toc-dot:hover { background: rgb(148 163 184 / 0.12); }
+  .toc-dot:hover { background: var(--paper-deep); }
   .dot-indicator {
-    width: 0.55rem;
-    height: 0.55rem;
-    border-radius: 9999px;
-    background: rgb(100 116 139);
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 1px;
+    background: var(--ink-3);
     transition: background 0.2s, box-shadow 0.2s;
   }
-  .toc-dot:hover .dot-indicator { background: rgb(52 211 153); }
+  .toc-dot:hover .dot-indicator { background: var(--ink-2); }
   .toc-dot.active .dot-indicator {
-    background: rgb(16 185 129);
-    box-shadow: 0 0 0 3px rgb(16 185 129 / 0.2);
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-wash);
   }
   .toc-full { display: flex; flex-direction: column; gap: 1px; }
   .toc-full[hidden] { display: none; }
@@ -307,101 +316,122 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     gap: 0.5rem;
     padding-bottom: 0.6rem;
     margin-bottom: 0.5rem;
-    border-bottom: 1px solid rgb(51 65 85 / 0.6);
+    border-bottom: 1px solid var(--rule);
   }
   .toc-collapse {
     display: grid;
     place-items: center;
     width: 1.8rem;
     height: 1.8rem;
-    border-radius: 0.5rem;
-    color: rgb(148 163 184);
+    border-radius: 2px;
+    color: var(--ink-3);
     cursor: pointer;
+    background: none;
+    border: none;
   }
-  .toc-collapse:hover { color: inherit; background: rgb(148 163 184 / 0.12); }
+  .toc-collapse:hover { color: var(--ink); background: var(--paper-deep); }
   .toc-tooltip {
     position: fixed;
     z-index: 60;
     padding: 0.3rem 0.6rem;
-    border-radius: 0.45rem;
-    background: #0f172a;
-    color: rgb(241 245 249);
-    font-size: 1rem;
-    font-family: 'JetBrains Mono', monospace;
+    border-radius: 2px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.78rem;
     white-space: nowrap;
     pointer-events: none;
     transform: translateY(-50%);
-    border: 1px solid rgb(51 65 85);
-    box-shadow: 0 8px 24px rgb(2 6 23 / 0.4);
+    border: 1px solid var(--ink);
     max-width: 20rem;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  :root:not(.dark) .toc-tooltip { background: #ffffff; color: rgb(15 23 42); }
   .toc-heading {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-family: 'Courier Prime', monospace;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: rgb(100 116 139);
+    letter-spacing: 0.16em;
+    color: var(--ink-2);
   }
   .toc-item {
     display: flex;
     flex-direction: column;
     gap: 1px;
     padding: 0.45rem 0.6rem;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    line-height: 1.3;
-    color: rgb(100 116 139);
+    border-radius: 2px;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: var(--ink-2);
+    text-decoration: none;
     transition: color 0.15s, background-color 0.15s;
   }
-  .toc-item:hover { color: inherit; background: rgb(148 163 184 / 0.08); text-decoration: none; }
-  .toc-item.active { color: rgb(16 185 129); background: rgb(16 185 129 / 0.06); }
+  .toc-item:hover { color: var(--ink); background: var(--paper-deep); }
+  .toc-item.active { color: var(--accent); background: var(--accent-wash); }
   .toc-phase {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-family: 'Courier Prime', monospace;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    opacity: 0.75;
+    letter-spacing: 0.14em;
+    color: var(--ink-2);
   }
-  .toc-title { font-weight: 600; }
+  .toc-title { font-weight: 600; color: inherit; }
   @media (max-width: 71.99rem) {
     .toc-rail { display: none; }
   }
 
-  /* ── Hero ──────────────────────────────────────────── */
-  .hero { padding-bottom: 2.5rem; border-bottom: 1px solid rgb(51 65 85 / 0.5); margin-bottom: 2.5rem; }
-  .hero-kicker {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.875rem;
-    letter-spacing: 0.1em;
+  /* ── Hero: the memo masthead ───────────────────────── */
+  .hero { padding-bottom: 2.75rem; border-bottom: 1px solid var(--rule); margin-bottom: 2.75rem; }
+  .memo-masthead {
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: var(--paper-raised);
+    padding: 0.85rem 1.1rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    max-width: 46rem;
+  }
+  .mast-row {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 0.9rem;
+    align-items: baseline;
+  }
+  .mast-key {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.68rem;
     text-transform: uppercase;
-    color: rgb(16 185 129);
-    margin-bottom: 1.1rem;
+    letter-spacing: 0.16em;
+    color: var(--ink-2);
+  }
+  .mast-val {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    color: var(--ink-2);
+    line-height: 1.5;
   }
   .hero-title {
-    font-size: clamp(1.9rem, 4.5vw, 3.1rem);
+    font-size: clamp(2rem, 4.6vw, 3.25rem);
     font-weight: 800;
-    line-height: 1.12;
-    letter-spacing: -0.03em;
-    color: rgb(241 245 249);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
     margin-bottom: 1.6rem;
     max-width: 44ch;
   }
-  :root:not(.dark) .hero-title { color: rgb(15 23 42); }
-  .hero-title-b { display: block; color: rgb(52 211 153); }
-  :root:not(.dark) .hero-title-b { color: rgb(4 120 87); }
-  .hero-prose { max-width: none; margin-bottom: 0.5rem; }
+  .hero-title-b { display: block; color: var(--accent); }
+  .hero-prose { max-width: 46rem; margin-bottom: 0.5rem; }
   .hero-prose p + p { margin-top: 1rem; }
 
-  /* ── Sections: ONE shared container for every element ── */
-  .article-section { min-width: 0; scroll-margin-top: 5.5rem; }
-  .article-section + .article-section { margin-top: 3.5rem; }
-  /* Body type scales up as the column widens, keeping line length sane */
+  /* ── Sections: numbered like a memo's parts ────────── */
+  .article-section { min-width: 0; scroll-margin-top: 5rem; }
+  .article-section + .article-section { margin-top: 3.75rem; }
   .article .set-prose,
   .article .block-list {
-    font-size: clamp(1.04rem, 0.62rem + 0.34vw, 1.22rem);
+    font-size: clamp(1.06rem, 0.64rem + 0.36vw, 1.26rem);
+    max-width: 46rem;
   }
   .phase-divider {
     display: flex;
@@ -413,47 +443,81 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   .phase-divider::after {
     content: '';
     height: 1px;
-    background: rgb(51 65 85 / 0.6);
+    background: var(--rule);
     flex: 1;
   }
-  :root:not(.dark) .phase-divider::before,
-  :root:not(.dark) .phase-divider::after { background: rgb(203 213 225); }
   .phase-divider span {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-family: 'Courier Prime', monospace;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: rgb(16 185 129);
+    letter-spacing: 0.2em;
+    color: var(--ink-2);
     white-space: nowrap;
   }
   .section-title {
-    font-size: clamp(1.45rem, 3vw, 1.9rem);
+    counter-increment: ksec;
+    font-size: clamp(1.5rem, 3vw, 1.95rem);
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.2;
-    margin-bottom: 1.5rem;
-    color: rgb(241 245 249);
+    margin-bottom: 1.4rem;
+    color: var(--ink);
   }
-  :root:not(.dark) .section-title { color: rgb(15 23 42); }
-  .section-body { display: flex; flex-direction: column; gap: 1.15rem; }
+  .section-title::before {
+    content: '\00a7' counter(ksec) '\00a0\00a0';
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 0.62em;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    vertical-align: 0.28em;
+  }
+  .section-body { display: flex; flex-direction: column; gap: 1.2rem; }
+
+  /* ── The traceability gutter: numbered paragraphs ──── */
+  /* Desktop-only apparatus by decision: below 72rem the memo drops its
+     gutter (the reading column is the priority); paragraph anchors for
+     cross-references are recorded as future work in DESIGN.md. */
+  @media (min-width: 72rem) {
+    .article { padding-left: 3.4rem; }
+    .article .set-prose > p {
+      counter-increment: kpara;
+      position: relative;
+    }
+    .article .set-prose > p::before {
+      content: counter(kpara);
+      position: absolute;
+      left: -2.9rem;
+      width: 2.2rem;
+      text-align: right;
+      font-family: 'Courier Prime', monospace;
+      font-size: 0.68rem;
+      line-height: 2.4;
+      color: var(--ink-2);
+    }
+    .article .set-prose > p:hover::before { color: var(--accent); }
+    /* The reading-guide panels are annotations, not memo body */
+    .figure-guide .set-prose > p { counter-increment: none; }
+    .figure-guide .set-prose > p::before { content: none; }
+  }
 
   /* ── Blocks ────────────────────────────────────────── */
-  .set-prose { line-height: 1.75; }
-  .set-prose a { color: rgb(52 211 153); text-decoration: underline; text-underline-offset: 3px; }
-  :root:not(.dark) .set-prose a { color: rgb(4 120 87); }
+  .set-prose { line-height: 1.78; }
+  .set-prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .set-prose a:hover { color: var(--accent-strong); }
   .set-prose strong { color: inherit; font-weight: 700; }
   .block-h3 {
-    font-size: 1.12rem;
+    font-size: 1.16rem;
     font-weight: 700;
     letter-spacing: -0.01em;
-    margin-top: 1.25rem;
-    margin-bottom: -0.25rem;
-    color: rgb(226 232 240);
+    margin-top: 1.35rem;
+    margin-bottom: -0.3rem;
+    color: var(--ink);
   }
-  :root:not(.dark) .block-h3 { color: rgb(30 41 59); }
-  .block-list { padding-left: 1.3rem; display: flex; flex-direction: column; gap: 0.55rem; line-height: 1.7; }
-  .block-list li::marker { color: rgb(16 185 129); }
+  .block-list { padding-left: 1.35rem; display: flex; flex-direction: column; gap: 0.55rem; line-height: 1.72; }
+  .block-list li::marker { color: var(--accent); }
 
+  /* Cards: attachment blocks */
   .block-cards {
     display: grid;
     grid-template-columns: 1fr;
@@ -466,280 +530,240 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   }
   .block-card {
     padding: 1.1rem 1.15rem;
-    border-radius: 0.85rem;
-    border: 1px solid rgb(51 65 85 / 0.7);
-    background: rgb(30 41 59 / 0.35);
+    border-radius: 2px;
+    border: 1px solid var(--rule);
+    background: var(--paper-raised);
   }
-  :root:not(.dark) .block-card { background: rgb(255 255 255); border-color: rgb(226 232 240); box-shadow: 0 1px 2px rgb(15 23 42 / 0.05); }
   .block-card .tag {
     display: inline-block;
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-family: 'Courier Prime', monospace;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: rgb(16 185 129);
-    margin-bottom: 0.4rem;
+    letter-spacing: 0.16em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
   }
-  .block-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.45rem; }
-  .block-card p { font-size: 1rem; line-height: 1.65; color: rgb(148 163 184); }
-  :root:not(.dark) .block-card p { color: rgb(71 85 105); }
+  .block-card h4 { font-size: 1.02rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--ink); }
+  .block-card p { font-size: 0.98rem; line-height: 1.68; color: var(--ink-2); }
 
+  /* Stats: the memo's measurements row */
   .block-stats {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1px;
-    border: 1px solid rgb(51 65 85 / 0.7);
-    border-radius: 0.85rem;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
     overflow: hidden;
-    background: rgb(51 65 85 / 0.7);
+    background: var(--rule);
   }
   @media (min-width: 48rem) { .block-stats { grid-template-columns: repeat(4, 1fr); } }
-  .stat-cell { padding: 1.1rem 1.15rem; background: rgb(22 27 34); }
-  :root:not(.dark) .stat-cell { background: rgb(255 255 255); }
+  .stat-cell { padding: 1.1rem 1.15rem; background: var(--paper-raised); }
   .stat-value {
-    font-size: 1.35rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: rgb(52 211 153);
-    line-height: 1.1;
+    font-family: 'Courier Prime', monospace;
+    font-size: 1.45rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--accent);
+    line-height: 1.15;
   }
-  :root:not(.dark) .stat-value { color: rgb(4 120 87); }
-  .stat-label { font-size: 1rem; line-height: 1.45; color: rgb(148 163 184); margin-top: 0.35rem; }
-  :root:not(.dark) .stat-label { color: rgb(71 85 105); }
+  .stat-label { font-size: 0.95rem; line-height: 1.45; color: var(--ink-2); margin-top: 0.4rem; }
 
+  /* Callouts: errata and margin notes of the memo */
   .block-callout {
-    padding: 1.2rem 1.35rem;
-    border-radius: 0.85rem;
+    padding: 1.15rem 1.35rem;
+    border-radius: 2px;
     margin: 0.5rem 0;
+    max-width: 46rem;
+    border: 1px solid var(--rule);
+    background: var(--paper-raised);
   }
   .block-callout h4 {
-    font-size: 1rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.74rem;
     font-weight: 700;
-    margin-bottom: 0.45rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    margin-bottom: 0.55rem;
+    color: var(--ink-2);
   }
-  .block-callout p { font-size: 1rem; line-height: 1.7; }
-  .block-callout[data-tone='emerald'] {
-    background: rgb(16 185 129 / 0.07);
-    border: 1px solid rgb(16 185 129 / 0.25);
-  }
-  .block-callout[data-tone='emerald'] h4 { color: rgb(52 211 153); }
-  :root:not(.dark) .block-callout[data-tone='emerald'] h4 { color: rgb(4 120 87); }
-  .block-callout[data-tone='amber'] {
-    background: rgb(245 158 11 / 0.06);
-    border: 1px solid rgb(245 158 11 / 0.25);
-  }
-  .block-callout[data-tone='amber'] h4 { color: rgb(251 191 36); }
-  :root:not(.dark) .block-callout[data-tone='amber'] h4 { color: rgb(180 83 9); }
-  .block-callout[data-tone='slate'] {
-    background: rgb(148 163 184 / 0.07);
-    border: 1px solid rgb(148 163 184 / 0.25);
-  }
+  .block-callout p { font-size: 1rem; line-height: 1.72; }
+  .block-callout[data-tone='reference'] { background: var(--accent-wash); border-color: var(--accent); }
+  .block-callout[data-tone='reference'] h4 { color: var(--accent); }
+  .block-callout[data-tone='amber'] { background: var(--amber-wash); border-color: var(--amber); }
+  .block-callout[data-tone='amber'] h4 { color: var(--amber); }
+  .block-callout[data-tone='note'] h4::before { content: '\2014\00a0'; }
 
+  /* Tables: ruled register pages */
   .block-table table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 1rem;
+    font-size: 0.98rem;
   }
-  .block-table { border: 1px solid rgb(51 65 85 / 0.7); border-radius: 0.85rem; overflow: hidden; }
+  .block-table { border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; background: var(--paper-raised); }
   .block-table .tbl-caption {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-family: 'Courier Prime', monospace;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: rgb(100 116 139);
-    padding: 0.8rem 1rem 0;
+    letter-spacing: 0.14em;
+    color: var(--ink-2);
+    padding: 0.85rem 1rem 0.55rem;
   }
   .block-table th, .block-table td {
     padding: 0.6rem 1rem;
     text-align: left;
     line-height: 1.5;
-    border-top: 1px solid rgb(51 65 85 / 0.45);
+    border-top: 1px solid var(--rule);
   }
   .block-table thead th {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-family: 'Courier Prime', monospace;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: rgb(16 185 129);
+    letter-spacing: 0.12em;
+    color: var(--ink-2);
     border-top: none;
-    background: rgb(30 41 59 / 0.5);
+    background: var(--paper-deep);
   }
-  :root:not(.dark) .block-table thead th { color: rgb(4 120 87); background: rgb(248 250 252); }
   .block-table tbody th { font-weight: 600; white-space: nowrap; }
 
-  .block-figure {
-    margin: 1rem 0 0.5rem;
-  }
+  /* Figures: plates pasted into the memo */
+  .block-figure { counter-increment: kfig; margin: 1rem 0 0.5rem; }
   .block-figure img {
     width: 100%;
-    border-radius: 0.85rem;
-    border: 1px solid rgb(51 65 85 / 0.7);
-    background: rgb(255 255 255);
+    border-radius: 2px;
+    border: 1px solid var(--hairline);
+    background: #ffffff;
     display: block;
   }
   .block-figure figcaption {
-    font-size: 1rem;
-    color: rgb(148 163 184);
-    margin-top: 0.6rem;
-    line-height: 1.55;
+    font-size: 0.95rem;
+    color: var(--ink-2);
+    margin-top: 0.65rem;
+    line-height: 1.6;
     cursor: default;
   }
-  /* Inline figure with lens magnifier: the diagram lives in the main thread */
-  .figure-zoom {
-    position: relative;
-    cursor: crosshair;
+  .block-figure figcaption::before {
+    content: 'Fig. ' counter(kfig) ' \2014\00a0';
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.8em;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.04em;
   }
+  /* Inline figure with lens magnifier: the diagram lives in the main thread */
+  .figure-zoom { position: relative; cursor: crosshair; }
   .figure-zoom:focus-visible {
-    outline: 2px solid rgb(52 211 153);
+    outline: 2px solid var(--accent);
     outline-offset: 4px;
-    border-radius: 0.85rem;
+    border-radius: 2px;
   }
   /* Figures embedded in prose (decision cards, guides) */
-  .modal-figure {
-    margin: 0.9rem 0 0.25rem;
-  }
+  .modal-figure { margin: 0.9rem 0 0.25rem; }
   .modal-figure img {
     width: 100%;
-    border-radius: 0.7rem;
-    border: 1px solid rgb(51 65 85 / 0.7);
-    background: rgb(255 255 255);
+    border-radius: 2px;
+    border: 1px solid var(--hairline);
+    background: #ffffff;
     display: block;
   }
   .modal-figure figcaption {
-    font-size: 1rem;
-    color: rgb(148 163 184);
+    font-size: 0.95rem;
+    color: var(--ink-2);
     margin-top: 0.5rem;
-    line-height: 1.55;
+    line-height: 1.6;
   }
-  dialog[data-doc-dialog] {
-    max-width: min(76rem, calc(100vw - 1.5rem));
-  }
+  dialog[data-doc-dialog] { max-width: min(76rem, calc(100vw - 1.5rem)); }
   .figure-lens {
     position: absolute;
-    border-radius: 0.5rem;
-    border: 2px solid rgb(52 211 153 / 0.95);
-    box-shadow: 0 10px 34px rgb(2 6 23 / 0.55), inset 0 0 0 1px rgb(2 6 23 / 0.25);
+    border-radius: 2px;
+    border: 2px solid var(--accent);
+    box-shadow: 0 8px 28px rgb(0 0 0 / 0.35), inset 0 0 0 1px rgb(0 0 0 / 0.2);
     background-repeat: no-repeat;
-    background-color: rgb(255 255 255);
+    background-color: #ffffff;
     pointer-events: none;
     z-index: 5;
   }
   .figure-lens-hint {
     position: absolute;
     transform: translateX(-50%);
-    font-size: 0.8rem;
-    font-family: 'JetBrains Mono', monospace;
-    color: rgb(226 232 240);
-    background: rgb(2 6 23 / 0.85);
-    border: 1px solid rgb(51 65 85 / 0.9);
-    border-radius: 9999px;
-    padding: 0.2rem 0.7rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.74rem;
+    color: var(--paper);
+    background: var(--ink);
+    border: 1px solid var(--ink);
+    border-radius: 2px;
+    padding: 0.22rem 0.7rem;
     white-space: nowrap;
     pointer-events: none;
     z-index: 6;
   }
   .figure-guide-kicker {
-    font-size: 0.875rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-    color: rgb(52 211 153);
-    margin-bottom: 0.25rem;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
   }
-  :root:not(.dark) .figure-guide-kicker {
-    color: rgb(4 120 87);
-  }
-  /* Reading guide rendered inline, right below the diagram it explains */
+  /* Reading guide: the annotation sheet clipped under its plate */
   .figure-guide {
     margin-top: 1rem;
-    padding: 1.3rem 1.5rem;
-    border-radius: 0.9rem;
-    border: 1px solid rgb(51 65 85 / 0.6);
-    border-left: 3px solid rgb(16 185 129 / 0.6);
-    background: rgb(30 41 59 / 0.3);
-  }
-  :root:not(.dark) .figure-guide {
-    border-color: rgb(226 232 240);
-    border-left-color: rgb(16 185 129 / 0.55);
-    background: rgb(248 250 252);
+    padding: 1.25rem 1.45rem;
+    border-radius: 2px;
+    border: 1px dashed var(--hairline);
+    background: var(--paper-deep);
   }
   .figure-guide-title {
-    font-size: 1.02rem;
+    font-size: 1.05rem;
     font-weight: 700;
     letter-spacing: -0.01em;
-    color: rgb(241 245 249);
+    color: var(--ink);
     margin-bottom: 0.6rem;
   }
-  :root:not(.dark) .figure-guide-title { color: rgb(15 23 42); }
-  .figure-guide .set-prose p {
-    font-size: 1rem;
-    line-height: 1.75;
-    color: rgb(203 213 225);
-  }
+  .figure-guide .set-prose p { font-size: 0.98rem; line-height: 1.75; color: var(--ink-2); }
   .figure-guide .set-prose p + p { margin-top: 0.7rem; }
-  .figure-guide .set-prose li {
-    font-size: 1rem;
-    line-height: 1.75;
-    color: rgb(203 213 225);
-  }
-  .figure-guide .set-prose ul {
-    margin: 0.55rem 0;
-    padding-left: 1.3rem;
-    list-style: disc;
-  }
-  .figure-guide .set-prose ol {
-    margin: 0.55rem 0;
-    padding-left: 1.5rem;
-    list-style: decimal;
-  }
-  .figure-guide .set-prose ol ol {
-    margin: 0.4rem 0;
-    list-style: lower-alpha;
-  }
+  .figure-guide .set-prose li { font-size: 0.98rem; line-height: 1.75; color: var(--ink-2); }
+  .figure-guide .set-prose ul { margin: 0.55rem 0; padding-left: 1.3rem; list-style: disc; }
+  .figure-guide .set-prose ol { margin: 0.55rem 0; padding-left: 1.5rem; list-style: decimal; }
+  .figure-guide .set-prose ol ol { margin: 0.4rem 0; list-style: lower-alpha; }
   .figure-guide .set-prose li + li { margin-top: 0.45rem; }
-  .figure-guide .set-prose strong { color: rgb(241 245 249); }
-  :root:not(.dark) .figure-guide .set-prose p,
-  :root:not(.dark) .figure-guide .set-prose li { color: rgb(51 65 85); }
-  :root:not(.dark) .figure-guide .set-prose strong { color: rgb(15 23 42); }
+  .figure-guide .set-prose strong { color: var(--ink); }
 
-  /* ── Original-doc viewer ───────────────────────────── */
+  /* ── Citation apparatus (doc refs) ──────────────────── */
   .doc-ref {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    font: inherit;
-    font-size: 0.92em;
-    font-weight: 600;
-    color: rgb(52 211 153);
-    background: rgb(16 185 129 / 0.1);
-    border: 1px solid rgb(16 185 129 / 0.35);
-    border-radius: 0.45rem;
-    padding: 0.05rem 0.5rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.78em;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    background: var(--paper-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 2px;
+    padding: 0.08rem 0.45rem;
     cursor: pointer;
     vertical-align: baseline;
     white-space: nowrap;
   }
-  .doc-ref:hover, .doc-ref:focus-visible { background: rgb(16 185 129 / 0.2); outline: none; }
-  :root:not(.dark) .doc-ref { color: rgb(4 120 87); background: rgb(16 185 129 / 0.12); }
+  .doc-ref:hover, .doc-ref:focus-visible { border-color: var(--accent); outline: none; }
   .modal-card.modal-card--doc {
     max-width: min(76rem, calc(100vw - 1.5rem));
     padding: 1.5rem 1.7rem;
   }
   .doc-prose {
-    color: rgb(203 213 225);
+    color: var(--ink-2);
     font-size: 1rem;
-    line-height: 1.7;
+    line-height: 1.72;
   }
-  :root:not(.dark) .doc-prose { color: rgb(51 65 85); }
   .doc-prose h1, .doc-prose h2, .doc-prose h3, .doc-prose h4 {
-    color: rgb(241 245 249);
+    color: var(--ink);
     font-weight: 700;
     letter-spacing: -0.01em;
     margin: 1.6rem 0 0.6rem;
     line-height: 1.3;
   }
-  :root:not(.dark) .doc-prose h1, :root:not(.dark) .doc-prose h2,
-  :root:not(.dark) .doc-prose h3, :root:not(.dark) .doc-prose h4 { color: rgb(15 23 42); }
   .doc-prose h1 { font-size: 1.35rem; }
   .doc-prose h2 { font-size: 1.18rem; }
   .doc-prose h3, .doc-prose h4 { font-size: 1.05rem; }
@@ -750,53 +774,48 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   .doc-prose ol { list-style: decimal; }
   .doc-prose li { margin: 0.35rem 0; }
   .doc-prose li > ul, .doc-prose li > ol { margin: 0.35rem 0; }
-  .doc-prose a { color: rgb(52 211 153); text-decoration: underline; text-underline-offset: 3px; }
-  :root:not(.dark) .doc-prose a { color: rgb(4 120 87); }
+  .doc-prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .doc-prose a:hover { color: var(--accent-strong); }
   .doc-prose strong { color: inherit; font-weight: 700; }
   .doc-prose em { font-style: italic; }
   .doc-prose blockquote {
-    border-left: 3px solid rgb(16 185 129 / 0.5);
+    border-left: 1px solid var(--accent);
     padding-left: 1rem;
     margin: 0.9rem 0;
-    color: rgb(148 163 184);
+    color: var(--ink-2);
   }
-  :root:not(.dark) .doc-prose blockquote { color: rgb(100 116 139); }
   .doc-prose code {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Courier Prime', monospace;
     font-size: 0.88em;
-    color: rgb(52 211 153);
-    background: rgb(16 185 129 / 0.08);
-    border: 1px solid rgb(51 65 85 / 0.6);
-    border-radius: 0.35rem;
-    padding: 0.08rem 0.35rem;
+    color: var(--ink);
+    background: var(--paper-deep);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 0.06rem 0.32rem;
   }
-  :root:not(.dark) .doc-prose code { color: rgb(4 120 87); background: rgb(16 185 129 / 0.1); border-color: rgb(203 213 225); }
   .doc-prose table {
     border-collapse: collapse;
     margin: 1rem 0;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     display: block;
     overflow-x: auto;
     max-width: 100%;
   }
   .doc-prose th, .doc-prose td {
-    border: 1px solid rgb(51 65 85 / 0.7);
+    border: 1px solid var(--rule);
     padding: 0.45rem 0.7rem;
     text-align: left;
     vertical-align: top;
   }
-  :root:not(.dark) .doc-prose th, :root:not(.dark) .doc-prose td { border-color: rgb(203 213 225); }
-  .doc-prose th { background: rgb(16 185 129 / 0.08); font-weight: 700; color: rgb(241 245 249); }
-  :root:not(.dark) .doc-prose th { color: rgb(15 23 42); }
+  .doc-prose th { background: var(--paper-deep); font-weight: 700; color: var(--ink); font-family: 'Courier Prime', monospace; font-size: 0.85em; }
   .doc-prose img {
     max-width: 100%;
-    border-radius: 0.5rem;
-    border: 1px solid rgb(51 65 85 / 0.7);
+    border-radius: 2px;
+    border: 1px solid var(--hairline);
     background: #ffffff;
     margin: 0.8rem 0;
   }
-  .doc-prose hr { border: none; border-top: 1px solid rgb(51 65 85 / 0.6); margin: 1.4rem 0; }
-  :root:not(.dark) .doc-prose hr { border-top-color: rgb(226 232 240); }
+  .doc-prose hr { border: none; border-top: 1px solid var(--rule); margin: 1.4rem 0; }
   .doc-footer {
     display: flex;
     justify-content: space-between;
@@ -805,15 +824,9 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     gap: 0.6rem 1rem;
     margin: 0.2rem 0 1.2rem;
     padding-bottom: 0.9rem;
-    border-bottom: 1px solid rgb(51 65 85 / 0.6);
+    border-bottom: 1px solid var(--rule);
   }
-  :root:not(.dark) .doc-footer { border-top-color: rgb(226 232 240); }
-  .doc-lang-note {
-    font-size: 0.82rem;
-    color: rgb(148 163 184);
-    line-height: 1.5;
-  }
-  :root:not(.dark) .doc-lang-note { color: rgb(100 116 139); }
+  .doc-lang-note { font-size: 0.8rem; color: var(--ink-2); line-height: 1.5; font-style: italic; }
   .doc-footer-actions {
     display: flex;
     align-items: center;
@@ -822,87 +835,79 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     margin-left: auto;
   }
   .doc-lang-toggle {
-    font: inherit;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: rgb(52 211 153);
-    background: rgb(16 185 129 / 0.1);
-    border: 1px solid rgb(16 185 129 / 0.4);
-    border-radius: 9999px;
-    padding: 0.35rem 0.9rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--paper-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 2px;
+    padding: 0.35rem 0.8rem;
     cursor: pointer;
     white-space: nowrap;
   }
-  .doc-lang-toggle:hover, .doc-lang-toggle:focus-visible { background: rgb(16 185 129 / 0.2); outline: none; }
-  :root:not(.dark) .doc-lang-toggle { color: rgb(4 120 87); background: rgb(16 185 129 / 0.12); }
+  .doc-lang-toggle:hover, .doc-lang-toggle:focus-visible { border-color: var(--accent); outline: none; }
   .doc-original-link {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.92rem;
-    font-weight: 600;
-    color: rgb(52 211 153);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent);
     text-decoration: none;
   }
   .doc-original-link:hover { text-decoration: underline; text-underline-offset: 3px; }
-  :root:not(.dark) .doc-original-link { color: rgb(4 120 87); }
 
-  /* ── Concept chips & ADR refs ──────────────────────── */
+  /* ── Concept chips: defined terms of the glossary ──── */
   .concept-chip {
     display: inline;
     font-weight: 600;
-    color: rgb(52 211 153);
-    background: rgb(16 185 129 / 0.1);
-    border-radius: 0.4rem;
-    padding: 0.05rem 0.4rem;
-    margin: 0 0.1rem;
+    font-style: inherit;
+    color: var(--ink);
+    background: none;
+    padding: 0;
+    margin: 0;
     cursor: pointer;
-    border-bottom: 1px dotted rgb(16 185 129 / 0.6);
+    border-bottom: 1px dotted var(--accent);
   }
-  :root:not(.dark) .concept-chip { color: rgb(4 120 87); background: rgb(16 185 129 / 0.12); }
-  .concept-chip:hover, .concept-chip:focus-visible { background: rgb(16 185 129 / 0.2); outline: none; }
+  .concept-chip:hover, .concept-chip:focus-visible { color: var(--accent); outline: none; }
 
-  /* ── Decision card (inline, full) ──────────────────── */
+  /* ── Decision card: a status block of the memo ─────── */
   .decision-card {
     padding: 1.35rem 1.45rem;
-    border-radius: 0.9rem;
-    border: 1px solid rgb(16 185 129 / 0.3);
-    background: linear-gradient(180deg, rgb(16 185 129 / 0.05), rgb(16 185 129 / 0.02));
+    border-radius: 2px;
+    border: 1px solid var(--rule);
+    border-top: 3px double var(--ink-3);
+    background: var(--paper-raised);
     margin: 0.75rem 0;
     scroll-margin-top: 2rem;
   }
   .decision-card h4 {
-    font-size: 1.02rem;
+    font-size: 1.08rem;
     font-weight: 700;
     letter-spacing: -0.01em;
-    margin-bottom: 0.9rem;
-    color: rgb(241 245 249);
+    margin-bottom: 0.95rem;
+    color: var(--ink);
   }
-  :root:not(.dark) .decision-card h4 { color: rgb(15 23 42); }
-  .decision-card dl { display: flex; flex-direction: column; gap: 0.7rem; }
+  .decision-card dl { display: flex; flex-direction: column; gap: 0.75rem; }
   .decision-card dt {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: rgb(16 185 129);
+    letter-spacing: 0.16em;
+    color: var(--accent);
     margin-bottom: 2px;
   }
-  :root:not(.dark) .decision-card dt { color: rgb(4 120 87); }
-  .decision-card dd { font-size: 1rem; line-height: 1.65; }
+  .decision-card dd { font-size: 0.98rem; line-height: 1.68; color: var(--ink-2); }
+  .decision-card dd strong { color: var(--ink); }
 
-  /* ── Decision map (section 9) ──────────────────────── */
+  /* ── Decision map: the memo's index of decisions ───── */
   .decision-map { display: flex; flex-direction: column; gap: 2.25rem; }
   .pillar + .pillar { margin-top: 0.5rem; }
   .pillar-head { margin-bottom: 1rem; }
-  .pillar-head h3 {
-    font-size: 1.08rem;
-    font-weight: 700;
-    color: rgb(52 211 153);
-  }
-  :root:not(.dark) .pillar-head h3 { color: rgb(4 120 87); }
-  .pillar-head p { font-size: 1rem; color: rgb(148 163 184); line-height: 1.6; margin-top: 0.25rem; }
-  :root:not(.dark) .pillar-head p { color: rgb(71 85 105); }
+  .pillar-head h3 { font-size: 1.14rem; font-weight: 700; color: var(--ink); }
+  .pillar-head p { font-size: 0.98rem; color: var(--ink-2); line-height: 1.6; margin-top: 0.3rem; }
   .pillar-grid { display: flex; flex-direction: column; gap: 0.9rem; }
   .map-entry {
     display: flex;
@@ -910,9 +915,9 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     justify-content: space-between;
     gap: 1rem;
     padding: 0.95rem 1.2rem;
-    border-radius: 0.75rem;
-    border: 1px solid rgb(51 65 85 / 0.7);
-    background: rgb(30 41 59 / 0.3);
+    border-radius: 2px;
+    border: 1px solid var(--rule);
+    background: var(--paper-raised);
     cursor: pointer;
     width: 100%;
     text-align: left;
@@ -920,40 +925,38 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     color: inherit;
     text-decoration: none;
   }
-  :root:not(.dark) .map-entry { background: rgb(255 255 255); border-color: rgb(226 232 240); }
-  .map-entry:hover { border-color: rgb(16 185 129 / 0.5); }
-  .map-entry .entry-title { font-size: 1rem; font-weight: 600; line-height: 1.4; }
+  .map-entry:hover { border-color: var(--accent); }
+  .map-entry .entry-title { font-size: 1rem; font-weight: 600; line-height: 1.4; color: var(--ink); }
   .map-entry .entry-adrs {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
-    color: rgb(100 116 139);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.8rem;
+    color: var(--ink-2);
     white-space: nowrap;
   }
 
-  /* ── Context diagram ───────────────────────────────── */
+  /* ── Context diagram: the memo's plate zero ────────── */
   .context-diagram {
-    border: 1px solid rgb(51 65 85 / 0.7);
-    border-radius: 0.85rem;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
     padding: 1.4rem 1.2rem;
-    background: rgb(30 41 59 / 0.3);
+    background: var(--paper-raised);
     margin: 0.5rem 0;
   }
-  :root:not(.dark) .context-diagram { background: rgb(255 255 255); }
   .cd-title {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: rgb(100 116 139);
+    letter-spacing: 0.16em;
+    color: var(--ink-2);
     margin-bottom: 1.1rem;
     text-align: center;
   }
   .cd-col-title {
-    font-size: 0.875rem;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: rgb(100 116 139);
+    letter-spacing: 0.14em;
+    color: var(--ink-2);
     margin-bottom: 0.5rem;
     text-align: center;
   }
@@ -981,37 +984,44 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   .cd-stack { display: flex; flex-direction: column; gap: 0.5rem; }
   .cd-node {
     padding: 0.55rem 0.8rem;
-    border-radius: 0.6rem;
-    border: 1px solid rgb(51 65 85);
-    font-size: 1rem;
+    border-radius: 2px;
+    border: 1px solid var(--hairline);
+    font-size: 0.95rem;
     text-align: center;
-    background: rgb(22 27 34);
+    background: var(--paper-deep);
+    color: var(--ink-2);
   }
-  :root:not(.dark) .cd-node { background: rgb(248 250 252); border-color: rgb(203 213 225); }
   .cd-central {
     padding: 1.4rem 1.5rem;
-    border-radius: 0.75rem;
-    border: 1.5px solid rgb(16 185 129);
-    background: rgb(16 185 129 / 0.08);
+    border-radius: 2px;
+    border: 1.5px solid var(--accent);
+    background: var(--accent-wash);
     text-align: center;
   }
-  .cd-central strong { font-size: 1rem; display: block; line-height: 1.35; }
-  .cd-central span { font-size: 1rem; color: rgb(148 163 184); display: block; margin-top: 0.3rem; }
-  .cd-arrows { display: flex; flex-direction: column; gap: 0.4rem; align-items: center; color: rgb(16 185 129); }
+  .cd-central strong { font-size: 1rem; display: block; line-height: 1.35; color: var(--ink); }
+  .cd-central span { font-size: 0.95rem; color: var(--ink-2); display: block; margin-top: 0.3rem; }
+  .cd-arrows { display: flex; flex-direction: column; gap: 0.4rem; align-items: center; color: var(--accent); }
 
-  /* ── Closing ───────────────────────────────────────── */
+  /* ── Closing: the memo's sign-off ──────────────────── */
   .article-closing {
     margin-top: 4rem;
     padding-top: 2rem;
-    border-top: 1px solid rgb(51 65 85 / 0.5);
-    font-size: 1rem;
-    color: rgb(148 163 184);
-    line-height: 1.7;
+    border-top: 1px solid var(--rule);
+    font-size: 0.98rem;
+    color: var(--ink-2);
+    line-height: 1.72;
   }
-  .closing-title { font-weight: 700; color: rgb(148 163 184); margin-bottom: 0.5rem; }
-  :root:not(.dark) .article-closing { border-top-color: rgb(226 232 240); }
+  .closing-title {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--ink-2);
+    margin-bottom: 0.5rem;
+  }
 
-  /* ── Modals ────────────────────────────────────────── */
+  /* ── Modals: sheets pulled from the file ───────────── */
   .modal-shell {
     margin: auto;
     padding: 0;
@@ -1021,21 +1031,20 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     max-height: calc(100dvh - 3rem);
   }
   .modal-shell::backdrop {
-    background: rgb(2 6 23 / 0.72);
+    background: rgb(15 13 9 / 0.62);
     backdrop-filter: blur(3px);
   }
   .modal-card {
     position: relative;
-    background: #161b22;
-    color: rgb(203 213 225);
-    border: 1px solid rgb(51 65 85);
-    border-radius: 1rem;
+    background: var(--paper-raised);
+    color: var(--ink-2);
+    border: 1px solid var(--hairline);
+    border-radius: 2px;
     padding: 1.75rem 1.9rem;
-    box-shadow: 0 24px 60px rgb(2 6 23 / 0.5);
+    box-shadow: var(--shadow-lift);
     overflow-y: auto;
     max-height: calc(100dvh - 3rem);
   }
-  :root:not(.dark) .modal-card { background: #ffffff; color: rgb(51 65 85); box-shadow: 0 24px 60px rgb(15 23 42 / 0.18); }
   .modal-close {
     position: absolute;
     top: 0.9rem;
@@ -1044,41 +1053,38 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     height: 2rem;
     display: grid;
     place-items: center;
-    border-radius: 0.55rem;
-    border: 1px solid rgb(51 65 85 / 0.7);
+    border-radius: 2px;
+    border: 1px solid var(--rule);
     background: transparent;
-    color: rgb(148 163 184);
+    color: var(--ink-3);
     cursor: pointer;
   }
-  .modal-close:hover { color: inherit; border-color: rgb(16 185 129 / 0.5); }
+  .modal-close:hover { color: var(--ink); border-color: var(--accent); }
   .modal-title {
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 700;
     letter-spacing: -0.01em;
     padding-right: 2.5rem;
     margin-bottom: 1.1rem;
-    color: rgb(241 245 249);
+    color: var(--ink);
   }
-  :root:not(.dark) .modal-title { color: rgb(15 23 42); }
   .modal-body p,
   .modal-body li {
     font-size: 1rem;
-    line-height: 1.7;
-    color: rgb(203 213 225);
+    line-height: 1.72;
+    color: var(--ink-2);
   }
-  :root:not(.dark) .modal-body p,
-  :root:not(.dark) .modal-body li { color: rgb(51 65 85); }
   .modal-body p + p { margin-top: 0.8rem; }
   .modal-body ul { margin: 0.5rem 0; padding-left: 1.25rem; list-style: disc; }
   .modal-body li + li { margin-top: 0.45rem; }
-  /* ADR reference links under each inline decision card */
+  .modal-body strong { color: var(--ink); }
+  /* ADR citation row under each inline decision card */
   .decision-adrs {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-top: 1.25rem;
     padding-top: 1.1rem;
-    border-top: 1px solid rgb(51 65 85 / 0.6);
+    border-top: 1px solid var(--rule);
   }
-  :root:not(.dark) .decision-adrs { border-top-color: rgb(226 232 240); }
 </style>

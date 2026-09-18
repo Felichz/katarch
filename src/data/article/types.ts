@@ -5,7 +5,7 @@ export type Block =
   | { type: 'cards'; cols?: 2 | 3; cards: { title: string; tag?: string; html: string }[] }
   | { type: 'figure'; src: string; alt: string; caption: string; guide?: { title: string; html: string } }
   | { type: 'stats'; items: { value: string; label: string }[] }
-  | { type: 'callout'; tone: 'emerald' | 'amber' | 'slate'; title: string; html: string }
+  | { type: 'callout'; tone: 'reference' | 'amber' | 'note'; title: string; html: string }
   | { type: 'contextDiagram' }
   | { type: 'table'; caption?: string; headers: string[]; rows: string[][] }
   | { type: 'decisionMap' }

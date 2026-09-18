@@ -22,8 +22,8 @@ const isEnglish = lang === 'en';
     <ViewTransitions />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;0,8..60,800;1,8..60,400&display=swap" rel="stylesheet">
+
     <!-- Theme Script: Defaults to Dark unless explicitly set to Light -->
     <script is:inline>
       const storedTheme = localStorage.getItem('theme');
@@ -34,102 +34,88 @@ const isEnglish = lang === 'en';
       }
     </script>
   </head>
-  <body class="bg-dimmed-bg text-dimmed-body dark:bg-slate-950 dark:text-slate-300 font-sans antialiased selection:bg-emerald-100 dark:selection:bg-emerald-900 selection:text-emerald-900 dark:selection:text-emerald-100 min-h-screen flex flex-col transition-colors duration-200 w-full max-w-full overflow-x-clip">
+  <body class="site-body">
     <!--
-      THESIS: a single chronological walkthrough of one real architecture case,
-      refusing the category-default pile of comparison tables and upfront term dumps.
-      OWN-WORLD: dimmed graphite + emerald (GitHub Dimmed lineage), Plus Jakarta Sans
-      prose with JetBrains Mono for data/labels; figures and diagrams from the
-      team's original repository, one visual grammar throughout.
-      STORY: the reader follows the winning team's reasoning in order — business,
-      constraints, principles, style, domain, concurrency, infrastructure, cost —
-      with every concept explained exactly where it first appears, in-page modals,
-      and a curated three-pillar decision map instead of a raw ADR dump.
-      FIRST VIEWPORT: quiet kicker, two-tone display headline, three prose
-      paragraphs and a compact meta row; primary action is simply reading on.
-      FORM: refinement of the incumbent surface (2026-09 rebuild, data-driven
-      bilingual renderer). FINISH: unreviewed and undocumented is unfinished;
-      this build ends with the finish review, the verdict, and DESIGN.md.
+      THESIS: one chronological walkthrough of a real architecture case, formatted
+      as the audience's native document: a numbered engineering memo. Refuses the
+      docs-template and the terminal-neon looks this category ships.
+      OWN-WORLD: laid-paper memo. Typewriter (Courier Prime) carries the document
+      apparatus (masthead, § numbers, gutter numerals, errata labels); Source
+      Serif 4 carries the reading; one reference-blue accent; hairline rules.
+      Dark mode is the same memo on a lamp-lit desk.
+      STORY: the visitor reads a decision memo where every claim stays traceable:
+      numbered paragraphs, doc cards as citation apparatus, decisions as status
+      blocks, callouts as errata.
+      FIRST VIEWPORT: slim document band (wordmark + doc id + ES/EN + lamp), memo
+      masthead fields, two-tone ink/blue serif title, body flowing in a numbered
+      gutter column.
+      FORM: replacement world (impeccable new-work roll a0855f1c, assigned
+      direction 5 of the grounded list, mode Read).
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the
+      finish review, the verdict, and DESIGN.md.
     -->
-    <!-- Reading Progress Bar -->
-    <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-600 z-[100] transition-all duration-75 w-0"></div>
 
-    <!-- Header -->
-    <header class="sticky top-0 z-40 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md transition-colors">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 animate-pulse"></span>
-          <a href={isEnglish ? "/es" : "/"} class="font-bold text-slate-900 dark:text-slate-100 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-2">
-            <span class="font-mono text-emerald-700 dark:text-emerald-400 text-base tracking-tight font-extrabold">TheKataLog</span>
-            <span class="text-base px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-mono">
-              Fall 2020
-            </span>
+    <!-- Reading position: one ink rule filling across the band -->
+    <div id="progress-bar" aria-hidden="true"></div>
+
+    <!-- Document band -->
+    <header class="doc-band">
+      <div class="doc-band-inner">
+        <div class="doc-brand">
+          <a href={isEnglish ? '/es' : '/'} class="doc-wordmark">
+            KatArch
           </a>
+          <span class="doc-sep" aria-hidden="true">·</span>
+          <span class="doc-id">MEMO KATA/2020-FALL</span>
         </div>
-        
-        <div class="flex items-center gap-2.5 font-mono">
-          <a href="https://github.com/TheKataLog" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-1.5 text-base text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors font-medium">
-            <span>{isEnglish ? "GitHub Repos" : "Repositorios GitHub"}</span>
-            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-            </svg>
+
+        <div class="doc-controls">
+          <a href="https://github.com/TheKataLog" target="_blank" rel="noopener noreferrer" class="doc-link">
+            <span class="doc-link-label">{isEnglish ? 'Repos' : 'Repositorios'}</span>
+            <svg class="doc-link-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
           </a>
 
-          <!-- Language Switcher Button -->
-          <a 
-            href={isEnglish ? "/es" : "/"} 
-            class="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-2xs flex items-center gap-1.5 text-base font-mono font-medium"
-            title={isEnglish ? "Cambiar a Español" : "Switch to English"}
-            aria-label={isEnglish ? "Cambiar a Español" : "Switch to English"}
+          <a
+            href={isEnglish ? '/es' : '/'}
+            class="lang-switch"
+            title={isEnglish ? 'Cambiar a Español' : 'Switch to English'}
+            aria-label={isEnglish ? 'Cambiar a Español' : 'Switch to English'}
           >
-            <svg class="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="9"/>
-              <path stroke-linecap="round" d="M3 12h18M12 3c2.5 2.7 3.8 5.8 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.8-3.8-9S9.5 5.7 12 3z"/>
-            </svg>
-            <span class={!isEnglish ? "font-bold text-emerald-600 dark:text-emerald-400" : "opacity-60"}>ES</span>
-            <span class="text-slate-400 opacity-60">/</span>
-            <span class={isEnglish ? "font-bold text-emerald-600 dark:text-emerald-400" : "opacity-60"}>EN</span>
+            <span class={!isEnglish ? 'is-on' : ''}>ES</span>
+            <span class="lang-sep" aria-hidden="true">/</span>
+            <span class={isEnglish ? 'is-on' : ''}>EN</span>
           </a>
 
-          <!-- Elegant Theme Toggle Button -->
-          <button 
-            id="theme-toggle" 
-            type="button" 
-            class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
-            aria-label={isEnglish ? "Toggle between light and dark mode" : "Cambiar entre tema claro y oscuro"}
-            title={isEnglish ? "Toggle theme (Light / Dark)" : "Cambiar tema (Claro / Oscuro)"}
+          <button
+            id="theme-toggle"
+            type="button"
+            class="lamp-toggle"
+            aria-label={isEnglish ? 'Toggle between light and dark mode' : 'Cambiar entre tema claro y oscuro'}
+            title={isEnglish ? 'Toggle theme (Light / Dark)' : 'Cambiar tema (Claro / Oscuro)'}
           >
-            <!-- Sun Icon (shown in dark mode) -->
-            <svg id="theme-icon-sun" class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <!-- Moon Icon (shown in light mode) -->
-            <svg id="theme-icon-moon" class="w-4 h-4 hidden text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
-            <span id="theme-label" class="text-base font-mono hidden md:inline" data-lang={lang}>{isEnglish ? "Dark" : "Oscuro"}</span>
+            <svg id="theme-icon-sun" class="tgl-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <svg id="theme-icon-moon" class="tgl-icon tgl-hidden" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+            <span id="theme-label" data-lang={lang}>{isEnglish ? 'Dark' : 'Oscuro'}</span>
           </button>
         </div>
       </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="w-full flex-1 min-w-0 px-5 sm:px-8 lg:px-10 py-10">
+    <main class="site-main">
       <slot />
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-slate-200 dark:border-slate-900 bg-white dark:bg-slate-950 py-12 text-center text-base text-slate-500 font-mono mt-20 transition-colors">
-      <div class="max-w-6xl mx-auto px-4 space-y-2">
-        <p class="font-medium text-slate-700 dark:text-slate-400">
-          {isEnglish 
-            ? "Comparative pedagogical analysis of real-world production architectures from the first O'Reilly Software Architecture Kata."
-            : "Análisis pedagógico comparado de soluciones reales del primer O'Reilly Software Architecture Kata."
-          }
+    <!-- Colophon -->
+    <footer class="doc-colophon">
+      <div class="colophon-inner">
+        <p class="colophon-line">
+          {isEnglish
+            ? 'Comparative pedagogical analysis of real-world production architectures from the first O\u2019Reilly Software Architecture Kata.'
+            : 'An\u00e1lisis pedag\u00f3gico comparado de soluciones reales del primer O\u2019Reilly Software Architecture Kata.'}
         </p>
-        <p>
-          {isEnglish ? "Theoretical framework: " : "Marco teórico: "}
-          <span class="text-emerald-700 dark:text-emerald-400 font-semibold">Fundamentals of Software Architecture</span> (Mark Richards & Neal Ford).
+        <p class="colophon-line">
+          {isEnglish ? 'Theoretical framework: ' : 'Marco te\u00f3rico: '}
+          <span class="colophon-em">Fundamentals of Software Architecture</span> (Mark Richards &amp; Neal Ford).
         </p>
       </div>
     </footer>
@@ -163,12 +149,12 @@ const isEnglish = lang === 'en';
         const isEn = themeLabel?.getAttribute('data-lang') === 'en';
         const isDark = document.documentElement.classList.contains('dark');
         if (isDark) {
-          sunIcon?.classList.remove('hidden');
-          moonIcon?.classList.add('hidden');
+          sunIcon?.classList.remove('tgl-hidden');
+          moonIcon?.classList.add('tgl-hidden');
           if (themeLabel) themeLabel.textContent = isEn ? 'Dark' : 'Oscuro';
         } else {
-          sunIcon?.classList.add('hidden');
-          moonIcon?.classList.remove('hidden');
+          sunIcon?.classList.add('tgl-hidden');
+          moonIcon?.classList.remove('tgl-hidden');
           if (themeLabel) themeLabel.textContent = isEn ? 'Light' : 'Claro';
         }
       }
@@ -190,53 +176,178 @@ const isEnglish = lang === 'en';
 </html>
 
 <style is:global>
+  /* ── The memo world: tokens ─────────────────────────────
+     Light = laid paper on a desk. Dark = the same memo under a lamp. */
   :root {
-    --color-slate-950: 2 6 23;        /* #020617 default light mode fallback */
-    --color-slate-900: 15 23 42;      /* #0f172a */
-    --color-slate-850: 23 32 51;      /* #172033 */
-    --color-slate-800: 30 41 59;      /* #1e293b */
-    --color-slate-750: 41 53 72;      /* #293548 */
-    --color-slate-700: 51 65 85;      /* #334155 */
-    --color-emerald-950: 2 44 34;     /* #022c22 */
-    --color-amber-950: 69 26 3;       /* #451a03 */
-    --color-rose-950: 76 5 25;        /* #4c0519 */
-    --color-sky-950: 8 47 73;         /* #082f49 */
+    --paper: #f4efe3;
+    --paper-raised: #fbf8ee;
+    --paper-deep: #ede7d6;
+    --ink: #241f14;
+    --ink-2: #6e6651;
+    --ink-3: #7d7460;
+    --rule: #d8cfb6;
+    --hairline: #c6bb9e;
+    --accent: #1e42a8;
+    --accent-strong: #16307d;
+    --accent-wash: #e6e5f2;
+    --amber: #8a4d08;
+    --amber-wash: #f2e6cb;
+    --shadow-lift: 0 1px 2px rgb(36 31 20 / 0.08), 0 6px 24px rgb(36 31 20 / 0.07);
   }
-
   .dark {
-    /* Dimmed Pro Palette: calm, fatigue-reducing graphite slate (GitHub Dimmed / Linear style) */
-    --color-slate-950: 22 27 34;      /* #161b22 - Dimmed canvas background (no pure-black OLED glare) */
-    --color-slate-900: 33 38 52;      /* #212634 - Elevated card and panel surface */
-    --color-slate-850: 39 46 62;      /* #272e3e - Intermediate surface */
-    --color-slate-800: 48 56 73;      /* #303849 - Delicate, cohesive borders */
-    --color-slate-750: 57 67 86;      /* #394356 - Subtle interactive borders */
-    --color-slate-700: 68 79 100;     /* #444f64 - Active pill borders & outlines */
-    --color-emerald-950: 16 46 36;    /* #102e24 - Subtle luminous emerald */
-    --color-amber-950: 54 35 14;      /* #36230e - Warm bronze */
-    --color-rose-950: 60 20 30;       /* #3c141e - Dimmed rose */
-    --color-sky-950: 16 42 62;        /* #102a3e - Dimmed sky */
+    --paper: #161310;
+    --paper-raised: #1f1b15;
+    --paper-deep: #29241b;
+    --ink: #e9e1cb;
+    --ink-2: #b1a78d;
+    --ink-3: #8d8368;
+    --rule: #3a3428;
+    --hairline: #484130;
+    --accent: #a3b8f3;
+    --accent-strong: #c8d4f9;
+    --accent-wash: #232733;
+    --amber: #dca75f;
+    --amber-wash: #2b2317;
+    --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 32px rgb(0 0 0 / 0.35);
   }
 
+  html { background: var(--paper); }
   body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
-  code, pre {
-    font-family: 'JetBrains Mono', monospace;
+  ::selection { background: var(--accent-wash); color: var(--ink); }
+  .mono, code, pre { font-family: 'Courier Prime', 'Courier New', monospace; }
+
+  /* Pro dark scrollbars tuned to the desk */
+  .dark ::-webkit-scrollbar { width: 6px; height: 6px; }
+  .dark ::-webkit-scrollbar-track { background: transparent; }
+  .dark ::-webkit-scrollbar-thumb { background: var(--hairline); border-radius: 9999px; }
+  .dark ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+  /* ── Reading position rule ─────────────────────────── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--accent);
+    z-index: 100;
+    transition: width 75ms linear;
   }
 
-  /* Pro subtle dark mode scrollbars */
-  .dark ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  /* ── Document band ─────────────────────────────────── */
+  .doc-band {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
   }
-  .dark ::-webkit-scrollbar-track {
-    background: transparent;
+  .doc-band-inner {
+    max-width: 82rem;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+    height: 3.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
   }
-  .dark ::-webkit-scrollbar-thumb {
-    background: #303849;
-    border-radius: 9999px;
+  .doc-brand { display: flex; align-items: baseline; gap: 0.6rem; min-width: 0; }
+  .doc-wordmark {
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    text-decoration: none;
   }
-  .dark ::-webkit-scrollbar-thumb:hover {
-    background: #444f64;
+  .doc-wordmark:hover { color: var(--accent); }
+  .doc-sep { color: var(--ink-3); }
+  .doc-id {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    color: var(--ink-2);
+    white-space: nowrap;
   }
+  .doc-controls { display: flex; align-items: center; gap: 1rem; }
+  .doc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.8rem;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .doc-link:hover { color: var(--accent); }
+  @media (max-width: 40rem) {
+    .doc-link-label { display: none; }
+    .doc-id { white-space: normal; font-size: 0.66rem; }
+  }
+
+  .lang-switch {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.8rem;
+    color: var(--ink-2);
+    text-decoration: none;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+  }
+  .lang-switch:hover { border-color: var(--hairline); color: var(--ink-2); }
+  .lang-switch .is-on { color: var(--accent); font-weight: 700; }
+  .lang-sep { color: var(--ink-3); opacity: 0.6; }
+
+  .lamp-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.8rem;
+    color: var(--ink-2);
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 0.3rem 0.55rem;
+    cursor: pointer;
+  }
+  .lamp-toggle:hover { color: var(--ink); border-color: var(--hairline); }
+  .lamp-toggle .tgl-hidden { display: none; }
+  #theme-icon-sun { color: var(--amber); }
+  #theme-icon-moon { color: var(--ink-2); }
+
+  /* ── Main / colophon ───────────────────────────────── */
+  .site-main { width: 100%; flex: 1; min-width: 0; padding: 2.5rem 1.25rem 0; }
+  .doc-colophon {
+    margin-top: 5rem;
+    border-top: 1px solid var(--rule);
+    background: var(--paper);
+    padding: 2.2rem 1.25rem;
+  }
+  .colophon-inner {
+    max-width: 48rem;
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .colophon-line {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--ink-2);
+  }
+  .colophon-em { color: var(--ink); font-weight: 700; }
 </style>

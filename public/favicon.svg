@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- KatArch memo favicon: a laid-paper square, hairline frame, typewriter K -->
+  <rect x="4" y="4" width="56" height="56" fill="#f4efe3"/>
+  <rect x="4.5" y="4.5" width="55" height="55" fill="none" stroke="#c6bb9e" stroke-width="1"/>
+  <rect x="10" y="10" width="44" height="44" fill="none" stroke="#241f14" stroke-width="1.5"/>
+  <text x="32" y="45" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-weight="700" font-size="34" fill="#241f14">K</text>
+  <rect x="42" y="16" width="6" height="6" fill="#1e42a8"/>
+</svg>
