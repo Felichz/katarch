@@ -357,7 +357,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     border-radius: 2px;
     background: var(--ink);
     color: var(--paper);
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.78rem;
     white-space: nowrap;
     pointer-events: none;
@@ -369,7 +369,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   }
   .toc-heading {
     font-size: 0.72rem;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     text-transform: uppercase;
     letter-spacing: 0.16em;
     color: var(--ink-2);
@@ -390,7 +390,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   .toc-item.active { color: var(--accent); background: var(--accent-wash); }
   .toc-phase {
     font-size: 0.68rem;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     text-transform: uppercase;
     letter-spacing: 0.14em;
     color: var(--ink-2);
@@ -419,14 +419,14 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     align-items: baseline;
   }
   .mast-key {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.16em;
     color: var(--ink-2);
   }
   .mast-val {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.82rem;
     color: var(--ink-2);
     line-height: 1.5;
@@ -466,7 +466,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   }
   .phase-divider span {
     font-size: 0.72rem;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     text-transform: uppercase;
     letter-spacing: 0.2em;
     color: var(--ink-2);
@@ -483,7 +483,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   }
   .section-title::before {
     content: '\00a7' counter(ksec) '\00a0\00a0';
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-weight: 700;
     font-size: 0.62em;
     color: var(--accent);
@@ -508,7 +508,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
       left: -2.9rem;
       width: 2.2rem;
       text-align: right;
-      font-family: 'Courier Prime', monospace;
+      font-family: var(--font-app);
       font-size: 0.68rem;
       line-height: 2.4;
       color: var(--ink-2);
@@ -555,7 +555,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   .block-card .tag {
     display: inline-block;
     font-size: 0.68rem;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     text-transform: uppercase;
     letter-spacing: 0.16em;
     color: var(--accent);
@@ -577,7 +577,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   @media (min-width: 48rem) { .block-stats { grid-template-columns: repeat(4, 1fr); } }
   .stat-cell { padding: 1.1rem 1.15rem; background: var(--paper-raised); }
   .stat-value {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 1.45rem;
     font-weight: 700;
     letter-spacing: -0.01em;
@@ -597,7 +597,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   /* Errata boxes are apparatus: their text fills the box, not the 46rem column */
   .block-callout .set-prose { max-width: none; }
   .block-callout h4 {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.74rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -621,7 +621,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   .block-table { border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; background: var(--paper-raised); }
   .block-table .tbl-caption {
     font-size: 0.72rem;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     text-transform: uppercase;
     letter-spacing: 0.14em;
     color: var(--ink-2);
@@ -635,7 +635,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   }
   .block-table thead th {
     font-size: 0.72rem;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--ink-2);
@@ -662,7 +662,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   }
   .block-figure figcaption::before {
     content: 'Fig. ' counter(kfig) ' \2014\00a0';
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.8em;
     font-weight: 700;
     color: var(--accent);
@@ -704,7 +704,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   .figure-lens-hint {
     position: absolute;
     transform: translateX(-50%);
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.74rem;
     color: var(--paper);
     background: var(--ink);
@@ -716,7 +716,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     z-index: 6;
   }
   .figure-guide-kicker {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.18em;
@@ -754,7 +754,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.78em;
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -805,7 +805,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     color: var(--ink-2);
   }
   .doc-prose code {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.88em;
     color: var(--ink);
     background: var(--paper-deep);
@@ -827,7 +827,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     text-align: left;
     vertical-align: top;
   }
-  .doc-prose th { background: var(--paper-deep); font-weight: 700; color: var(--ink); font-family: 'Courier Prime', monospace; font-size: 0.85em; }
+  .doc-prose th { background: var(--paper-deep); font-weight: 700; color: var(--ink); font-family: var(--font-app); font-size: 0.85em; }
   .doc-prose img {
     max-width: 100%;
     border-radius: 2px;
@@ -855,7 +855,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     margin-left: auto;
   }
   .doc-lang-toggle {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.8rem;
     font-weight: 700;
     color: var(--accent);
@@ -871,7 +871,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.82rem;
     font-weight: 700;
     color: var(--accent);
@@ -912,7 +912,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   }
   .decision-card dl { display: flex; flex-direction: column; gap: 0.75rem; }
   .decision-card dt {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.16em;
@@ -948,7 +948,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   .map-entry:hover { border-color: var(--accent); }
   .map-entry .entry-title { font-size: 1rem; font-weight: 600; line-height: 1.4; color: var(--ink); }
   .map-entry .entry-adrs {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.8rem;
     color: var(--ink-2);
     white-space: nowrap;
@@ -963,7 +963,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     margin: 0.5rem 0;
   }
   .cd-title {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.16em;
@@ -972,7 +972,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     text-align: center;
   }
   .cd-col-title {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.14em;
@@ -1032,7 +1032,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     line-height: 1.72;
   }
   .closing-title {
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.74rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -1133,7 +1133,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     display: flex;
     align-items: center;
     gap: 1.25rem;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.78rem;
     color: #e9e1cb;
   }
@@ -1142,7 +1142,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    font-family: 'Courier Prime', monospace;
+    font-family: var(--font-app);
     font-size: 0.78rem;
     font-weight: 700;
     color: #e9e1cb;

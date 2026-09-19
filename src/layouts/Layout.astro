@@ -22,7 +22,7 @@ const isEnglish = lang === 'en';
     <ViewTransitions />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;0,8..60,800;1,8..60,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Allerta+Stencil&family=Barlow+Condensed:wght@400;600;700&family=Cardo:ital,wght@0,400;0,700;1,400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;0,8..60,800;1,8..60,400&display=swap" rel="stylesheet">
 
     <!-- Theme Script: Defaults to Dark unless explicitly set to Light -->
     <script is:inline>
@@ -31,6 +31,11 @@ const isEnglish = lang === 'en';
         document.documentElement.classList.remove('dark');
       } else {
         document.documentElement.classList.add('dark');
+      }
+      try {
+        document.documentElement.dataset.world = localStorage.getItem('katarch-world') || 'memo';
+      } catch {
+        document.documentElement.dataset.world = 'memo';
       }
     </script>
   </head>
@@ -74,6 +79,13 @@ const isEnglish = lang === 'en';
             <span class="doc-link-label">{isEnglish ? 'Repos' : 'Repositorios'}</span>
             <svg class="doc-link-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
           </a>
+
+          <select class="world-select" data-world-select aria-label={isEnglish ? 'Visual style' : 'Estilo visual'}>
+            <option value="memo">{isEnglish ? 'Standards memo' : 'Memo de estándares'}</option>
+            <option value="botteghe">{isEnglish ? 'Quarterly on blue' : 'Revista sobre mesa azul'}</option>
+            <option value="bench">{isEnglish ? 'Cutting bench' : 'Mesa de montaje'}</option>
+            <option value="plate">{isEnglish ? 'Industrial plate' : 'Placa industrial'}</option>
+          </select>
 
           <a
             href={isEnglish ? '/es' : '/'}
@@ -169,8 +181,38 @@ const isEnglish = lang === 'en';
         });
       }
 
-      window.addEventListener('astro:after-swap', applyStoredTheme);
-      document.addEventListener('astro:page-load', bindThemeToggle);
+      function applyStoredWorld() {
+        let w = 'memo';
+        try {
+          w = localStorage.getItem('katarch-world') || 'memo';
+        } catch {
+          /* keep memo */
+        }
+        document.documentElement.dataset.world = w;
+      }
+
+      function bindWorldSelect() {
+        const sel = document.querySelector('[data-world-select]');
+        if (!sel) return;
+        sel.value = document.documentElement.dataset.world || 'memo';
+        sel.addEventListener('change', () => {
+          document.documentElement.dataset.world = sel.value;
+          try {
+            localStorage.setItem('katarch-world', sel.value);
+          } catch {
+            /* stays per page */
+          }
+        });
+      }
+
+      window.addEventListener('astro:after-swap', () => {
+        applyStoredTheme();
+        applyStoredWorld();
+      });
+      document.addEventListener('astro:page-load', () => {
+        bindThemeToggle();
+        bindWorldSelect();
+      });
     </script>
   </body>
 </html>
@@ -178,7 +220,11 @@ const isEnglish = lang === 'en';
 <style is:global>
   /* ── The memo world: tokens ─────────────────────────────
      Light = laid paper on a desk. Dark = the same memo under a lamp. */
-  :root {
+    /* World tokens: memo (default), botteghe, bench, plate */
+  [data-world="memo"] {
+    --font-body: 'Source Serif 4', Georgia, serif;
+    --font-app: 'Courier Prime', 'Courier New', monospace;
+    --hard-shadow: transparent;
     --paper: #f4efe3;
     --paper-raised: #fbf8ee;
     --paper-deep: #ede7d6;
@@ -194,7 +240,7 @@ const isEnglish = lang === 'en';
     --amber-wash: #f2e6cb;
     --shadow-lift: 0 1px 2px rgb(36 31 20 / 0.08), 0 6px 24px rgb(36 31 20 / 0.07);
   }
-  .dark {
+  .dark[data-world="memo"] {
     --paper: #161310;
     --paper-raised: #1f1b15;
     --paper-deep: #29241b;
@@ -211,9 +257,96 @@ const isEnglish = lang === 'en';
     --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 32px rgb(0 0 0 / 0.35);
   }
 
+  /* Botteghe: a literary quarterly's leaf on an oltremare ground.
+     The ground shows on all sides; the leaf carries the ink. */
+  [data-world="botteghe"] {
+    --font-body: 'Cardo', Georgia, serif;
+    --font-app: 'Cardo', Georgia, serif;
+    --hard-shadow: transparent;
+    --paper: #12305e;
+    --paper-raised: #f6f1e2;
+    --paper-deep: #ece5d0;
+    --ink: #221d11;
+    --ink-2: #544c38;
+    --ink-3: #7c7259;
+    --rule: #d9d0b8;
+    --hairline: #c8bd9f;
+    --accent: #bf3b1f;
+    --accent-strong: #962c15;
+    --accent-wash: #f3ddd2;
+    --amber: #8a4d08;
+    --amber-wash: #f2e6cb;
+    --shadow-lift: 0 18px 50px rgb(4 12 30 / 0.5);
+  }
+  [data-world="botteghe"].dark {
+    --paper: #081a3a;
+    --shadow-lift: 0 22px 60px rgb(0 0 0 / 0.65);
+  }
+
+  /* Bench: a film cutting bench. True black, flag orange, one condensed
+     grotesk; running copy sits in punched cream windows; sections hang
+     from a perforated rail. The bench is the same under any lamp. */
+  [data-world="bench"], [data-world="bench"].dark {
+    --font-body: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --font-app: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+    --hard-shadow: transparent;
+    --paper: #050505;
+    --paper-raised: #f3ead8;
+    --paper-deep: #111111;
+    --ink: #f3ead8;
+    --ink-2: #cfc6b2;
+    --ink-3: #8f8875;
+    --rule: #2b2b2b;
+    --hairline: #3c3c3c;
+    --accent: #ff6a1a;
+    --accent-strong: #ffa25e;
+    --accent-wash: #1c120a;
+    --amber: #ff6a1a;
+    --amber-wash: #1c120a;
+    --shadow-lift: 0 0 0 1px #050505;
+    --window-bg: #f3ead8;
+    --window-ink: #17130d;
+  }
+
+  /* Plate: precisionist. Chalk ground, slate ink, rust accent, flat
+     planes with one hard shadow, stencil numerals. */
+  [data-world="plate"] {
+    --font-body: 'Archivo', 'Helvetica Neue', sans-serif;
+    --font-app: 'Archivo', 'Helvetica Neue', sans-serif;
+    --paper: #f2f0ea;
+    --paper-raised: #fbfaf7;
+    --paper-deep: #e7e4dc;
+    --ink: #2b313c;
+    --ink-2: #565e6c;
+    --ink-3: #79818f;
+    --rule: #c9ccd2;
+    --hairline: #b6bac2;
+    --accent: #b04a24;
+    --accent-strong: #8c3818;
+    --accent-wash: #f0e0d8;
+    --amber: #8a4d08;
+    --amber-wash: #f2e6cb;
+    --shadow-lift: none;
+    --hard-shadow: #2b313c;
+  }
+  [data-world="plate"].dark {
+    --paper: #1b2027;
+    --paper-raised: #242b34;
+    --paper-deep: #2d3540;
+    --ink: #e8ebee;
+    --ink-2: #b4bbc6;
+    --ink-3: #8d95a2;
+    --rule: #3a424e;
+    --hairline: #4a5361;
+    --accent: #d8663c;
+    --accent-strong: #e88a63;
+    --accent-wash: #33231d;
+    --hard-shadow: #0a0d12;
+  }
+
   html { background: var(--paper); }
   body {
-    font-family: 'Source Serif 4', Georgia, serif;
+    font-family: var(--font-body);
     background: var(--paper);
     color: var(--ink);
     min-height: 100vh;
@@ -222,7 +355,7 @@ const isEnglish = lang === 'en';
     transition: background-color 0.2s ease, color 0.2s ease;
   }
   ::selection { background: var(--accent-wash); color: var(--ink); }
-  .mono, code, pre { font-family: 'Courier Prime', 'Courier New', monospace; }
+  .mono, code, pre { font-family: var(--font-app); }
 
   /* Pro dark scrollbars tuned to the desk */
   .dark ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -327,6 +460,20 @@ const isEnglish = lang === 'en';
   #theme-icon-sun { color: var(--amber); }
   #theme-icon-moon { color: var(--ink-2); }
 
+  .world-select {
+    font-family: var(--font-app);
+    font-size: 0.78rem;
+    color: var(--ink-2);
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 0.28rem 0.4rem;
+    cursor: pointer;
+    max-width: 13rem;
+  }
+  .world-select:hover { border-color: var(--hairline); color: var(--ink); }
+  .world-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
   /* ── Main / colophon ───────────────────────────────── */
   .site-main { width: 100%; flex: 1; min-width: 0; padding: 2.5rem 1.25rem 0; }
   .doc-colophon {
@@ -350,4 +497,130 @@ const isEnglish = lang === 'en';
     color: var(--ink-2);
   }
   .colophon-em { color: var(--ink); font-weight: 700; }
+
+  /* == Per-world composition overrides ================================ */
+
+  /* Botteghe: leaf on the ground */
+  [data-world="botteghe"] .site-main { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+  [data-world="botteghe"] .article {
+    background: var(--paper-raised);
+    padding: clamp(2.5rem, 5vw, 4.5rem);
+    box-shadow: var(--shadow-lift);
+    border-radius: 2px;
+  }
+  [data-world="botteghe"] .hero-prose,
+  [data-world="botteghe"] .article .set-prose,
+  [data-world="botteghe"] .article .block-list { max-width: none; }
+  [data-world="botteghe"] .doc-band,
+  [data-world="botteghe"] .doc-colophon {
+    --ink: #e8e2cf;
+    --ink-2: #b9c0d4;
+    --ink-3: #8f97ad;
+    --rule: rgb(232 226 207 / 0.25);
+    --hairline: rgb(232 226 207 / 0.35);
+    --accent: #e8745a;
+  }
+  [data-world="botteghe"] .toc-rail {
+    --paper-deep: rgb(232 226 207 / 0.12);
+    --ink: #e8e2cf;
+    --ink-2: #b9c0d4;
+    --ink-3: #8f97ad;
+    --rule: rgb(232 226 207 / 0.25);
+    --paper-raised: transparent;
+    --accent: #e8745a;
+    --accent-wash: rgb(232 116 90 / 0.15);
+  }
+  [data-world="botteghe"] .toc-card { border-color: transparent; background: transparent; }
+  [data-world="botteghe"] .memo-masthead {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--accent);
+    border-radius: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  [data-world="botteghe"] .mast-key, [data-world="botteghe"] .doc-id,
+  [data-world="botteghe"] .block-card .tag, [data-world="botteghe"] .tbl-caption,
+  [data-world="botteghe"] .decision-card dt, [data-world="botteghe"] .cd-title,
+  [data-world="botteghe"] .cd-col-title, [data-world="botteghe"] .closing-title,
+  [data-world="botteghe"] .figure-guide-kicker, [data-world="botteghe"] .block-callout h4 {
+    font-variant-caps: all-small-caps;
+    letter-spacing: 0.14em;
+  }
+  [data-world="botteghe"] .section-title::before { font-size: 0.85em; vertical-align: 0.15em; }
+  [data-world="botteghe"] .doc-wordmark, [data-world="botteghe"] .doc-link,
+  [data-world="botteghe"] .lamp-toggle, [data-world="botteghe"] .world-select,
+  [data-world="botteghe"] .lang-switch { font-variant-caps: all-small-caps; }
+
+  /* Bench: punched windows on black, perforated rail */
+  [data-world="bench"] body, [data-world="bench"].dark body { background: #050505; }
+  [data-world="bench"] .hero-prose,
+  [data-world="bench"] .section-body > .set-prose,
+  [data-world="bench"] .section-body > .block-list {
+    background: var(--window-bg);
+    color: var(--window-ink);
+    padding: 1.1rem 1.35rem;
+    border-radius: 0;
+  }
+  [data-world="bench"] .hero-prose a,
+  [data-world="bench"] .section-body > .set-prose a { color: #a33c00; }
+  [data-world="bench"] .hero-prose strong,
+  [data-world="bench"] .section-body > .set-prose strong { color: var(--window-ink); }
+  [data-world="bench"] .memo-masthead, [data-world="bench"] .block-card,
+  [data-world="bench"] .block-callout, [data-world="bench"] .block-stats,
+  [data-world="bench"] .figure-guide, [data-world="bench"] .decision-card,
+  [data-world="bench"] .block-table, [data-world="bench"] .context-diagram,
+  [data-world="bench"] .map-entry {
+    --ink: #17130d;
+    --ink-2: #4a4438;
+    --ink-3: #77705f;
+    --accent: #a33c00;
+    --accent-strong: #7c2e00;
+    --rule: #d8cfb6;
+    --hairline: #c8bd9f;
+    border-radius: 0;
+  }
+  [data-world="bench"] .hero-title { font-weight: 600; letter-spacing: 0.005em; }
+  [data-world="bench"] .section-title { text-transform: uppercase; font-weight: 600; letter-spacing: 0.01em; }
+  [data-world="bench"] .section-title::before { content: none; }
+  [data-world="bench"] .article-section { position: relative; padding-top: 1.4rem; }
+  [data-world="bench"] .article-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-image: repeating-linear-gradient(90deg, transparent 0 14px, #2b2b2b 14px 24px);
+  }
+  [data-world="bench"] .block-figure img { border-radius: 0; border-color: #000; }
+
+  /* Plate: hard planes and stencil numerals */
+  [data-world="plate"] .block-card, [data-world="plate"] .block-callout,
+  [data-world="plate"] .block-stats, [data-world="plate"] .figure-guide,
+  [data-world="plate"] .decision-card, [data-world="plate"] .block-table,
+  [data-world="plate"] .context-diagram, [data-world="plate"] .map-entry,
+  [data-world="plate"] .memo-masthead {
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    box-shadow: 8px 8px 0 var(--hard-shadow);
+    background: var(--paper-raised);
+  }
+  [data-world="plate"] .block-callout[data-tone='reference'] { border-color: var(--accent); }
+  [data-world="plate"] .block-figure img {
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    box-shadow: 8px 8px 0 var(--hard-shadow);
+  }
+  [data-world="plate"] .section-title::before {
+    font-family: 'Allerta Stencil', var(--font-app);
+    font-size: 1.05em;
+    vertical-align: -0.08em;
+    letter-spacing: 0.04em;
+  }
+  [data-world="plate"] .stat-value {
+    font-family: 'Allerta Stencil', var(--font-app);
+    font-weight: 400;
+  }
+  [data-world="plate"] .doc-band { border-bottom-width: 3px; border-bottom-color: var(--ink); }
 </style>
