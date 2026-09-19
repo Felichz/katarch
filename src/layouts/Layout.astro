@@ -80,15 +80,6 @@ const isEnglish = lang === 'en';
             <svg class="doc-link-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
           </a>
 
-          <select class="world-select" data-world-select aria-label={isEnglish ? 'Visual style' : 'Estilo visual'}>
-            <option value="memo">{isEnglish ? 'Standards memo' : 'Memo de estándares'}</option>
-            <option value="botteghe">{isEnglish ? 'Quarterly on blue' : 'Revista sobre mesa azul'}</option>
-            <option value="bench">{isEnglish ? 'Cutting bench' : 'Mesa de montaje'}</option>
-            <option value="plate">{isEnglish ? 'Industrial plate' : 'Placa industrial'}</option>
-            <option value="tensegrity">{isEnglish ? 'Tensegrity column' : 'Columna tenségrita'}</option>
-            <option value="datamatics">{isEnglish ? 'Data field (B/W)' : 'Campo de datos (B/N)'}</option>
-          </select>
-
           <a
             href={isEnglish ? '/es' : '/'}
             class="lang-switch"
@@ -193,28 +184,11 @@ const isEnglish = lang === 'en';
         document.documentElement.dataset.world = w;
       }
 
-      function bindWorldSelect() {
-        const sel = document.querySelector('[data-world-select]');
-        if (!sel) return;
-        sel.value = document.documentElement.dataset.world || 'memo';
-        sel.addEventListener('change', () => {
-          document.documentElement.dataset.world = sel.value;
-          try {
-            localStorage.setItem('katarch-world', sel.value);
-          } catch {
-            /* stays per page */
-          }
-        });
-      }
-
       window.addEventListener('astro:after-swap', () => {
         applyStoredTheme();
         applyStoredWorld();
       });
-      document.addEventListener('astro:page-load', () => {
-        bindThemeToggle();
-        bindWorldSelect();
-      });
+      document.addEventListener('astro:page-load', bindThemeToggle);
     </script>
   </body>
 </html>
@@ -535,19 +509,6 @@ const isEnglish = lang === 'en';
   #theme-icon-sun { color: var(--amber); }
   #theme-icon-moon { color: var(--ink-2); }
 
-  .world-select {
-    font-family: var(--font-app);
-    font-size: 0.78rem;
-    color: var(--ink-2);
-    background: var(--paper-raised);
-    border: 1px solid var(--rule);
-    border-radius: 2px;
-    padding: 0.28rem 0.4rem;
-    cursor: pointer;
-    max-width: 13rem;
-  }
-  .world-select:hover { border-color: var(--hairline); color: var(--ink); }
-  .world-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   /* ── Main / colophon ───────────────────────────────── */
   .site-main { width: 100%; flex: 1; min-width: 0; padding: 2.5rem 1.25rem 0; }

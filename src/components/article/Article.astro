@@ -57,6 +57,16 @@ for (const d of DECISIONS) for (const ref of d.adrs) usedDocIds.add(`adr-${ref.i
 const usedDocs = ORIGINAL_DOCS.filter((d) => usedDocIds.has(d.id));
 const uiDocKicker = isES ? 'Documento original · ArchColider' : 'Original document · ArchColider';
 const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Open the original file in the ArchColider repo';
+
+// The world bench: the six visual worlds, thumb labels per edition
+const WORLDS = [
+  { id: 'memo', es: 'Memo', en: 'Memo' },
+  { id: 'botteghe', es: 'Revista azul', en: 'Quarterly' },
+  { id: 'bench', es: 'Montaje', en: 'Bench' },
+  { id: 'plate', es: 'Placa', en: 'Plate' },
+  { id: 'tensegrity', es: 'Tenségrita', en: 'Tensegrity' },
+  { id: 'datamatics', es: 'Datos B/N', en: 'Data B/W' },
+];
 ---
 
 <!-- Concept modal shells (only those actually referenced in the article) -->
@@ -210,6 +220,29 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
       </div>
     </header>
 
+    <!-- World bench: hover previews the world live, click applies it -->
+    <section class="world-bench world-picker" data-world-bench aria-label={isES ? 'Estilo visual' : 'Visual style'} role="radiogroup">
+      <p class="bench-legend">
+        <span class="bench-title">{isES ? 'Estilo visual' : 'Visual style'}</span>
+        <span class="bench-hint">{isES ? 'pasá el mouse para ver · clic para aplicar' : 'hover to preview · click to apply'}</span>
+      </p>
+      <div class="bench-row">
+        {WORLDS.map((w) => (
+          <button class="world-thumb" type="button" role="radio" aria-checked="false" data-world-thumb={w.id}>
+            <span class={`wd-mini wd-${w.id}`} aria-hidden="true">
+              <i class="wd-glyph">Aa</i>
+              <i class="wd-l wd-l1"></i>
+              <i class="wd-l wd-l2"></i>
+              <i class="wd-l wd-l3"></i>
+              <i class="wd-tick"></i>
+            </span>
+            <span class="wd-name">{isES ? w.es : w.en}</span>
+            <span class="wd-on" aria-hidden="true">{isES ? 'en uso' : 'active'}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+
     {content.sections.map((section, si) => {
       const prevPhase = si > 0 ? content.sections[si - 1].phase : null;
       const phaseChanged = section.phase !== prevPhase;
@@ -235,6 +268,28 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
       {content.closing.paragraphs.map((p) => <p>{p}</p>)}
     </footer>
   </article>
+</div>
+
+<!-- World dock: takes over when the bench scrolls out of view -->
+<div class="world-dock world-picker" data-world-dock hidden aria-label={isES ? 'Estilo visual' : 'Visual style'}>
+  <div class="dock-popover" data-dock-popover hidden role="radiogroup">
+    {WORLDS.map((w) => (
+      <button class="world-thumb dock-thumb" type="button" role="radio" aria-checked="false" data-world-thumb={w.id}>
+        <span class={`wd-mini wd-${w.id}`} aria-hidden="true">
+          <i class="wd-glyph">Aa</i>
+          <i class="wd-l wd-l1"></i>
+          <i class="wd-l wd-l2"></i>
+          <i class="wd-tick"></i>
+        </span>
+        <span class="wd-name">{isES ? w.es : w.en}</span>
+      </button>
+    ))}
+  </div>
+  <button class="dock-chip" type="button" data-dock-chip aria-expanded="false">
+    <span class="dock-dot" data-dock-dot aria-hidden="true"></span>
+    <span class="dock-label" data-dock-label>memo</span>
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>
+  </button>
 </div>
 
 <script>
@@ -1163,5 +1218,251 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     margin-top: 1.25rem;
     padding-top: 1.1rem;
     border-top: 1px solid var(--rule);
+  }
+
+  /* ══ World bench & dock: the style comparison instrument ════════════
+     Its chrome is deliberately fixed (does not re-skin with the worlds):
+     only the miniatures depict each world. */
+
+  /* Instant switching while previewing: no crossfades to freeze */
+  html.world-snap *, html.world-snap *::before, html.world-snap *::after {
+    transition: none !important;
+  }
+
+  .world-bench {
+    border: 1px solid #2a2620;
+    background: #1c1915;
+    padding: 1rem 1.1rem 1.1rem;
+    margin: -0.5rem 0 3rem;
+  }
+  :root:not(.dark) .world-bench { border-color: #c9c0aa; background: #f8f4e9; }
+  .bench-legend {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    margin: 0 0 0.8rem;
+  }
+  .bench-title {
+    font-family: var(--font-app);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #e9e1cb;
+  }
+  :root:not(.dark) .bench-title { color: #241f14; }
+  .bench-hint {
+    font-family: var(--font-app);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    color: #8d8368;
+  }
+  .bench-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.6rem;
+  }
+  @media (max-width: 64rem) { .bench-row { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 26rem) { .bench-row { grid-template-columns: repeat(2, 1fr); } }
+
+  .world-thumb {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0;
+    border: 1px solid transparent;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    text-align: center;
+    position: relative;
+  }
+  .world-thumb:focus-visible { outline: 2px solid #e9e1cb; outline-offset: 2px; }
+  :root:not(.dark) .world-thumb:focus-visible { outline-color: #241f14; }
+  .world-thumb:hover .wd-mini, .world-thumb:focus-visible .wd-mini {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.35);
+  }
+  .wd-mini {
+    display: block;
+    position: relative;
+    aspect-ratio: 5 / 3;
+    border: 1px solid #2a2620;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    overflow: hidden;
+  }
+  :root:not(.dark) .wd-mini { border-color: #b6ac93; }
+  .wd-name {
+    font-family: var(--font-app);
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: #b1a78d;
+  }
+  :root:not(.dark) .wd-name { color: #6e6651; }
+  .wd-on {
+    display: none;
+    position: absolute;
+    top: 0.3rem;
+    right: 0.3rem;
+    font-family: var(--font-app);
+    font-size: 0.56rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #e9e1cb;
+    background: rgb(0 0 0 / 0.55);
+    padding: 0.1rem 0.3rem;
+  }
+  :root:not(.dark) .wd-on { color: #241f14; background: rgb(255 255 255 / 0.75); }
+  .world-thumb[data-active] { border-color: #e9e1cb; }
+  :root:not(.dark) .world-thumb[data-active] { border-color: #241f14; }
+  .world-thumb[data-active] .wd-on { display: block; }
+  .world-thumb[data-active] .wd-name { color: #e9e1cb; font-weight: 700; }
+  :root:not(.dark) .world-thumb[data-active] .wd-name { color: #241f14; }
+
+  /* Greeked text lines + glyph, painted per world */
+  .wd-l { position: absolute; left: 12%; height: 2px; border-radius: 0; }
+  .wd-l1 { width: 62%; top: 58%; }
+  .wd-l2 { width: 48%; top: 70%; }
+  .wd-l3 { width: 54%; top: 82%; }
+  .wd-glyph {
+    position: absolute;
+    top: 10%;
+    left: 12%;
+    font-size: 1.05rem;
+    line-height: 1;
+    font-style: normal;
+  }
+  .wd-tick { position: absolute; }
+
+  .wd-memo { background: #f4efe3; }
+  .wd-memo .wd-glyph { font-family: 'Source Serif 4', serif; font-weight: 800; color: #241f14; }
+  .wd-memo .wd-l { background: #6e6651; }
+  .wd-memo .wd-l1 { background: #1e42a8; }
+  .wd-memo .wd-tick { top: 14%; right: 12%; width: 14px; height: 3px; background: #1e42a8; }
+
+  .wd-botteghe { background: #12305e; }
+  .wd-botteghe::before {
+    content: '';
+    position: absolute;
+    inset: 14% 10% 12% 22%;
+    background: #f6f1e2;
+  }
+  .wd-botteghe .wd-glyph { font-family: Cardo, serif; font-weight: 700; color: #221d11; z-index: 1; }
+  .wd-botteghe .wd-l { left: 24%; background: #544c38; z-index: 1; }
+  .wd-botteghe .wd-l1 { background: #a83317; }
+  .wd-botteghe .wd-tick { top: 16%; right: 13%; width: 3px; height: 14px; background: #e8745a; }
+
+  .wd-bench { background: #050505; }
+  .wd-bench .wd-glyph {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    color: #17130d;
+    background: #f3ead8;
+    padding: 1px 4px;
+    font-size: 0.9rem;
+  }
+  .wd-bench .wd-l { background: #f3ead8; height: 8px; opacity: 0.9; }
+  .wd-bench .wd-l1 { width: 74%; top: 56%; }
+  .wd-bench .wd-l2 { width: 74%; top: 68%; }
+  .wd-bench .wd-l3 { width: 74%; top: 80%; }
+  .wd-bench .wd-tick { top: 12%; right: 12%; width: 8px; height: 8px; background: #ff6a1a; }
+
+  .wd-plate { background: #f2f0ea; }
+  .wd-plate::before {
+    content: '';
+    position: absolute;
+    inset: 16% 18% 20% 10%;
+    background: #fbfaf7;
+    border: 1.5px solid #2b313c;
+    box-shadow: 4px 4px 0 #2b313c;
+  }
+  .wd-plate .wd-glyph { font-family: 'Allerta Stencil', sans-serif; color: #b04a24; z-index: 1; }
+  .wd-plate .wd-l { left: 13%; background: #565e6c; z-index: 1; }
+  .wd-plate .wd-tick { top: 10%; right: 10%; width: 10px; height: 10px; border: 1.5px solid #2b313c; }
+
+  .wd-tensegrity { background: #d9d6cf; }
+  .wd-tensegrity .wd-glyph { font-family: Archivo, sans-serif; font-weight: 700; color: #202022; }
+  .wd-tensegrity .wd-l { background: #4d4d50; height: 3px; }
+  .wd-tensegrity .wd-l::before { content: none; }
+  .wd-tensegrity .wd-tick {
+    top: 46%; left: 38%;
+    width: 9px; height: 9px;
+    background: #ab0d28;
+    box-shadow: 14px 12px 0 -3px #202022, 28px 24px 0 -3px #202022;
+  }
+
+  .wd-datamatics { background: #ffffff; }
+  .wd-datamatics .wd-glyph {
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    color: #ffffff;
+    background: #000000;
+    padding: 1px 4px;
+    font-size: 0.85rem;
+  }
+  .wd-datamatics .wd-l { background: #000000; }
+  .wd-datamatics .wd-tick { top: 0; left: 0; right: 0; height: 3px; background: #000000; }
+  .dark .wd-datamatics { background: #000000; }
+  .dark .wd-datamatics .wd-l { background: #ffffff; }
+  .dark .wd-datamatics .wd-glyph { color: #000000; background: #ffffff; }
+  .dark .wd-datamatics .wd-tick { background: #ffffff; }
+
+  /* ── Floating dock ── */
+  .world-dock {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+  .world-dock[hidden] { display: none; }
+  .dock-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-app);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #e9e1cb;
+    background: #1c1915;
+    border: 1px solid #2a2620;
+    border-radius: 2px;
+    padding: 0.45rem 0.75rem;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+  }
+  :root:not(.dark) .dock-chip { color: #241f14; background: #f8f4e9; border-color: #c9c0aa; }
+  .dock-chip:hover { border-color: #8d8368; }
+  .dock-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 1px;
+    background: #a3b8f3;
+  }
+  .dock-popover {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    background: #1c1915;
+    border: 1px solid #2a2620;
+    border-radius: 2px;
+    padding: 0.7rem;
+    box-shadow: 0 14px 40px rgb(0 0 0 / 0.5);
+    animation: dock-pop 0.15s ease-out;
+  }
+  :root:not(.dark) .dock-popover { background: #f8f4e9; border-color: #c9c0aa; }
+  .dock-popover[hidden] { display: none; }
+  .dock-thumb .wd-mini { aspect-ratio: 5 / 3; }
+  @media (prefers-reduced-motion: reduce) {
+    .dock-popover { animation: none; }
+    .world-thumb:hover .wd-mini { transform: none; }
+  }
+  @keyframes dock-pop {
+    from { opacity: 0; transform: translateY(6px) scale(0.98); }
+    to { opacity: 1; transform: none; }
   }
 </style>

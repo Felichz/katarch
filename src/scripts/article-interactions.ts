@@ -393,27 +393,169 @@ function bindToc() {
     }
   }
 
-  // Active section highlighting (rail dots + expanded items)
+  // Active section highlighting (rail dots + expanded items).
+  // IntersectionObserver first; a scroll hook covers engines that never
+  // fire IO callbacks (observed in embedded browsers).
   const tocLinks = Array.from(
     document.querySelectorAll<HTMLAnchorElement>('[data-toc]'),
   );
-  if (tocLinks.length > 0 && 'IntersectionObserver' in window) {
-    const visible = new Set<string>();
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const id = (entry.target as HTMLElement).id;
-          if (entry.isIntersecting) visible.add(id);
-          else visible.delete(id);
-        }
-        const activeId = tocLinks.find((l) => visible.has(l.dataset.toc!))?.dataset.toc;
-        tocLinks.forEach((l) =>
-          l.classList.toggle('active', l.dataset.toc === activeId),
-        );
-      },
-      { rootMargin: '-15% 0px -70% 0px' },
-    );
-    document.querySelectorAll('[data-section]').forEach((s) => io.observe(s));
+  if (tocLinks.length > 0) {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-section]'));
+    const syncToc = () => {
+      const line = window.innerHeight * 0.3;
+      let activeId: string | undefined;
+      for (const sec of sections) {
+        if (sec.getBoundingClientRect().top <= line) activeId = sec.id;
+        else break;
+      }
+      activeId ??= tocLinks[0].dataset.toc;
+      tocLinks.forEach((l) => l.classList.toggle('active', l.dataset.toc === activeId));
+    };
+    (window as typeof window & { __katarchTocSync?: () => void }).__katarchTocSync = syncToc;
+    syncToc();
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(syncToc, { rootMargin: '-15% 0px -70% 0px' });
+      sections.forEach((sec) => io.observe(sec));
+    }
+  }
+}
+
+
+// ── World bench & dock: hover previews the world live, click applies ──
+const WORLD_KEY = 'katarch-world';
+
+function storedWorld(): string {
+  try {
+    return localStorage.getItem(WORLD_KEY) || 'memo';
+  } catch {
+    return 'memo';
+  }
+}
+
+function applyWorld(v: string) {
+  document.documentElement.dataset.world = v;
+}
+
+function snapOn() {
+  document.documentElement.classList.add('world-snap');
+}
+function snapOff() {
+  document.documentElement.classList.remove('world-snap');
+}
+
+function markActiveWorld(v: string) {
+  document.querySelectorAll<HTMLElement>('[data-world-thumb]').forEach((t) => {
+    const active = t.dataset.worldThumb === v;
+    t.toggleAttribute('data-active', active);
+    t.setAttribute('aria-checked', active ? 'true' : 'false');
+  });
+  const dot = document.querySelector<HTMLElement>('[data-dock-dot]');
+  const label = document.querySelector<HTMLElement>('[data-dock-label]');
+  const DOT: Record<string, string> = {
+    memo: '#a3b8f3', botteghe: '#a83317', bench: '#ff6a1a',
+    plate: '#b04a24', tensegrity: '#c8102e', datamatics: '#e9e1cb',
+  };
+  if (dot) dot.style.background = DOT[v] ?? '#a3b8f3';
+  if (label) label.textContent = v;
+}
+
+function bindWorldPicker() {
+  const bench = document.querySelector<HTMLElement>('[data-world-bench]');
+  const dock = document.querySelector<HTMLElement>('[data-world-dock]');
+  const chip = document.querySelector<HTMLElement>('[data-dock-chip]');
+  const popover = document.querySelector<HTMLElement>('[data-dock-popover]');
+  if (!bench || !dock) return;
+
+  applyWorld(storedWorld());
+  markActiveWorld(storedWorld());
+
+  const preview = (v: string) => {
+    snapOn();
+    applyWorld(v);
+  };
+  const restore = () => {
+    applyWorld(storedWorld());
+    snapOff();
+  };
+  const commit = (v: string) => {
+    try {
+      localStorage.setItem(WORLD_KEY, v);
+    } catch {
+      /* stays per page */
+    }
+    applyWorld(v);
+    markActiveWorld(v);
+    snapOff();
+  };
+
+  // Hover preview + click to apply, delegated over both pickers
+  for (const picker of document.querySelectorAll<HTMLElement>('.world-picker')) {
+    picker.addEventListener('mouseover', (e) => {
+      const thumb = (e.target as HTMLElement).closest<HTMLElement>('[data-world-thumb]');
+      if (thumb) preview(thumb.dataset.worldThumb!);
+    });
+    picker.addEventListener('mouseleave', restore);
+    picker.addEventListener('click', (e) => {
+      const thumb = (e.target as HTMLElement).closest<HTMLElement>('[data-world-thumb]');
+      if (thumb) commit(thumb.dataset.worldThumb!);
+    });
+    picker.addEventListener('focusin', (e) => {
+      const thumb = (e.target as HTMLElement).closest<HTMLElement>('[data-world-thumb]');
+      if (thumb) preview(thumb.dataset.worldThumb!);
+    });
+    picker.addEventListener('focusout', restore);
+    // Keyboard: arrows walk the previews, Enter/Space commits (button default)
+    picker.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const thumbs = [...picker.querySelectorAll<HTMLElement>('[data-world-thumb]')];
+      const i = thumbs.indexOf(document.activeElement as HTMLElement);
+      if (i === -1) return;
+      e.preventDefault();
+      const next = thumbs[(i + (e.key === 'ArrowRight' ? 1 : thumbs.length - 1)) % thumbs.length];
+      next.focus();
+    });
+  }
+
+  // Dock: appears when the bench leaves the viewport, hover/tap expands
+  const expand = (on: boolean) => {
+    if (!popover || !chip) return;
+    popover.hidden = !on;
+    chip.setAttribute('aria-expanded', on ? 'true' : 'false');
+  };
+  if (chip && popover) {
+    chip.addEventListener('click', () => expand(popover.hidden));
+    dock.addEventListener('mouseenter', () => expand(true));
+    dock.addEventListener('mouseleave', () => {
+      expand(false);
+      restore();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !popover.hidden) {
+        expand(false);
+        restore();
+      }
+    });
+  }
+
+  const syncDock = () => {
+    const b = document.querySelector<HTMLElement>('[data-world-bench]');
+    const d = document.querySelector<HTMLElement>('[data-world-dock]');
+    if (!b || !d) return;
+    const r = b.getBoundingClientRect();
+    const visible = r.bottom > 80 && r.top < window.innerHeight;
+    if (d.hidden === visible) return;
+    d.hidden = visible;
+    if (visible) {
+      expand(false);
+      restore();
+    }
+  };
+  // The scroll hook survives swaps; some embedded browsers never fire IO.
+  (window as typeof window & { __katarchWorldSync?: () => void }).__katarchWorldSync = syncDock;
+  syncDock();
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(syncDock);
+    io.observe(bench);
   }
 }
 
@@ -423,6 +565,7 @@ function bindPage() {
   applyDocLang(getDocLang());
   bindLens();
   bindToc();
+  bindWorldPicker();
   for (const dlg of document.querySelectorAll('dialog')) {
     dialogObserver.observe(dlg, { attributes: true, attributeFilter: ['open'] });
   }
@@ -434,6 +577,24 @@ if (!w.__katarchBound) {
   w.__katarchBound = true;
   document.addEventListener('click', onDocClick);
   document.addEventListener('keydown', onDocKeydown);
+  // Timer throttle with a guaranteed trailing call: rAF callbacks never
+  // run in some embedded browsers (observed alongside frozen transitions
+  // and dead IntersectionObservers), timers always do.
+  let scrollTimer: number | undefined;
+  const onScroll = () => {
+    if (scrollTimer) return;
+    scrollTimer = window.setTimeout(() => {
+      scrollTimer = undefined;
+      const w = window as typeof window & {
+        __katarchWorldSync?: () => void;
+        __katarchTocSync?: () => void;
+      };
+      w.__katarchWorldSync?.();
+      w.__katarchTocSync?.();
+    }, 120);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+
   document.addEventListener('astro:before-swap', () => {
     savedScrollY = window.scrollY;
     savedAnchor = null;
