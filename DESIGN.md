@@ -117,3 +117,15 @@ set). Memo remains the default and the documented world.
 - `plate` - Industrial plate: chalk/slate/rust planes, 2px ink borders
   with one hard offset shadow, Archivo body, Allerta Stencil numerals,
   dark = night foundry.
+- `tensegrity` - Tensegrity column: carbon members on a concrete floor
+  held by one red cord; Archivo body with Courier engineering labels,
+  red 9px node markers on card titles; dark = the workshop at night.
+- `datamatics` - Data field: pure black/white, Courier Prime at data
+  density, inverted label blocks, 2px section rules, square everything;
+  dark is the full-frame negative.
+
+Light/dark contract: every world defines both modes over the same token
+names (bench is a single lit bench by design). Contrast audited with
+WCAG relative luminance across all world x mode pairs (body, links,
+card text, guides, labels, band); the inverted-label pattern is
+measured against its own background.
