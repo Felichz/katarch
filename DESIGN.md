@@ -97,3 +97,23 @@ The shell runs `82rem` (band inner and article shell); the reading column caps a
 - Paragraph numerals are counters, not anchors — cross-reference anchoring ("see ¶ 12") is future work.
 - The memo index (TOC rail) is hidden below 72rem; there is no mobile index.
 - The mono apparatus size range is deliberately compressed (document furniture); the big type scale lives in the serif article. The wordmark, § numerals and stat values are the sanctioned oversizes.
+
+## World selector (comparison layer)
+
+A header select (`katarch-world` in localStorage, applied pre-paint and
+re-applied after ES/EN swaps) can render the surface in the three
+alternate directions from the decision round, on top of the same token
+names (`--font-body` / `--font-app` / `--hard-shadow` plus the standard
+set). Memo remains the default and the documented world.
+
+- `botteghe` - Quarterly on blue: cream leaf (max-width 50rem, centered,
+  ground on all sides; justified Cardo column, small-caps apparatus,
+  vermilion accents; boxes take `--paper-deep`; dark deepens only the
+  ground).
+- `bench` - Cutting bench: true black + flag orange, Barlow Condensed,
+  prose in punched cream windows (windows carry their own ink scope),
+  sections under a perforated rail; guides/callouts/modals are cream
+  cards re-inked dark; same under any lamp.
+- `plate` - Industrial plate: chalk/slate/rust planes, 2px ink borders
+  with one hard offset shadow, Archivo body, Allerta Stencil numerals,
+  dark = night foundry.

@@ -623,4 +623,91 @@ const isEnglish = lang === 'en';
     font-weight: 400;
   }
   [data-world="plate"] .doc-band { border-bottom-width: 3px; border-bottom-color: var(--ink); }
+
+  /* == World polish pass =============================================== */
+
+  /* Botteghe refinements */
+  [data-world="botteghe"] .article {
+    /* the leaf is narrower than the desk: the ground shows on all sides */
+    max-width: 50rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  [data-world="botteghe"] .site-main { padding-top: 4.5rem; }
+  /* boxes on the leaf take the deeper cream, not the leaf's own */
+  [data-world="botteghe"] .block-card,
+  [data-world="botteghe"] .block-callout,
+  [data-world="botteghe"] .figure-guide,
+  [data-world="botteghe"] .decision-card,
+  [data-world="botteghe"] .map-entry,
+  [data-world="botteghe"] .block-table,
+  [data-world="botteghe"] .context-diagram,
+  [data-world="botteghe"] .block-stats { background: var(--paper-deep); }
+  /* Cardo tops out at 700: no faux bold */
+  [data-world="botteghe"] .hero-title,
+  [data-world="botteghe"] .section-title { font-weight: 700; }
+  /* the quarterly's justified column */
+  [data-world="botteghe"] .article .set-prose { text-align: justify; hyphens: auto; }
+  [data-world="botteghe"] .article .block-list { text-align: left; }
+  /* band + colophon: outlined controls on the ground, no cream chips */
+  [data-world="botteghe"] .doc-band,
+  [data-world="botteghe"] .doc-colophon {
+    --paper-raised: transparent;
+    --paper-deep: rgb(232 226 207 / 0.14);
+  }
+  [data-world="botteghe"] .toc-tooltip {
+    background: #f6f1e2;
+    color: #221d11;
+    border-color: #f6f1e2;
+  }
+  [data-world="botteghe"] .figure-lens-hint {
+    background: var(--accent);
+    color: #fff6ec;
+    border-color: var(--accent);
+  }
+  [data-world="botteghe"] .lens-stage-close { color: #e8e2cf; border-color: rgb(232 226 207 / 0.5); }
+
+  /* Bench refinements */
+  /* the reading guide is a cream workbench card, not a dark panel */
+  [data-world="bench"] .figure-guide { background: #ece3cf; border-color: #b9ad8f; }
+  [data-world="bench"] .cd-node { background: #ece3cf; }
+  [data-world="bench"] .cd-central { background: #f6e3d3; border-color: #a33c00; }
+  /* errata boxes: orange-washed windows with dark ink */
+  [data-world="bench"] .block-callout { color: #17130d; }
+  [data-world="bench"] .block-callout[data-tone='reference'] { background: #f6e3d3; border-color: #a33c00; }
+  [data-world="bench"] .block-callout[data-tone='amber'] { background: #f2e0c8; border-color: #7c2e00; }
+  [data-world="bench"] .block-callout[data-tone='note'] { background: #f3ead8; }
+  /* modals are cream sheets too: re-ink their inside */
+  [data-world="bench"] .modal-card {
+    --ink: #17130d;
+    --ink-2: #4a4438;
+    --ink-3: #77705f;
+    --accent: #a33c00;
+    --accent-strong: #7c2e00;
+    --rule: #d8cfb6;
+    --hairline: #c8bd9f;
+    --accent-wash: #f6e3d3;
+    --amber-wash: #f2e0c8;
+  }
+  /* band controls: outlined on black, no cream chips */
+  [data-world="bench"] .world-select,
+  [data-world="bench"] .lamp-toggle,
+  [data-world="bench"] .lang-switch {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--hairline);
+  }
+  [data-world="bench"] .doc-id { color: var(--ink-3); }
+  /* the punched windows carry their own ink (chips, terms) */
+  [data-world="bench"] .hero-prose,
+  [data-world="bench"] .section-body > .set-prose,
+  [data-world="bench"] .section-body > .block-list {
+    --ink: #17130d;
+    --ink-2: #4a4438;
+    --ink-3: #77705f;
+    --accent: #a33c00;
+    --accent-strong: #7c2e00;
+  }
+  [data-world="bench"] .section-body > .set-prose a { color: var(--accent); }
+  [data-world="bench"] .doc-ref { background: #ece3cf; }
 </style>
