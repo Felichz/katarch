@@ -195,6 +195,7 @@ function bindLens() {
   const stageClose = stage?.querySelector<HTMLElement>('[data-lens-close]') ?? null;
   let stageOpener: HTMLElement | null = null;
   let stageOpen = false;
+  let stageLensOn = false;
   let stageZoom = 1;
   let stageLast: MouseEvent | null = null;
 
@@ -218,10 +219,14 @@ function bindLens() {
     stageLens.style.width = `${lensW}px`;
     stageLens.style.height = `${lensH}px`;
     if (stagePill) {
-      stagePill.textContent = HINT_ON;
+      stagePill.textContent = stageLensOn ? HINT_ON : HINT_OFF;
       stagePill.style.left = `${e.clientX - plateRect.left}px`;
       stagePill.style.top = `${e.clientY - plateRect.top + halfH + 10}px`;
       stagePill.hidden = false;
+    }
+    if (!stageLensOn) {
+      stageLens.hidden = true;
+      return;
     }
     if (!stageImg.complete || !stageImg.naturalWidth) return;
     const scale = (stageImg.naturalWidth / rect.width) * stageZoom;
@@ -236,6 +241,7 @@ function bindLens() {
   const closeStage = () => {
     if (!stage || !stageOpen) return;
     stageOpen = false;
+    stageLensOn = false;
     stageZoom = 1;
     stage.hidden = true;
     if (stageLens) stageLens.hidden = true;
@@ -243,6 +249,7 @@ function bindLens() {
     unlockScroll();
     stageOpener?.focus?.();
     stageOpener = null;
+    stageLast = null;
   };
 
   const openStage = (srcImg: HTMLImageElement, opener: HTMLElement) => {
@@ -263,6 +270,7 @@ function bindLens() {
     stageImg.style.width = `${Math.round(nw * k)}px`;
     stageImg.style.height = `${Math.round(nh * k)}px`;
     stageOpen = true;
+    stageLensOn = true;
     stageZoom = 1;
     if (stageLens) stageLens.hidden = true;
     if (stagePill) stagePill.hidden = true;
@@ -278,7 +286,13 @@ function bindLens() {
       if (stagePill) stagePill.hidden = true;
     });
     plate.addEventListener('click', () => {
-      stageLast = null;
+      if (!stageOpen) return;
+      stageLensOn = !stageLensOn;
+      if (!stageLensOn) {
+        if (stageLens) stageLens.hidden = true;
+      } else if (stageLast) {
+        paintStage(stageLast);
+      }
     });
     // While the stage is open, the wheel zooms the lens instead of the page
     stage.addEventListener(
