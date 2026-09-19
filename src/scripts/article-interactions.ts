@@ -455,8 +455,13 @@ function markActiveWorld(v: string) {
     memo: '#a3b8f3', botteghe: '#a83317', bench: '#ff6a1a',
     plate: '#b04a24', tensegrity: '#c8102e', datamatics: '#e9e1cb',
   };
+  const NAME = {
+    es: { memo: 'Memo', botteghe: 'Revista azul', bench: 'Montaje', plate: 'Placa', tensegrity: 'Tenségrita', datamatics: 'Datos B/N' },
+    en: { memo: 'Memo', botteghe: 'Quarterly', bench: 'Bench', plate: 'Plate', tensegrity: 'Tensegrity', datamatics: 'Data B/W' },
+  } as const;
   if (dot) dot.style.background = DOT[v] ?? '#a3b8f3';
-  if (label) label.textContent = v;
+  const lang = document.documentElement.lang === 'es' ? 'es' : 'en';
+  if (label) label.textContent = NAME[lang][v as keyof (typeof NAME)['es']] ?? v;
 }
 
 function bindWorldPicker() {

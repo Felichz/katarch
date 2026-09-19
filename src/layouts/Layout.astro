@@ -537,7 +537,7 @@ const isEnglish = lang === 'en';
   /* == Per-world composition overrides ================================ */
 
   /* Botteghe: leaf on the ground */
-  [data-world="botteghe"] .site-main { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+  [data-world="botteghe"] .site-main { padding-bottom: 3.5rem; }
   [data-world="botteghe"] .article {
     background: var(--paper-raised);
     padding: clamp(2.5rem, 5vw, 4.5rem);
@@ -658,7 +658,6 @@ const isEnglish = lang === 'en';
     font-family: 'Allerta Stencil', var(--font-app);
     font-weight: 400;
   }
-  [data-world="plate"] .doc-band { border-bottom-width: 3px; border-bottom-color: var(--ink); }
 
   /* == World polish pass =============================================== */
 
@@ -669,7 +668,6 @@ const isEnglish = lang === 'en';
     margin-left: auto;
     margin-right: auto;
   }
-  [data-world="botteghe"] .site-main { padding-top: 4.5rem; }
   /* boxes on the leaf take the deeper cream, not the leaf's own */
   [data-world="botteghe"] .block-card,
   [data-world="botteghe"] .block-callout,

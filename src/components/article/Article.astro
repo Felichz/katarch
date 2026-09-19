@@ -153,6 +153,29 @@ const WORLDS = [
   </div>
 </div>
 
+    <!-- World bench: hover previews the world live, click applies it -->
+    <section class="world-bench world-picker" data-world-bench aria-label={isES ? 'Estilo visual' : 'Visual style'} role="radiogroup">
+      <p class="bench-legend">
+        <span class="bench-title">{isES ? 'Estilo visual' : 'Visual style'}</span>
+        <span class="bench-hint">{isES ? 'pasá el mouse para ver · clic para aplicar' : 'hover to preview · click to apply'}</span>
+      </p>
+      <div class="bench-row">
+        {WORLDS.map((w) => (
+          <button class="world-thumb" type="button" role="radio" aria-checked="false" data-world-thumb={w.id}>
+            <span class={`wd-mini wd-${w.id}`} aria-hidden="true">
+              <i class="wd-glyph">Aa</i>
+              <i class="wd-l wd-l1"></i>
+              <i class="wd-l wd-l2"></i>
+              <i class="wd-l wd-l3"></i>
+              <i class="wd-tick"></i>
+            </span>
+            <span class="wd-name">{isES ? w.es : w.en}</span>
+            <span class="wd-on" aria-hidden="true">{isES ? 'en uso' : 'active'}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+
 <div class="article-shell">
   <!-- Collapsible TOC rail: collapsed dots by default, expands to the full index -->
   <aside class="toc-rail" id="toc-rail" aria-label={content.tocTitle}>
@@ -219,29 +242,6 @@ const WORLDS = [
         {content.heroParagraphs.map((p) => <p set:html={p} />)}
       </div>
     </header>
-
-    <!-- World bench: hover previews the world live, click applies it -->
-    <section class="world-bench world-picker" data-world-bench aria-label={isES ? 'Estilo visual' : 'Visual style'} role="radiogroup">
-      <p class="bench-legend">
-        <span class="bench-title">{isES ? 'Estilo visual' : 'Visual style'}</span>
-        <span class="bench-hint">{isES ? 'pasá el mouse para ver · clic para aplicar' : 'hover to preview · click to apply'}</span>
-      </p>
-      <div class="bench-row">
-        {WORLDS.map((w) => (
-          <button class="world-thumb" type="button" role="radio" aria-checked="false" data-world-thumb={w.id}>
-            <span class={`wd-mini wd-${w.id}`} aria-hidden="true">
-              <i class="wd-glyph">Aa</i>
-              <i class="wd-l wd-l1"></i>
-              <i class="wd-l wd-l2"></i>
-              <i class="wd-l wd-l3"></i>
-              <i class="wd-tick"></i>
-            </span>
-            <span class="wd-name">{isES ? w.es : w.en}</span>
-            <span class="wd-on" aria-hidden="true">{isES ? 'en uso' : 'active'}</span>
-          </button>
-        ))}
-      </div>
-    </section>
 
     {content.sections.map((section, si) => {
       const prevPhase = si > 0 ? content.sections[si - 1].phase : null;
@@ -1233,7 +1233,9 @@ const WORLDS = [
     border: 1px solid #2a2620;
     background: #1c1915;
     padding: 1rem 1.1rem 1.1rem;
-    margin: -0.5rem 0 3rem;
+    /* its own frame: same box in every world (it lives outside .article) */
+    max-width: 82rem;
+    margin: 0 auto 2.75rem;
   }
   :root:not(.dark) .world-bench { border-color: #c9c0aa; background: #f8f4e9; }
   .bench-legend {
@@ -1243,7 +1245,7 @@ const WORLDS = [
     margin: 0 0 0.8rem;
   }
   .bench-title {
-    font-family: var(--font-app);
+    font-family: 'Courier Prime', monospace;
     font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -1252,7 +1254,7 @@ const WORLDS = [
   }
   :root:not(.dark) .bench-title { color: #241f14; }
   .bench-hint {
-    font-family: var(--font-app);
+    font-family: 'Courier Prime', monospace;
     font-size: 0.68rem;
     letter-spacing: 0.06em;
     color: #8d8368;
@@ -1293,7 +1295,7 @@ const WORLDS = [
   }
   :root:not(.dark) .wd-mini { border-color: #b6ac93; }
   .wd-name {
-    font-family: var(--font-app);
+    font-family: 'Courier Prime', monospace;
     font-size: 0.68rem;
     letter-spacing: 0.08em;
     color: #b1a78d;
@@ -1304,7 +1306,7 @@ const WORLDS = [
     position: absolute;
     top: 0.3rem;
     right: 0.3rem;
-    font-family: var(--font-app);
+    font-family: 'Courier Prime', monospace;
     font-size: 0.56rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -1423,8 +1425,10 @@ const WORLDS = [
   .dock-chip {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.45rem;
-    font-family: var(--font-app);
+    min-width: 9.5rem;
+    font-family: 'Courier Prime', monospace;
     font-size: 0.75rem;
     font-weight: 700;
     color: #e9e1cb;
