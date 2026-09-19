@@ -183,82 +183,158 @@ const LENS_MIN_WIDTH = 340; // px floor, so narrow-viewport diagrams keep a usab
 
 function bindLens() {
   const isES = document.documentElement.lang !== 'en';
+
+  // ── The full-screen lens stage ──
+  // One shared overlay: click opens it with the diagram fitted to the screen,
+  // lens active, scroll locked; Esc / backdrop click returns to the article.
+  const stage = document.querySelector<HTMLElement>('[data-lens-stage]');
+  const plate = stage?.querySelector<HTMLElement>('[data-lens-plate]') ?? null;
+  const stageImg = stage?.querySelector<HTMLImageElement>('[data-lens-img]') ?? null;
+  const stageLens = stage?.querySelector<HTMLElement>('[data-lens-lens]') ?? null;
+  const stagePill = stage?.querySelector<HTMLElement>('[data-lens-pill]') ?? null;
+  const stageClose = stage?.querySelector<HTMLElement>('[data-lens-close]') ?? null;
+  let stageOpener: HTMLElement | null = null;
+  let stageOpen = false;
+  let stageZoom = 1;
+  let stageLast: MouseEvent | null = null;
+
   const HINT_OFF = isES ? 'clic para activar la lupa' : 'click to enable the lens';
   const HINT_ON = isES
-    ? 'scroll para zoom · clic para desactivar'
-    : 'scroll to zoom · click to disable';
+    ? 'scroll para zoom · clic para desactivar la lupa'
+    : 'scroll to zoom · click to disable the lens';
 
-  for (const zoom of document.querySelectorAll<HTMLElement>('[data-figure-zoom]')) {
-    const img = zoom.querySelector('img');
-    const lens = zoom.querySelector<HTMLElement>('.figure-lens');
-    const hint = zoom.querySelector<HTMLElement>('.figure-lens-hint');
-    if (!img || !lens) continue;
-    let lensOn = false;
-    let lensZoom = 1; // 1 = pixels at natural size; wheel adjusts while the lens is on
-    let lastEvent: MouseEvent | null = null;
+  const paintStage = (e: MouseEvent) => {
+    if (!stageImg || !stageLens || !plate) return;
+    stageLast = e;
+    const rect = stageImg.getBoundingClientRect();
+    const plateRect = plate.getBoundingClientRect();
+    const lensW = Math.max(LENS_MIN_WIDTH, rect.width * 0.5);
+    const lensH = LENS_MIN_WIDTH;
+    const halfW = lensW / 2;
+    const halfH = lensH / 2;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+    stageLens.style.width = `${lensW}px`;
+    stageLens.style.height = `${lensH}px`;
+    if (stagePill) {
+      stagePill.textContent = HINT_ON;
+      stagePill.style.left = `${e.clientX - plateRect.left}px`;
+      stagePill.style.top = `${e.clientY - plateRect.top + halfH + 10}px`;
+      stagePill.hidden = false;
+    }
+    if (!stageImg.complete || !stageImg.naturalWidth) return;
+    const scale = (stageImg.naturalWidth / rect.width) * stageZoom;
+    stageLens.hidden = false;
+    stageLens.style.left = `${e.clientX - plateRect.left - halfW}px`;
+    stageLens.style.top = `${e.clientY - plateRect.top - halfH}px`;
+    stageLens.style.backgroundImage = `url("${stageImg.currentSrc || stageImg.src}")`;
+    stageLens.style.backgroundSize = `${stageImg.naturalWidth * stageZoom}px ${stageImg.naturalHeight * stageZoom}px`;
+    stageLens.style.backgroundPosition = `${halfW - x * scale}px ${halfH - y * scale}px`;
+  };
 
-    const paint = (e: MouseEvent) => {
-      lastEvent = e;
-      const rect = img.getBoundingClientRect();
-      const zoomRect = zoom.getBoundingClientRect();
-      const lensW = Math.max(LENS_MIN_WIDTH, rect.width * 0.5); // width: >= 50% of the diagram
-      const lensH = LENS_MIN_WIDTH; // height stays fixed
-      const halfW = lensW / 2;
-      const halfH = lensH / 2;
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
-      lens.style.width = `${lensW}px`;
-      lens.style.height = `${lensH}px`;
-      if (hint) {
-        hint.textContent = lensOn ? HINT_ON : HINT_OFF;
-        hint.style.left = `${e.clientX - zoomRect.left}px`;
-        hint.style.top = `${e.clientY - zoomRect.top + halfH + 10}px`;
-        hint.hidden = false;
-      }
-      // The lens needs the real pixels: a lazy image that has not been
-      // fetched yet simply shows no lens until the click triggers decode().
-      if (!lensOn || !img.complete || !img.naturalWidth) {
-        lens.hidden = true;
-        return;
-      }
-      const scale = (img.naturalWidth / rect.width) * lensZoom;
-      lens.hidden = false;
-      lens.style.left = `${e.clientX - zoomRect.left - halfW}px`;
-      lens.style.top = `${e.clientY - zoomRect.top - halfH}px`;
-      lens.style.backgroundImage = `url("${img.currentSrc || img.src}")`;
-      lens.style.backgroundSize = `${img.naturalWidth * lensZoom}px ${img.naturalHeight * lensZoom}px`;
-      lens.style.backgroundPosition = `${halfW - x * scale}px ${halfH - y * scale}px`;
-    };
+  const closeStage = () => {
+    if (!stage || !stageOpen) return;
+    stageOpen = false;
+    stageZoom = 1;
+    stage.hidden = true;
+    if (stageLens) stageLens.hidden = true;
+    if (stagePill) stagePill.hidden = true;
+    unlockScroll();
+    stageOpener?.focus?.();
+    stageOpener = null;
+  };
 
-    zoom.addEventListener('mouseenter', () => {
-      // Warm up lazy images: by the time the reader clicks, pixels are ready.
-      if (!img.complete) img.decode().catch(() => {});
+  const openStage = (srcImg: HTMLImageElement, opener: HTMLElement) => {
+    if (!stage || !stageImg) return;
+    stageOpener = opener;
+    stageImg.src = srcImg.currentSrc || srcImg.src;
+    stageImg.alt = srcImg.alt;
+    // Reserve the diagram's box before the bytes arrive (an unsized img
+    // collapses to a sliver): inline style beats the author `width: auto`,
+    // pre-scaled to fit the viewport caps exactly as the CSS would.
+    const nw = srcImg.naturalWidth || 1200;
+    const nh = srcImg.naturalHeight || 800;
+    const k = Math.min(
+      (window.innerHeight - Math.round(window.innerHeight * 0.16)) / nh,
+      (window.innerWidth - 64) / nw,
+      1,
+    );
+    stageImg.style.width = `${Math.round(nw * k)}px`;
+    stageImg.style.height = `${Math.round(nh * k)}px`;
+    stageOpen = true;
+    stageZoom = 1;
+    if (stageLens) stageLens.hidden = true;
+    if (stagePill) stagePill.hidden = true;
+    stage.hidden = false;
+    lockScroll();
+    stageClose?.focus();
+    stageImg.decode().catch(() => {});
+  };
+
+  if (stage && plate && stageImg) {
+    plate.addEventListener('mousemove', paintStage);
+    plate.addEventListener('mouseleave', () => {
+      if (stagePill) stagePill.hidden = true;
     });
-    zoom.addEventListener('mousemove', paint);
-    zoom.addEventListener('mouseleave', () => {
-      lens.hidden = true;
-      if (hint) hint.hidden = true;
+    plate.addEventListener('click', () => {
+      stageLast = null;
     });
-    zoom.addEventListener('click', () => {
-      lensOn = !lensOn;
-      if (!lensOn) lensZoom = 1;
-      if (!img.complete) img.decode().catch(() => {});
-      if (lastEvent) paint(lastEvent);
-      else if (!lensOn) lens.hidden = true;
-    });
-    // While the lens is on, the wheel zooms it instead of scrolling the page
-    zoom.addEventListener(
+    // While the stage is open, the wheel zooms the lens instead of the page
+    stage.addEventListener(
       'wheel',
       (e) => {
-        if (!lensOn) return;
         e.preventDefault();
-        lensZoom = Math.min(6, Math.max(0.5, lensZoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
-        if (lastEvent) paint(lastEvent);
+        stageZoom = Math.min(6, Math.max(0.5, stageZoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+        if (stageLast) paintStage(stageLast);
       },
       { passive: false },
     );
+    // Backdrop click closes; clicks on the plate belong to the lens toggle
+    stage.addEventListener('click', (e) => {
+      if (!(e.target as HTMLElement).closest('[data-lens-plate]')) closeStage();
+    });
   }
+  stageClose?.addEventListener('click', closeStage);
+
+  // ── Inline figures: hover hint, click opens the stage ──
+  for (const zoom of document.querySelectorAll<HTMLElement>('[data-figure-zoom]')) {
+    const img = zoom.querySelector('img');
+    const hint = zoom.querySelector<HTMLElement>('.figure-lens-hint');
+    if (!img || !hint) continue;
+
+    const showHint = (e: MouseEvent) => {
+      const rect = img.getBoundingClientRect();
+      const zoomRect = zoom.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
+      hint.style.left = `${e.clientX - zoomRect.left}px`;
+      hint.style.top = `${e.clientY - zoomRect.top + 24}px`;
+      hint.hidden = false;
+    };
+    zoom.addEventListener('mouseenter', () => {
+      // Warm up lazy images so the stage opens with pixels ready.
+      if (!img.complete) img.decode().catch(() => {});
+    });
+    zoom.addEventListener('mousemove', showHint);
+    zoom.addEventListener('mouseleave', () => {
+      hint.hidden = true;
+    });
+    zoom.addEventListener('click', () => {
+      hint.hidden = true;
+      openStage(img, zoom);
+    });
+  }
+
+  // Esc closes the stage before anything else
+  document.addEventListener(
+    'keydown',
+    (e) => {
+      if (e.key === 'Escape' && stageOpen) closeStage();
+    },
+    true,
+  );
 }
 
 // ── TOC rail: expand/collapse (persisted), dot tooltips, active section ──

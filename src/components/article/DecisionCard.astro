@@ -14,18 +14,9 @@ const labels = {
   problem: isES ? 'El problema' : 'The problem',
   decision: isES ? 'La decisión' : 'The decision',
   tradeoff: isES ? 'La compensación' : 'The trade-off',
-  lensHint: isES ? 'clic para activar la lupa' : 'click to enable the lens',
 } as const;
 
-// Embedded figures inside the decision prose get the inline lens treatment:
-// the zoom wrapper is the figure itself, lens + hint injected after the img.
-const withLens = (html: string) =>
-  html.replace(
-    /(<figure class="modal-figure">.*?<img[^>]*>)/s,
-    `$1<div class="figure-lens" hidden></div><span class="figure-lens-hint" hidden>${labels.lensHint}</span>`,
-  ).replace('<figure class="modal-figure">', '<figure class="modal-figure" data-figure-zoom>');
-
-const decisionHtml = withLens(entry.decision[lang]);
+const decisionHtml = entry.decision[lang];
 ---
 
 {variant === 'inline' ? (

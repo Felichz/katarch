@@ -123,6 +123,26 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   </dialog>
 ))}
 
+<!-- Lens stage: full-screen plate so the lens can reach every corner -->
+<div class="lens-stage" data-lens-stage hidden>
+  <div class="lens-stage-plate" data-lens-plate>
+    <img class="lens-stage-img" data-lens-img src="" alt="" draggable="false" />
+    <div class="figure-lens" data-lens-lens hidden></div>
+    <span class="figure-lens-hint" data-lens-pill hidden></span>
+  </div>
+  <div class="lens-stage-bar">
+    <span class="lens-stage-help">
+      {isES
+        ? 'scroll = zoom · clic sobre el diagrama = lupa on/off · clic afuera o Esc = cerrar'
+        : 'scroll = zoom · click on the diagram = lens on/off · click outside or Esc = close'}
+    </span>
+    <button class="lens-stage-close" data-lens-close type="button">
+      {isES ? 'Cerrar' : 'Close'}
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+</div>
+
 <div class="article-shell">
   <!-- Collapsible TOC rail: collapsed dots by default, expands to the full index -->
   <aside class="toc-rail" id="toc-rail" aria-label={content.tocTitle}>
@@ -1078,6 +1098,63 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   .modal-body ul { margin: 0.5rem 0; padding-left: 1.25rem; list-style: disc; }
   .modal-body li + li { margin-top: 0.45rem; }
   .modal-body strong { color: var(--ink); }
+  /* ── Lens stage: the diagram fills the screen, scroll visibly locked ── */
+  .lens-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgb(15 13 9 / 0.72);
+    backdrop-filter: blur(3px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    padding: 2rem;
+  }
+  .lens-stage[hidden] { display: none; }
+  .lens-stage-plate {
+    position: relative;
+    cursor: crosshair;
+    max-width: 100%;
+  }
+  .lens-stage-img {
+    display: block;
+    /* the plate takes the full screen height, with padding to breathe */
+    max-height: calc(100dvh - 8.5rem);
+    max-width: calc(100vw - 4rem);
+    width: auto;
+    height: auto;
+    border: 1px solid var(--hairline);
+    border-radius: 2px;
+    background: #ffffff;
+  }
+  .lens-stage-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.78rem;
+    color: #e9e1cb;
+  }
+  .lens-stage-help { opacity: 0.85; }
+  .lens-stage-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #e9e1cb;
+    background: none;
+    border: 1px solid rgb(233 225 203 / 0.4);
+    border-radius: 2px;
+    padding: 0.3rem 0.7rem;
+    cursor: pointer;
+  }
+  .lens-stage-close:hover { border-color: #e9e1cb; }
+  .lens-stage-close:focus-visible { outline: 2px solid #a3b8f3; outline-offset: 2px; }
+
   /* ADR citation row under each inline decision card */
   .decision-adrs {
     display: flex;
