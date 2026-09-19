@@ -33,9 +33,10 @@ const isEnglish = lang === 'en';
         document.documentElement.classList.add('dark');
       }
       try {
-        document.documentElement.dataset.world = localStorage.getItem('katarch-world') || 'memo';
+        const m = document.cookie.match(/(?:^|; )katarch-world=([^;]*)/);
+        document.documentElement.dataset.world = m ? decodeURIComponent(m[1]) : 'plate';
       } catch {
-        document.documentElement.dataset.world = 'memo';
+        document.documentElement.dataset.world = 'plate';
       }
     </script>
   </head>
@@ -175,11 +176,12 @@ const isEnglish = lang === 'en';
       }
 
       function applyStoredWorld() {
-        let w = 'memo';
+        let w = 'plate';
         try {
-          w = localStorage.getItem('katarch-world') || 'memo';
+          const m = document.cookie.match(/(?:^|; )katarch-world=([^;]*)/);
+          w = m ? decodeURIComponent(m[1]) : 'plate';
         } catch {
-          /* keep memo */
+          /* keep plate */
         }
         document.documentElement.dataset.world = w;
       }

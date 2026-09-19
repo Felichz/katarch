@@ -421,14 +421,27 @@ function bindToc() {
 }
 
 
-// ── World bench & dock: hover previews the world live, click applies ──
-const WORLD_KEY = 'katarch-world';
+// ── World dock: the only style picker. Hover previews live, click applies ──
+const WORLD_COOKIE = 'katarch-world';
+
+function readWorldCookie(): string {
+  const m = document.cookie.match(/(?:^|; )katarch-world=([^;]*)/);
+  return m ? decodeURIComponent(m[1]) : 'plate';
+}
+
+function writeWorldCookie(v: string) {
+  try {
+    document.cookie = `${WORLD_COOKIE}=${v}; path=/; max-age=31536000; SameSite=Lax`;
+  } catch {
+    /* cookies unavailable: state stays per page */
+  }
+}
 
 function storedWorld(): string {
   try {
-    return localStorage.getItem(WORLD_KEY) || 'memo';
+    return readWorldCookie();
   } catch {
-    return 'memo';
+    return 'plate';
   }
 }
 
@@ -456,148 +469,82 @@ function markActiveWorld(v: string) {
     plate: '#b04a24', tensegrity: '#c8102e', datamatics: '#e9e1cb',
   };
   const NAME = {
-    es: { memo: 'Memo', botteghe: 'Revista azul', bench: 'Montaje', plate: 'Placa', tensegrity: 'Tenségrita', datamatics: 'Datos B/N' },
+    es: { memo: 'Memo', botteghe: 'Revista azul', bench: 'Montaje', plate: 'Placa', tensegrity: 'Tens\u00e9grita', datamatics: 'Datos B/N' },
     en: { memo: 'Memo', botteghe: 'Quarterly', bench: 'Bench', plate: 'Plate', tensegrity: 'Tensegrity', datamatics: 'Data B/W' },
   } as const;
-  if (dot) dot.style.background = DOT[v] ?? '#a3b8f3';
+  if (dot) dot.style.background = DOT[v] ?? '#b04a24';
   const lang = document.documentElement.lang === 'es' ? 'es' : 'en';
   if (label) label.textContent = NAME[lang][v as keyof (typeof NAME)['es']] ?? v;
 }
 
 function bindWorldPicker() {
-  const bench = document.querySelector<HTMLElement>('[data-world-bench]');
   const dock = document.querySelector<HTMLElement>('[data-world-dock]');
   const chip = document.querySelector<HTMLElement>('[data-dock-chip]');
   const popover = document.querySelector<HTMLElement>('[data-dock-popover]');
-  if (!bench || !dock) return;
+  if (!dock || !chip || !popover) return;
 
   applyWorld(storedWorld());
   markActiveWorld(storedWorld());
-
-  // While comparing, the bench detaches from the flow and pins to the
-  // viewport at its current box: no world re-layout can move it (or its
-  // hover targets) under the cursor. A spacer keeps the page below steady.
-  let benchSpacer: HTMLElement | null = null;
-  const freezeBench = () => {
-    if (bench.classList.contains('is-frozen')) return;
-    const r = bench.getBoundingClientRect();
-    benchSpacer = document.createElement('div');
-    benchSpacer.style.height = `${r.height}px`;
-    benchSpacer.style.marginBottom = '2.75rem';
-    bench.before(benchSpacer);
-    bench.style.position = 'fixed';
-    bench.style.left = `${r.left}px`;
-    bench.style.top = `${r.top}px`;
-    bench.style.width = `${r.width}px`;
-    bench.style.margin = '0';
-    bench.style.zIndex = '60';
-    bench.classList.add('is-frozen');
-  };
-  const unfreezeBench = () => {
-    if (!bench.classList.contains('is-frozen')) return;
-    bench.classList.remove('is-frozen');
-    bench.style.position = '';
-    bench.style.left = '';
-    bench.style.top = '';
-    bench.style.width = '';
-    bench.style.margin = '';
-    bench.style.zIndex = '';
-    benchSpacer?.remove();
-    benchSpacer = null;
-  };
+  dock.hidden = false; // the dock is the only picker now: always on
 
   const preview = (v: string) => {
     snapOn();
-    freezeBench();
     applyWorld(v);
   };
   const restore = () => {
     applyWorld(storedWorld());
     snapOff();
-    unfreezeBench();
   };
   const commit = (v: string) => {
-    try {
-      localStorage.setItem(WORLD_KEY, v);
-    } catch {
-      /* stays per page */
-    }
+    writeWorldCookie(v);
     applyWorld(v);
     markActiveWorld(v);
     snapOff();
-    // Let the new world paint while frozen, then settle back into flow.
-    window.setTimeout(unfreezeBench, 80);
   };
 
-  // Hover preview + click to apply, delegated over both pickers
-  for (const picker of document.querySelectorAll<HTMLElement>('.world-picker')) {
-    picker.addEventListener('mouseover', (e) => {
-      const thumb = (e.target as HTMLElement).closest<HTMLElement>('[data-world-thumb]');
-      if (thumb) preview(thumb.dataset.worldThumb!);
-    });
-    picker.addEventListener('mouseleave', restore);
-    picker.addEventListener('click', (e) => {
-      const thumb = (e.target as HTMLElement).closest<HTMLElement>('[data-world-thumb]');
-      if (thumb) commit(thumb.dataset.worldThumb!);
-    });
-    picker.addEventListener('focusin', (e) => {
-      const thumb = (e.target as HTMLElement).closest<HTMLElement>('[data-world-thumb]');
-      if (thumb) preview(thumb.dataset.worldThumb!);
-    });
-    picker.addEventListener('focusout', restore);
-    // Keyboard: arrows walk the previews, Enter/Space commits (button default)
-    picker.addEventListener('keydown', (e) => {
-      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-      const thumbs = [...picker.querySelectorAll<HTMLElement>('[data-world-thumb]')];
-      const i = thumbs.indexOf(document.activeElement as HTMLElement);
-      if (i === -1) return;
-      e.preventDefault();
-      const next = thumbs[(i + (e.key === 'ArrowRight' ? 1 : thumbs.length - 1)) % thumbs.length];
-      next.focus();
-    });
-  }
+  // Hover preview + click to apply (delegated over the dock)
+  dock.addEventListener('mouseover', (e) => {
+    const thumb = (e.target as HTMLElement).closest<HTMLElement>('[data-world-thumb]');
+    if (thumb) preview(thumb.dataset.worldThumb!);
+  });
+  dock.addEventListener('mouseleave', () => {
+    restore();
+    expand(false);
+  });
+  dock.addEventListener('click', (e) => {
+    const thumb = (e.target as HTMLElement).closest<HTMLElement>('[data-world-thumb]');
+    if (thumb) commit(thumb.dataset.worldThumb!);
+  });
+  dock.addEventListener('focusin', (e) => {
+    const thumb = (e.target as HTMLElement).closest<HTMLElement>('[data-world-thumb]');
+    if (thumb) preview(thumb.dataset.worldThumb!);
+  });
+  dock.addEventListener('focusout', () => {
+    restore();
+    expand(false);
+  });
+  dock.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const thumbs = [...dock.querySelectorAll<HTMLElement>('[data-world-thumb]')];
+    const i = thumbs.indexOf(document.activeElement as HTMLElement);
+    if (i === -1) return;
+    e.preventDefault();
+    const next = thumbs[(i + (e.key === 'ArrowRight' ? 1 : thumbs.length - 1)) % thumbs.length];
+    next.focus();
+  });
 
-  // Dock: appears when the bench leaves the viewport, hover/tap expands
   const expand = (on: boolean) => {
-    if (!popover || !chip) return;
     popover.hidden = !on;
     chip.setAttribute('aria-expanded', on ? 'true' : 'false');
   };
-  if (chip && popover) {
-    chip.addEventListener('click', () => expand(popover.hidden));
-    dock.addEventListener('mouseenter', () => expand(true));
-    dock.addEventListener('mouseleave', () => {
-      expand(false);
-      restore();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !popover.hidden) {
-        expand(false);
-        restore();
-      }
-    });
-  }
-
-  const syncDock = () => {
-    const b = document.querySelector<HTMLElement>('[data-world-bench]');
-    const d = document.querySelector<HTMLElement>('[data-world-dock]');
-    if (!b || !d) return;
-    const r = b.getBoundingClientRect();
-    const visible = r.bottom > 80 && r.top < window.innerHeight;
-    if (d.hidden === visible) return;
-    d.hidden = visible;
-    if (visible) {
+  chip.addEventListener('click', () => expand(popover.hidden));
+  dock.addEventListener('mouseenter', () => expand(true));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !popover.hidden) {
       expand(false);
       restore();
     }
-  };
-  // The scroll hook survives swaps; some embedded browsers never fire IO.
-  (window as typeof window & { __katarchWorldSync?: () => void }).__katarchWorldSync = syncDock;
-  syncDock();
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver(syncDock);
-    io.observe(bench);
-  }
+  });
 }
 
 // ── Per-page bindings: run on initial load and after every view-transiton swap ──
@@ -626,11 +573,7 @@ if (!w.__katarchBound) {
     if (scrollTimer) return;
     scrollTimer = window.setTimeout(() => {
       scrollTimer = undefined;
-      const w = window as typeof window & {
-        __katarchWorldSync?: () => void;
-        __katarchTocSync?: () => void;
-      };
-      w.__katarchWorldSync?.();
+      const w = window as typeof window & { __katarchTocSync?: () => void };
       w.__katarchTocSync?.();
     }, 120);
   };

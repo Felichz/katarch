@@ -100,11 +100,18 @@ The shell runs `82rem` (band inner and article shell); the reading column caps a
 
 ## World selector (comparison layer)
 
-A header select (`katarch-world` in localStorage, applied pre-paint and
-re-applied after ES/EN swaps) can render the surface in the three
-alternate directions from the decision round, on top of the same token
-names (`--font-body` / `--font-app` / `--hard-shadow` plus the standard
-set). Memo remains the default and the documented world.
+A floating dock (bottom-right, always visible) renders the surface in
+the alternate directions from the decision round, on top of the same
+token names (`--font-body` / `--font-app` / `--hard-shadow` plus the
+standard set). Hovering the chip expands six miniature maquettes; hover
+previews a world live (instant snap, transitions disabled during
+preview), click applies it, Esc or leaving collapses and reverts the
+preview. The dock chrome is deliberately world-invariant (fixed Courier
+Prime, fixed box, min-width chip with localized names).
+
+Persistence is the `katarch-world` cookie (1 year, SameSite=Lax), read
+pre-paint by the head script and re-applied after ES/EN swaps. **Plate
+is the default**; memo remains the documented world.
 
 - `botteghe` - Quarterly on blue: cream leaf (max-width 50rem, centered,
   ground on all sides; justified Cardo column, small-caps apparatus,

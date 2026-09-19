@@ -222,28 +222,6 @@ const WORLDS = [
       </div>
     </header>
 
-    <!-- World bench: hover previews the world live, click applies it -->
-        <section class="world-bench world-picker" data-world-bench aria-label={isES ? 'Estilo visual' : 'Visual style'} role="radiogroup">
-          <p class="bench-legend">
-            <span class="bench-title">{isES ? 'Estilo visual' : 'Visual style'}</span>
-            <span class="bench-hint">{isES ? 'pasá el mouse para ver · clic para aplicar' : 'hover to preview · click to apply'}</span>
-          </p>
-          <div class="bench-row">
-            {WORLDS.map((w) => (
-              <button class="world-thumb" type="button" role="radio" aria-checked="false" data-world-thumb={w.id}>
-                <span class={`wd-mini wd-${w.id}`} aria-hidden="true">
-                  <i class="wd-glyph">Aa</i>
-                  <i class="wd-l wd-l1"></i>
-                  <i class="wd-l wd-l2"></i>
-                  <i class="wd-l wd-l3"></i>
-                  <i class="wd-tick"></i>
-                </span>
-                <span class="wd-name">{isES ? w.es : w.en}</span>
-                <span class="wd-on" aria-hidden="true">{isES ? 'en uso' : 'active'}</span>
-              </button>
-            ))}
-          </div>
-        </section>
 
     {content.sections.map((section, si) => {
       const prevPhase = si > 0 ? content.sections[si - 1].phase : null;
@@ -1231,46 +1209,14 @@ const WORLDS = [
     transition: none !important;
   }
 
-  .world-bench {
-    border: 1px solid #2a2620;
-    background: #1c1915;
-    padding: 1rem 1.1rem 1.1rem;
-    margin: 0.5rem 0 2.75rem;
-  }
+
   /* While comparing, the bench detaches from the flow (inline fixed
      position set by JS) so no world can move it under the cursor. */
-  .world-bench.is-frozen {
-    box-shadow: 0 18px 50px rgb(0 0 0 / 0.5);
-  }
-  :root:not(.dark) .world-bench { border-color: #c9c0aa; background: #f8f4e9; }
-  .bench-legend {
-    display: flex;
-    align-items: baseline;
-    gap: 0.9rem;
-    margin: 0 0 0.8rem;
-  }
-  .bench-title {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    color: #e9e1cb;
-  }
-  :root:not(.dark) .bench-title { color: #241f14; }
-  .bench-hint {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
-    color: #8d8368;
-  }
-  .bench-row {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 0.6rem;
-  }
-  @media (max-width: 64rem) { .bench-row { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 26rem) { .bench-row { grid-template-columns: repeat(2, 1fr); } }
+
+
+
+
+
 
   .world-thumb {
     display: flex;
@@ -1306,24 +1252,9 @@ const WORLDS = [
     color: #b1a78d;
   }
   :root:not(.dark) .wd-name { color: #6e6651; }
-  .wd-on {
-    display: none;
-    position: absolute;
-    top: 0.3rem;
-    right: 0.3rem;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.56rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: #e9e1cb;
-    background: rgb(0 0 0 / 0.55);
-    padding: 0.1rem 0.3rem;
-  }
-  :root:not(.dark) .wd-on { color: #241f14; background: rgb(255 255 255 / 0.75); }
+
   .world-thumb[data-active] { border-color: #e9e1cb; }
   :root:not(.dark) .world-thumb[data-active] { border-color: #241f14; }
-  .world-thumb[data-active] .wd-on { display: block; }
   .world-thumb[data-active] .wd-name { color: #e9e1cb; font-weight: 700; }
   :root:not(.dark) .world-thumb[data-active] .wd-name { color: #241f14; }
 
