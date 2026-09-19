@@ -153,28 +153,7 @@ const WORLDS = [
   </div>
 </div>
 
-    <!-- World bench: hover previews the world live, click applies it -->
-    <section class="world-bench world-picker" data-world-bench aria-label={isES ? 'Estilo visual' : 'Visual style'} role="radiogroup">
-      <p class="bench-legend">
-        <span class="bench-title">{isES ? 'Estilo visual' : 'Visual style'}</span>
-        <span class="bench-hint">{isES ? 'pasá el mouse para ver · clic para aplicar' : 'hover to preview · click to apply'}</span>
-      </p>
-      <div class="bench-row">
-        {WORLDS.map((w) => (
-          <button class="world-thumb" type="button" role="radio" aria-checked="false" data-world-thumb={w.id}>
-            <span class={`wd-mini wd-${w.id}`} aria-hidden="true">
-              <i class="wd-glyph">Aa</i>
-              <i class="wd-l wd-l1"></i>
-              <i class="wd-l wd-l2"></i>
-              <i class="wd-l wd-l3"></i>
-              <i class="wd-tick"></i>
-            </span>
-            <span class="wd-name">{isES ? w.es : w.en}</span>
-            <span class="wd-on" aria-hidden="true">{isES ? 'en uso' : 'active'}</span>
-          </button>
-        ))}
-      </div>
-    </section>
+    
 
 <div class="article-shell">
   <!-- Collapsible TOC rail: collapsed dots by default, expands to the full index -->
@@ -242,6 +221,29 @@ const WORLDS = [
         {content.heroParagraphs.map((p) => <p set:html={p} />)}
       </div>
     </header>
+
+    <!-- World bench: hover previews the world live, click applies it -->
+        <section class="world-bench world-picker" data-world-bench aria-label={isES ? 'Estilo visual' : 'Visual style'} role="radiogroup">
+          <p class="bench-legend">
+            <span class="bench-title">{isES ? 'Estilo visual' : 'Visual style'}</span>
+            <span class="bench-hint">{isES ? 'pasá el mouse para ver · clic para aplicar' : 'hover to preview · click to apply'}</span>
+          </p>
+          <div class="bench-row">
+            {WORLDS.map((w) => (
+              <button class="world-thumb" type="button" role="radio" aria-checked="false" data-world-thumb={w.id}>
+                <span class={`wd-mini wd-${w.id}`} aria-hidden="true">
+                  <i class="wd-glyph">Aa</i>
+                  <i class="wd-l wd-l1"></i>
+                  <i class="wd-l wd-l2"></i>
+                  <i class="wd-l wd-l3"></i>
+                  <i class="wd-tick"></i>
+                </span>
+                <span class="wd-name">{isES ? w.es : w.en}</span>
+                <span class="wd-on" aria-hidden="true">{isES ? 'en uso' : 'active'}</span>
+              </button>
+            ))}
+          </div>
+        </section>
 
     {content.sections.map((section, si) => {
       const prevPhase = si > 0 ? content.sections[si - 1].phase : null;
@@ -1233,9 +1235,12 @@ const WORLDS = [
     border: 1px solid #2a2620;
     background: #1c1915;
     padding: 1rem 1.1rem 1.1rem;
-    /* its own frame: same box in every world (it lives outside .article) */
-    max-width: 82rem;
-    margin: 0 auto 2.75rem;
+    margin: 0.5rem 0 2.75rem;
+  }
+  /* While comparing, the bench detaches from the flow (inline fixed
+     position set by JS) so no world can move it under the cursor. */
+  .world-bench.is-frozen {
+    box-shadow: 0 18px 50px rgb(0 0 0 / 0.5);
   }
   :root:not(.dark) .world-bench { border-color: #c9c0aa; background: #f8f4e9; }
   .bench-legend {

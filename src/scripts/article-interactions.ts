@@ -474,13 +474,47 @@ function bindWorldPicker() {
   applyWorld(storedWorld());
   markActiveWorld(storedWorld());
 
+  // While comparing, the bench detaches from the flow and pins to the
+  // viewport at its current box: no world re-layout can move it (or its
+  // hover targets) under the cursor. A spacer keeps the page below steady.
+  let benchSpacer: HTMLElement | null = null;
+  const freezeBench = () => {
+    if (bench.classList.contains('is-frozen')) return;
+    const r = bench.getBoundingClientRect();
+    benchSpacer = document.createElement('div');
+    benchSpacer.style.height = `${r.height}px`;
+    benchSpacer.style.marginBottom = '2.75rem';
+    bench.before(benchSpacer);
+    bench.style.position = 'fixed';
+    bench.style.left = `${r.left}px`;
+    bench.style.top = `${r.top}px`;
+    bench.style.width = `${r.width}px`;
+    bench.style.margin = '0';
+    bench.style.zIndex = '60';
+    bench.classList.add('is-frozen');
+  };
+  const unfreezeBench = () => {
+    if (!bench.classList.contains('is-frozen')) return;
+    bench.classList.remove('is-frozen');
+    bench.style.position = '';
+    bench.style.left = '';
+    bench.style.top = '';
+    bench.style.width = '';
+    bench.style.margin = '';
+    bench.style.zIndex = '';
+    benchSpacer?.remove();
+    benchSpacer = null;
+  };
+
   const preview = (v: string) => {
     snapOn();
+    freezeBench();
     applyWorld(v);
   };
   const restore = () => {
     applyWorld(storedWorld());
     snapOff();
+    unfreezeBench();
   };
   const commit = (v: string) => {
     try {
@@ -491,6 +525,8 @@ function bindWorldPicker() {
     applyWorld(v);
     markActiveWorld(v);
     snapOff();
+    // Let the new world paint while frozen, then settle back into flow.
+    window.setTimeout(unfreezeBench, 80);
   };
 
   // Hover preview + click to apply, delegated over both pickers
