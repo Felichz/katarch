@@ -235,7 +235,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   /* ── Shell ─────────────────────────────────────────── */
   .article-shell {
     display: flex;
-    gap: 2.25rem;
+    gap: 3.5rem;
     align-items: flex-start;
     width: 100%;
     max-width: 82rem;
@@ -255,7 +255,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     background: var(--paper-raised);
     padding: 0.4rem;
     overflow: hidden;
-    transition: width 0.25s ease;
+    /* no width transition: layout animation freezes in embedded browsers */
     width: 3rem;
   }
   .toc-card[data-expanded] {
@@ -391,7 +391,6 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
-    max-width: 46rem;
   }
   .mast-row {
     display: grid;
@@ -422,7 +421,7 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
     max-width: 44ch;
   }
   .hero-title-b { display: block; color: var(--accent); }
-  .hero-prose { max-width: 46rem; margin-bottom: 0.5rem; }
+  .hero-prose { max-width: none; margin-bottom: 0.5rem; }
   .hero-prose p + p { margin-top: 1rem; }
 
   /* ── Sections: numbered like a memo's parts ────────── */
@@ -431,7 +430,6 @@ const uiDocOpen = isES ? 'Ver archivo original en el repo de ArchColider' : 'Ope
   .article .set-prose,
   .article .block-list {
     font-size: clamp(1.06rem, 0.64rem + 0.36vw, 1.26rem);
-    max-width: 46rem;
   }
   .phase-divider {
     display: flex;

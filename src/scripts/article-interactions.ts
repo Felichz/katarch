@@ -184,7 +184,9 @@ const LENS_MIN_WIDTH = 340; // px floor, so narrow-viewport diagrams keep a usab
 function bindLens() {
   const isES = document.documentElement.lang !== 'en';
   const HINT_OFF = isES ? 'clic para activar la lupa' : 'click to enable the lens';
-  const HINT_ON = isES ? 'clic para desactivar la lupa' : 'click to disable the lens';
+  const HINT_ON = isES
+    ? 'scroll para zoom · clic para desactivar'
+    : 'scroll to zoom · click to disable';
 
   for (const zoom of document.querySelectorAll<HTMLElement>('[data-figure-zoom]')) {
     const img = zoom.querySelector('img');
@@ -192,6 +194,7 @@ function bindLens() {
     const hint = zoom.querySelector<HTMLElement>('.figure-lens-hint');
     if (!img || !lens) continue;
     let lensOn = false;
+    let lensZoom = 1; // 1 = pixels at natural size; wheel adjusts while the lens is on
     let lastEvent: MouseEvent | null = null;
 
     const paint = (e: MouseEvent) => {
@@ -219,12 +222,12 @@ function bindLens() {
         lens.hidden = true;
         return;
       }
-      const scale = img.naturalWidth / rect.width;
+      const scale = (img.naturalWidth / rect.width) * lensZoom;
       lens.hidden = false;
       lens.style.left = `${e.clientX - zoomRect.left - halfW}px`;
       lens.style.top = `${e.clientY - zoomRect.top - halfH}px`;
       lens.style.backgroundImage = `url("${img.currentSrc || img.src}")`;
-      lens.style.backgroundSize = `${img.naturalWidth}px ${img.naturalHeight}px`;
+      lens.style.backgroundSize = `${img.naturalWidth * lensZoom}px ${img.naturalHeight * lensZoom}px`;
       lens.style.backgroundPosition = `${halfW - x * scale}px ${halfH - y * scale}px`;
     };
 
@@ -239,10 +242,22 @@ function bindLens() {
     });
     zoom.addEventListener('click', () => {
       lensOn = !lensOn;
+      if (!lensOn) lensZoom = 1;
       if (!img.complete) img.decode().catch(() => {});
       if (lastEvent) paint(lastEvent);
       else if (!lensOn) lens.hidden = true;
     });
+    // While the lens is on, the wheel zooms it instead of scrolling the page
+    zoom.addEventListener(
+      'wheel',
+      (e) => {
+        if (!lensOn) return;
+        e.preventDefault();
+        lensZoom = Math.min(6, Math.max(0.5, lensZoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+        if (lastEvent) paint(lastEvent);
+      },
+      { passive: false },
+    );
   }
 }
 
@@ -272,9 +287,10 @@ function bindToc() {
 
   if (tocCard) {
     try {
-      setTocExpanded(localStorage.getItem(TOC_KEY) === '1');
+      // Open by default; only an explicit collapse ('0') keeps it shut.
+      setTocExpanded(localStorage.getItem(TOC_KEY) !== '0');
     } catch {
-      /* default collapsed */
+      setTocExpanded(true);
     }
     tocCard.querySelector('[data-toc-expand]')?.addEventListener('click', () =>
       setTocExpanded(true),
