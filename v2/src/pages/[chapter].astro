@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import Player from '../components/Player';
+import { CHAPTERS } from '../content/es';
+import { COURSE } from '../content/course';
+import { chapterRefs } from '../lib/refs';
+
+export function getStaticPaths() {
+  return Object.keys(CHAPTERS).map((chapter) => ({ params: { chapter } }));
+}
+const { chapter: id } = Astro.params;
+const chapter = CHAPTERS[id!];
+const refs = chapterRefs(chapter);
+const idx = COURSE.findIndex((c) => c.id === id);
+const nx = COURSE[idx + 1];
+const next = nx ? { id: nx.id, title: nx.title, available: nx.available } : null;
+const base = import.meta.env.BASE_URL;
+---
+<Base title={`${String(chapter.number).padStart(2, '0')} · ${chapter.title} · KatArch`}>
+  <Player client:load chapter={chapter} {...refs} next={next} base={base} />
+</Base>

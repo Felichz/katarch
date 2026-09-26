@@ -1,0 +1,32 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+import '../styles/player.css';
+import '../styles/diagram.css';
+import '../styles/scenes.css';
+import '../styles/scenes2.css';
+import '../styles/hub.css';
+
+interface Props { title: string; description?: string }
+const { title, description = 'Curso guiado de arquitectura de software a partir del caso real Farmacy Food (O\'Reilly Architecture Kata, otoño 2020).' } = Astro.props;
+---
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    <script is:inline>
+      try {
+        const t = localStorage.getItem('katarch:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
