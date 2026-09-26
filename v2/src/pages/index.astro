@@ -1,0 +1,87 @@
+---
+import Base from '../layouts/Base.astro';
+import { COURSE, COURSE_META } from '../content/course';
+import { ThemeToggle } from '../components/ThemeToggle';
+const base = import.meta.env.BASE_URL;
+const phases = [...new Set(COURSE.map((c) => c.phase))];
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+<Base title="KatArch · El caso Farmacy Food">
+  <div class="hub">
+    <header class="hub__top">
+      <a class="brand" href={base}>
+        <span class="brand__mark" aria-hidden><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 20V4h4v6l6-6h5l-7.5 7.5L20 20h-5l-5.5-6L8 16v4z" fill="currentColor" /></svg></span>
+        <span class="brand__name">KatArch</span>
+      </a>
+      <a class="hub__repo" href="https://github.com/TheKataLog/ArchColider" target="_blank" rel="noopener noreferrer">Repositorio del equipo ganador ↗</a>
+      <ThemeToggle client:load />
+    </header>
+    <main class="hub__main">
+      <section class="hub__hero">
+        <p class="hub__kicker mono">{COURSE_META.kicker}</p>
+        <h1 class="hub__title">{COURSE_META.title}</h1>
+        <p class="hub__sub">{COURSE_META.subtitle}</p>
+        <p class="hub__intro">{COURSE_META.intro}</p>
+        <div class="hub__cta">
+          <a class="btn btn--primary hub__go" id="hub-go" href={`${base}terreno/`}>Empezar por el capítulo 1 →</a>
+        </div>
+        <ul class="hub__how">
+          <li><strong>Una idea por pantalla.</strong> Avanzás con las flechas del teclado o deslizando.</li>
+          <li><strong>Diagramas que se arman.</strong> Cada figura del equipo, redibujada para recorrerla paso a paso.</li>
+          <li><strong>Evidencia a un clic.</strong> El original del repositorio, los documentos y las decisiones siempre disponibles.</li>
+        </ul>
+      </section>
+      <nav class="hub__map" aria-label="Capítulos del curso">
+        {phases.map((ph) => (
+          <div class="hub__phase">
+            <p class="hub__phase-t mono">{ph}</p>
+            <ol>
+              {COURSE.filter((c) => c.phase === ph).map((c) => (
+                <li>
+                  {c.available ? (
+                    <a class="station" href={`${base}${c.id}/`} data-ch={c.id}>
+                      <span class="station__dot" aria-hidden></span>
+                      <span class="station__n mono">{pad(c.number)}</span>
+                      <span class="station__b">
+                        <span class="station__t">{c.title}</span>
+                        <span class="station__d">{c.blurb}</span>
+                      </span>
+                      <span class="station__st mono" data-status></span>
+                    </a>
+                  ) : (
+                    <div class="station is-locked" aria-disabled="true">
+                      <span class="station__dot" aria-hidden></span>
+                      <span class="station__n mono">{pad(c.number)}</span>
+                      <span class="station__b">
+                        <span class="station__t">{c.title}</span>
+                        <span class="station__d">{c.blurb}</span>
+                      </span>
+                      <span class="station__st mono">en construcción</span>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </nav>
+    </main>
+  </div>
+  <script>
+    import { readProgress } from '../lib/progress';
+    const p = readProgress();
+    document.querySelectorAll<HTMLAnchorElement>('.station[data-ch]').forEach((a) => {
+      const s = p[a.dataset.ch!];
+      const st = a.querySelector('[data-status]')!;
+      if (!s) return;
+      if (s.done) { a.classList.add('is-done'); st.textContent = 'completo'; }
+      else { a.classList.add('is-started'); st.textContent = `${s.max + 1}/${s.total}`; a.href += `#paso-${s.max + 1}`; }
+    });
+    const started = Object.entries(p).find(([, v]) => !v.done);
+    const go = document.getElementById('hub-go') as HTMLAnchorElement | null;
+    if (go && started) {
+      const a = document.querySelector<HTMLAnchorElement>(`.station[data-ch="${started[0]}"]`);
+      if (a) { go.href = a.href; go.textContent = 'Continuar donde quedaste →'; }
+    }
+  </script>
+</Base>
